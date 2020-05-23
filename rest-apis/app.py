@@ -13,7 +13,7 @@ PORT = configs.server.port
 from coroweb import add_routes, add_static
 from tools import MyJsonEncoder
 
-from models.mysql import orm
+from models.qshield import orm
 
 def init_jinja2(app, **kw):
 	logging.info('init jinja2...')
@@ -79,7 +79,7 @@ def response_factory(app, handler):
 
 @asyncio.coroutine
 def init(loop):
-	#yield from orm.create_pool(loop, **configs.db)
+	orm.init_sql_ra_context(**configs.qshield)
 	app = web.Application(loop = loop, middlewares = [logger_factory, response_factory])
 	init_jinja2(app)
 	#app.router.add_route('GET', '/', index)

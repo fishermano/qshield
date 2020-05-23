@@ -5,15 +5,13 @@ __author__ = 'CYX'
 
 configs = {
 	'debug': True,
-	'db':{
-		'host': '127.0.0.1',
-		'port': 3306,
-		'user': 'base-data',
-		'password': 'base-data',
-		'db': 'k_base'
-	},
 	'server':{
 		'host': '127.0.0.1',
 		'port': 9000
+	},
+	'qshield':{
+		'jars': 'opaque_2.11-0.1.jar',
+		'app_name': 'qshield',
+		'master': 'spark://spark:7077'
 	}
 }
