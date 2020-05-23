@@ -1,0 +1,20 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+__author__ = 'CYX'
+
+DISSERTATION_REPO_TDC = -1
+EBOOK_REPO_TDC = -1
+UANSR_REPO_TDC = -1
+PATENT_REPO_TDC = -1
+CONFERENCE_REPO_TDC = -1
+HOT_TOPICS_REPO_TDC = -1
+
+U_R_LITERATURE_TDC = -1
+U_R_TDC = {}
+
+TOP_COMPANIES_REPO_TDC = -1
+CONF_REPO_TDC = -1
+
+P_T_REPO_TDC = -1
+P_T_FIELD_TDC = -1

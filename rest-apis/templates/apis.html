@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8" />
+	<title> Test users - Awesome Python Webapp</title>
+</head>
+<body>
+	<h1>Test APIs:</h1>
+	{% for i in all_apis['Test'] %}
+		<p>{{i}}</p>
+	{% endfor %}
+	{% for (k, v) in all_apis.items() %}
+		{% if k != 'Test': %}
+			<h1>{{k}} APIs:</h1>
+			{% for api in v %}
+			<p>{{api}}</p>
+			{% endfor %}
+		{% endif %}
+	{% endfor %}
+</body>
+</html>

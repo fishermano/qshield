@@ -1,0 +1,73 @@
+# /etc/profile: system-wide .profile file for the Bourne shell (sh(1))
+# and Bourne compatible shells (bash(1), ksh(1), ash(1), ...).
+
+if [ "${PS1-}" ]; then
+  if [ "${BASH-}" ] && [ "$BASH" != "/bin/sh" ]; then
+    # The file bash.bashrc already sets the default PS1.
+    # PS1='\h:\w\$ '
+    if [ -f /etc/bash.bashrc ]; then
+      . /etc/bash.bashrc
+    fi
+  else
+    if [ "`id -u`" -eq 0 ]; then
+      PS1='# '
+    else
+      PS1='$ '
+    fi
+  fi
+fi
+
+if [ -d /etc/profile.d ]; then
+  for i in /etc/profile.d/*.sh; do
+    if [ -r $i ]; then
+      . $i
+    fi
+  done
+  unset i
+fi
+
+# sgx environment settings
+export SGX_SDK=/opt/sgxsdk
+export PATH=$PATH:$SGX_SDK/bin:$SGX_SDK/bin/x64
+export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:$SGX_SDK/pkgconfig
+
+# java environment settings
+export JAVA_HOME=/opt/jdk1.8.0_151
+export JRE_HOME=$JAVA_HOME/jre
+export CLASSPATH=.:$JAVA_HOME/lib:$JAVA_HOME/jre/lib:$CLASSPATH
+export PATH=$JAVA_HOME/bin:$JAVA_HOME/jre/bin:$PATH
+
+# hadoop environment settings
+export HADOOP_HOME=/opt/hadoop-3.1.0
+export HADOOP_MAPRED_HOME=$HADOOP_HOME
+export HADOOP_COMMON_HOME=$HADOOP_HOME
+export HADOOP_HDFS_HOME=$HADOOP_HOME
+export YARN_HOME=$HADOOP_HOME
+export HADOOP_COMMON_LIB_NATIVE_DIR=$HADOOP_HOME/lib/native
+export PATH=$HADOOP_HOME/bin:$HADOOP_HOME/sbin:$PATH
+export HADOOP_install=$HADOOP_HOME
+
+# sbt environment settings
+export SBT_HOME=/opt/sbt-0.13.17
+export PATH=$SBT_HOME/bin:$PATH
+
+# maven environment settings
+export MAVEN_HOME=/usr/share/maven
+export MAVEN_OPTS="-Xmx2048m"
+
+# scala environment settings
+export SCALA_HOME=/opt/scala-2.11.12
+export PATH=$SCALA_HOME/bin:$PATH
+
+# spark environment settings
+export SPARK_HOME=/opt/spark-2.4.5-bin-custom-spark
+export PATH=$SPARK_HOME/bin:$SPARK_HOME/sbin:$PATH
+
+# opaque environment settings
+export OPAQUE_HOME=/home/hadoop/opaque
+export SPARKSGX_DATA_DIR=$OPAQUE_HOME/data
+export PRIVATE_KEY_PATH=$OPAQUE_HOME/private_key.pem
+
+# pyspark environment settings
+export PYSPARK_PYTHON=/usr/bin/python3.6
+export PYSPARK_DRIVER_PYTHON=/usr/bin/python3.6
