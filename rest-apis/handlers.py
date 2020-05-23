@@ -15,6 +15,7 @@ def all_apis():
 	test_apis.append('Hello: GET /api/hello/:name')
 	test_apis.append('Hello: GET /api/hello?name=CX&age=25')
 	test_apis.append('Hello: GET /api/hello/multi-keys?name=CX&gender=male&age=25')
+	test_apis.append('Test: GET /api/test/')
 
 	all_apis = {'Test':test_apis}
 	return {
@@ -52,3 +53,14 @@ def hello_multi_key(**kw):
 		'__template__': 'default.html',
 		'name': name
 	}
+
+@get('/api/test/{sql}')
+def test(*, sql, **kw):
+	where_str = ''
+	if kw:
+		for k, v in kw.items():
+			if k == 'where':
+				where_str = v
+				kw.pop('where')
+
+	Test.exe(sql=sql, where=where_str, args=None, **kw)
