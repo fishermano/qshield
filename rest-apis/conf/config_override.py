@@ -5,6 +5,7 @@ __author__ = 'CYX'
 
 configs = {
 	'server': {
+		'host': '0.0.0.0',
 		'port': 9090
 	},
 	'qshield': {

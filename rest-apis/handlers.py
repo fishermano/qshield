@@ -15,7 +15,7 @@ def all_apis():
 	test_apis.append('Hello: GET /api/hello/:name')
 	test_apis.append('Hello: GET /api/hello?name=CX&age=25')
 	test_apis.append('Hello: GET /api/hello/multi-keys?name=CX&gender=male&age=25')
-	test_apis.append('Test: GET /api/test/')
+	test_apis.append('Test: GET /api/test/:sql')
 
 	all_apis = {'Test':test_apis}
 	return {

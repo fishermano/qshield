@@ -2,22 +2,22 @@
 apt repository
 ########################################################################
 
-$ sudo nano /etc/apt/sources.list  
-  
-deb http://mirrors.aliyun.com/ubuntu/ bionic main restricted  
-deb http://mirrors.aliyun.com/ubuntu/ bionic-updates main restricted  
-deb http://mirrors.aliyun.com/ubuntu/ bionic universe  
-deb http://mirrors.aliyun.com/ubuntu/ bionic-updates universe  
-deb http://mirrors.aliyun.com/ubuntu/ bionic multiverse  
-deb http://mirrors.aliyun.com/ubuntu/ bionic-updates multiverse  
-deb http://mirrors.aliyun.com/ubuntu/ bionic-backports main restricted universe multiverse  
-deb http://mirrors.aliyun.com/ubuntu/ bionic-security main restricted  
-deb http://mirrors.aliyun.com/ubuntu/ bionic-security universe 
+$ sudo nano /etc/apt/sources.list
+
+deb http://mirrors.aliyun.com/ubuntu/ bionic main restricted
+deb http://mirrors.aliyun.com/ubuntu/ bionic-updates main restricted
+deb http://mirrors.aliyun.com/ubuntu/ bionic universe
+deb http://mirrors.aliyun.com/ubuntu/ bionic-updates universe
+deb http://mirrors.aliyun.com/ubuntu/ bionic multiverse
+deb http://mirrors.aliyun.com/ubuntu/ bionic-updates multiverse
+deb http://mirrors.aliyun.com/ubuntu/ bionic-backports main restricted universe multiverse
+deb http://mirrors.aliyun.com/ubuntu/ bionic-security main restricted
+deb http://mirrors.aliyun.com/ubuntu/ bionic-security universe
 
 
 ########################################################################
 generate ssh key pair
-setup ssh server login and git repository without password 
+setup ssh server login and git repository without password
 ########################################################################
 
 ~$ ssh-keygen -t rsa -C "cyx.1990@icloud.com"
@@ -114,7 +114,7 @@ uninstall sgx sdk:
 ~/Repoes/linux-sgx$ cd /opt/sgxsdk
 /opt/sgxsdk$ ./uninstall.sh
 
-3. sgx psw 
+3. sgx psw
 
 install requiered tools:
 ~/Repoes/linux-sgx$ sudo apt-get install libssl-dev libcurl4-openssl-dev protobuf-compiler libprotobuf-dev debhelper cmake reprepro
@@ -123,19 +123,19 @@ build psw local Debian package repository:
 ~/Repoes/linux-sgx$ make deb_local_repo
 "PATH_TO_LOCAL_REPO = ./linux/installer/deb/sgx_debian_local_repo"
 ~/Repoes/linux-sgx$ sudo nano /etc/apt/sourced.list
-"append" 
-    'deb [trusted=yes arch=amd64] file:/ABSOLUTE_PATH_TO_LOCAL_REPO bionic main' 
+"append"
+    'deb [trusted=yes arch=amd64] file:/ABSOLUTE_PATH_TO_LOCAL_REPO bionic main'
 "to /etc/apt/sources.list"
 ~/Repoes/linux-sgx$ sudo apt update
 ~/Repoes/linux-sgx$ cd ~/Repoes
 
-install sgx psw [launch service]: 
+install sgx psw [launch service]:
 ~/Repoes$ sudo apt-get install libsgx-launch libsgx-urts
 
-install sgx psw [EPID-based attestation service]: 
+install sgx psw [EPID-based attestation service]:
 ~/Repoes$ sudo apt-get install libsgx-epid libsgx-urts
 
-install sgx psw [algorithm agnostic attestation service]: 
+install sgx psw [algorithm agnostic attestation service]:
 ~/Repoes$ sudo apt-get install libsgx-quote-ex libsgx-urts
 
 uninstall sgx psw:
@@ -190,11 +190,11 @@ cofigure haddop environment:
 hadoop test:
 ~/Repoes$ hadoop version
 
-3. run hadoop 
+3. run hadoop
 
 configure core-site.xml:
 ~/Repoes$ sudo nano /opt/hadoop-3.1.0/etc/hadoop/core-site.xml
-"append" 
+"append"
     <configuration>
 　　    <property>
 　　　　　　<name>hadoop.tmp.dir</name>
@@ -428,6 +428,34 @@ configure /etc/profile:
 "to /etc/profile"
 ~$ source /etc/profile
 
-spark test:
-~/ spark-shell --master spark://spark:7077 --executor-memory 1024m --driver-memory 1024m
+########################################################################
+setup opaque development environment
+########################################################################
 
+~$ sudo nano /etc/profile
+"append"
+    export OPAQUE_HOME=/home/hadoop/opaque
+    export PRIVATE_KEY_PATH=$OPAQUE_HOME/private_key.pem
+"to /etc/profile"
+~$ source /etc/profile
+
+spark test:
+~/ spark-shell --master spark://spark:7077 --executor-memory 1024m --driver-memory 1024m \
+                --jars /home/hadoop/opaque/target/scala-2.11/opaque_2.11-0.1.jar
+
+########################################################################
+setup pyspark development environment
+########################################################################
+
+~$ sudo apt install python3-pip
+~$ pip3 install aiohttp
+~$ pip3 install jinja2
+(~$ pip3 install pyspark)
+or "copy pysaprk py4j source code from spark protject to /home/hadoop/.local/lib/python3.6/site-packages"
+~$ cp -r /home/hadoop/spark-2.4.5/python/lib/pyspark/ /home/hadoop/.local/lib/python3.6/site-packages/
+~$ 
+~$ sudo nano /etc/profile
+"append"
+   export PYSPARK_PYTHON=/usr/bin/python3.6
+   export PYSPARK_DRIVER_PYTHON=/usr/bin/python3.6
+"to /etc/profile"
