@@ -447,15 +447,28 @@ spark test:
 setup pyspark development environment
 ########################################################################
 
+update pip3 source mirror:
+~$ mkdir .pip
+~$ touch .pip/pip.conf
+"add"
+			[global]
+			timeout = 6000
+			index-url = https://pypi.tuna.tsinghua.edu.cn/simple
+			trusted-host = pypi.tuna.tsinghua.edu.cn
+"to pip.conf"
+~$ pip3 install --upgrade pip
+
 ~$ sudo apt install python3-pip
 ~$ pip3 install aiohttp
 ~$ pip3 install jinja2
 (~$ pip3 install pyspark)
 or "copy pysaprk py4j source code from spark protject to /home/hadoop/.local/lib/python3.6/site-packages"
 ~$ cp -r /home/hadoop/spark-2.4.5/python/lib/pyspark/ /home/hadoop/.local/lib/python3.6/site-packages/
-~$ 
+~$
 ~$ sudo nano /etc/profile
 "append"
    export PYSPARK_PYTHON=/usr/bin/python3.6
    export PYSPARK_DRIVER_PYTHON=/usr/bin/python3.6
 "to /etc/profile"
+
+~$ pip3 install pyspark-asyncactions
