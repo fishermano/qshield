@@ -13,6 +13,8 @@ from pyspark.sql import SparkSession
 from pyspark.sql import SQLContext
 from pyspark.sql import DataFrame
 
+import asyncactions
+
 def init_sql_ra_context(**kw):
     logging.info('initialize opaque context and launch remote attesation ... ')
 
@@ -30,6 +32,10 @@ def init_sql_ra_context(**kw):
         logging.info('init_sql_ra_context() error: %s' % str(e))
         sys.exit()
 
+def fur_call_back(fur):
+    for row in fur.result():
+        logging.info('Has row: word = %s, count = %d' % (row['word'], row['count']))
+
 def spark_sql_exe():
 
     global __spark
@@ -40,9 +46,8 @@ def spark_sql_exe():
     opaqueDF = __spark._jvm.org.apache.spark.sql.OpaqueDatasetFunctions(df._jdf)
     opaqueDFEnc = opaqueDF.encrypted()
     dfEnc = DataFrame(opaqueDFEnc, __sqlContext)
-    coll = dfEnc.collect()
-    for row in coll:
-        logging.info('Has row: word = %s, count = %d' % (row['word'], row['count']))
+    coll_fur = dfEnc.collectAsync()
+    coll_fur.add_done_callback(fur_call_back)
 
 class ModelMetaclass(type):
     def __new__(cls, name, bases, attrs):
