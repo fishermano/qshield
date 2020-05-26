@@ -55,7 +55,7 @@ def hello_multi_key(**kw):
 	}
 
 @get('/api/test/{sql}')
-def test(*, sql, **kw):
+async def test(*, sql, **kw):
 	where_str = ''
 	if kw:
 		for k, v in kw.items():
@@ -63,4 +63,7 @@ def test(*, sql, **kw):
 				where_str = v
 				kw.pop('where')
 
-	Test.exe(sql=sql, where=where_str, args=None, **kw)
+	# try:
+	await Test.exe(sql=sql, where=where_str, args=None, **kw)
+	# except Exception as e:
+		# print(str(e))

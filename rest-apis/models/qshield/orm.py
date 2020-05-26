@@ -36,7 +36,7 @@ def fur_call_back(fur):
     for row in fur.result():
         logging.info('Has row: word = %s, count = %d' % (row['word'], row['count']))
 
-def spark_sql_exe():
+async def spark_sql_exe():
 
     global __spark
     global __sqlContext
@@ -46,8 +46,8 @@ def spark_sql_exe():
     opaqueDF = __spark._jvm.org.apache.spark.sql.OpaqueDatasetFunctions(df._jdf)
     opaqueDFEnc = opaqueDF.encrypted()
     dfEnc = DataFrame(opaqueDFEnc, __sqlContext)
-    coll_fur = dfEnc.collectAsync()
-    coll_fur.add_done_callback(fur_call_back)
+    coll_fur = await asyncio.wrap_future(dfEnc.collectAsync())
+    return coll_fur
 
 class ModelMetaclass(type):
     def __new__(cls, name, bases, attrs):
@@ -104,7 +104,7 @@ class Model(dict, metaclass=ModelMetaclass):
         return value
 
     @classmethod
-    def exe(cls, sql = None, where = None, args = None, **kw):
+    async def exe(cls, sql = None, where = None, args = None, **kw):
 
         global __spark
         global __sqlContext
@@ -142,4 +142,6 @@ class Model(dict, metaclass=ModelMetaclass):
 
         logging.info('SQL statement: %s' % sql_exe)
 
-        spark_sql_exe()
+        res = await spark_sql_exe()
+        for row in res:
+            logging.info('Has row: word = %s, count = %d' % (row['word'], row['count']))
