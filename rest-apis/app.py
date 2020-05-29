@@ -13,7 +13,8 @@ PORT = configs.server.port
 from coroweb import add_routes, add_static
 from tools import MyJsonEncoder
 
-from models.qshield import orm
+import orm
+import handlers
 
 def init_jinja2(app, **kw):
 	logging.info('init jinja2...')
@@ -27,7 +28,7 @@ def init_jinja2(app, **kw):
 	)
 	path = kw.get('path', None)
 	if path is None:
-		path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
+		path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'templates')
 	logging.info('set jinja2 template path: %s' % path)
 	env = Environment(loader = FileSystemLoader(path), **options)
 	filters = kw.get('filters', None)

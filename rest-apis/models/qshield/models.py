@@ -3,7 +3,7 @@
 
 __author__ = 'CYX'
 
-from .orm import Model
+from orm import Model
 from field import MediumBlobField
 
 class Test(Model):

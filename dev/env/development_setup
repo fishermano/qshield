@@ -472,3 +472,10 @@ or "copy pysaprk py4j source code from spark protject to /home/hadoop/.local/lib
 "to /etc/profile"
 
 ~$ pip3 install pyspark-asyncactions
+
+########################################################################
+setup qshield development environment
+########################################################################
+
+install pyinstaller:
+~ pip3 install pyinstaller

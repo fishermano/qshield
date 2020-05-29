@@ -6,7 +6,7 @@ __author__ = 'CYX'
 from coroweb import get, post
 
 from apis import APIError, APIValueError, APIResourceNotFoundError, APIPermissionError
-from models.qshield.models import Test
+from models import Test
 
 
 @get('/')
@@ -63,7 +63,4 @@ async def test(*, sql, **kw):
 				where_str = v
 				kw.pop('where')
 
-	# try:
 	await Test.exe(sql=sql, where=where_str, args=None, **kw)
-	# except Exception as e:
-		# print(str(e))
