@@ -10,11 +10,6 @@ val flatbuffersVersion = "1.7.0"
 
 concurrentRestrictions in Global := Seq(Tags.limit(Tags.Test, 1))
 
-val buildType = SettingKey[BuildType]("buildType",
-  "Release, Debug, or Profile.")
-
-buildType := Release
-
 fork in Test := true
 fork in run := true
 
@@ -51,6 +46,11 @@ scalacOptions ++= Seq(
 scalacOptions in (Compile, console) := Seq.empty
 
 scalacOptions ++= { if (buildType.value == Debug) Seq("-g:vars") else Nil }
+
+val buildType = SettingKey[BuildType]("buildType",
+  "Release, Debug, or Profile.")
+
+buildType := Release
 
 val flatbuffersGenCppDir = SettingKey[File]("flatbuffersGenCppDir",
   "Location of Flatbuffers generated C++ files.")
@@ -230,29 +230,6 @@ buildFlatbuffersTask := {
   (javaOutDir ** "*.java").get
 }
 
-nativePlatform := {
-  try {
-    val lines = Process("uname -sm").lines
-    if (lines.length == 0) {
-      sys.error("Error occured trying to run `uname`")
-    }
-    // uname -sm returns "<kernel> <hardware name>"
-    val parts = lines.head.split(" ")
-    if (parts.length != 2) {
-      sys.error("'uname -sm' returned unexpected string: " + lines.head)
-    } else {
-      val arch = parts(1).toLowerCase.replaceAll("\\s", "")
-      val kernel = parts(0).toLowerCase.replaceAll("\\s", "")
-      arch + "-" + kernel
-    }
-  } catch {
-    case ex: Exception =>
-      sLog.value.error("Error trying to determine platform.")
-      sLog.value.warn("Cannot determine platform! It will be set to 'unknown'.")
-      "unknown-unknown"
-  }
-}
-
 enclaveBuildTask := {
   buildFlatbuffersTask.value // Enclave build depends on the generated C++ headers
   import sys.process._
@@ -274,6 +251,29 @@ enclaveBuildTask := {
   val installResult = Process(Seq("make", "install"), enclaveBuildDir).!
   if (installResult != 0) sys.error("C++ build failed.")
   enclaveBuildDir / "lib"
+}
+
+nativePlatform := {
+  try {
+    val lines = Process("uname -sm").lines
+    if (lines.length == 0) {
+      sys.error("Error occured trying to run `uname`")
+    }
+    // uname -sm returns "<kernel> <hardware name>"
+    val parts = lines.head.split(" ")
+    if (parts.length != 2) {
+      sys.error("'uname -sm' returned unexpected string: " + lines.head)
+    } else {
+      val arch = parts(1).toLowerCase.replaceAll("\\s", "")
+      val kernel = parts(0).toLowerCase.replaceAll("\\s", "")
+      arch + "-" + kernel
+    }
+  } catch {
+    case ex: Exception =>
+      sLog.value.error("Error trying to determine platform.")
+      sLog.value.warn("Cannot determine platform! It will be set to 'unknown'.")
+      "unknown-unknown"
+  }
 }
 
 copyEnclaveLibrariesToResourcesTask := {

@@ -1,6 +1,10 @@
 cmake_minimum_required(VERSION 2.8)
 
-project(OpaqueKeyGen)
+project(dataOwner)
+
+include_directories(Include)
+include_directories(Common)
+include_directories("$ENV{SGX_SDK}/include")
 
 set(SOURCES
   KeyGen.cpp

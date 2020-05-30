@@ -11,7 +11,7 @@ lazy val root = (project in file(".")).aggregate(opaqueExt, dataOwner).settings(
     name := "qshield"
   )
 
-lazy val opaqueExt = (project in file("opaque-ext")).settings(
+lazy val opaqueExt = (project in file("opaque-ext")).dependsOn(dataOwner).settings(
     commonSettings,
     name := "opaque-ext"
   )

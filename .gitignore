@@ -6,4 +6,4 @@ project/project
 rest-apis/build
 rest-apis/dist
 
-qshield
+./qshield

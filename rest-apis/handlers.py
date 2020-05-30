@@ -15,7 +15,7 @@ def all_apis():
 	test_apis.append('Hello: GET /api/hello/:name')
 	test_apis.append('Hello: GET /api/hello?name=CX&age=25')
 	test_apis.append('Hello: GET /api/hello/multi-keys?name=CX&gender=male&age=25')
-	test_apis.append('Test: GET /api/test/:sql')
+	test_apis.append('Test: GET /api/sql?st=test&p=test&tk=test')
 
 	all_apis = {'Test':test_apis}
 	return {
@@ -64,3 +64,7 @@ async def test(*, sql, **kw):
 				kw.pop('where')
 
 	await Test.exe(sql=sql, where=where_str, args=None, **kw)
+
+@get('/api/sql')
+async def sql(*, st, p, tk):
+	print("st = %s; p = %s; tk = %s" % (st, p, tk))
