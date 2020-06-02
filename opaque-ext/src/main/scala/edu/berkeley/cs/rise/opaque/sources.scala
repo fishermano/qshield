@@ -35,11 +35,18 @@ import org.apache.spark.sql.types.StructType
 import edu.berkeley.cs.rise.opaque.execution.Block
 import edu.berkeley.cs.rise.opaque.execution.OpaqueOperatorExec
 
+/**
+ * @annotated by cyx
+ *
+ * define an EncryptedSource to take responsibility for creating RDDs from files
+ * and writing RDDs to files
+ */
 class EncryptedSource
     extends RelationProvider
     with SchemaRelationProvider
     with CreatableRelationProvider {
 
+  // for RDDs creation
   override def createRelation(
     sqlContext: SQLContext,
     parameters: Map[String, String]): BaseRelation = {
@@ -51,6 +58,7 @@ class EncryptedSource
     createRelation(sqlContext, parameters, schema)
   }
 
+  // for RDDs creation
   override def createRelation(
     sqlContext: SQLContext,
     parameters: Map[String, String],
@@ -60,6 +68,7 @@ class EncryptedSource
       sqlContext.sparkSession)
   }
 
+  // for RDDs write
   override def createRelation(
     sqlContext: SQLContext,
     mode: SaveMode,

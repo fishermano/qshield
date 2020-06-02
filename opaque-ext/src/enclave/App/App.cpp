@@ -24,6 +24,8 @@
 
 #include "SGXEnclave.h"
 
+#include "QShieldSGXEnclave.h"
+
 // MAX_PATH, getpwuid
 #include <sys/types.h>
 #ifdef _MSC_VER
@@ -863,4 +865,40 @@ Java_edu_berkeley_cs_rise_opaque_execution_SGXEnclave_NonObliviousAggregateStep2
     prev_partition_last_row, (jbyte *) prev_partition_last_row_ptr, 0);
 
   return ret;
+}
+
+JNIEXPORT jbyteArray JNICALL Java_edu_xjtu_cs_cyx_qshield_execution_QShieldSGXEnclave_ACPolicyApplied(
+  JNIEnv *env, jobject obj, jlong eid, jbyteArray input_rows, jbyteArray tk){
+    (void)obj;
+
+    jboolean if_copy;
+
+    size_t tk_length = (size_t) env->GetArrayLength(tk);
+    uint8_t *tk_ptr = (uint8_t *) env->GetByteArrayElements(tk, &if_copy);
+
+    uint32_t input_rows_length = (uint32_t) env->GetArrayLength(input_rows);
+    uint8_t *input_rows_ptr = (uint8_t *) env->GetByteArrayElements(input_rows, &if_copy);
+
+    uint8_t *output_rows = nullptr;
+    size_t output_rows_length = 0;
+
+    if (input_rows_ptr == nullptr) {
+      ocall_throw("ACPolicyApplied: JNI failed to get input byte array.");
+    } else {
+      sgx_check_and_time("ACPolicyApplied",
+                         ecall_ac_policy_applied(
+                           eid,
+                           input_rows_ptr, input_rows_length,
+                           tk_ptr, tk_length,
+                           &output_rows, &output_rows_length));
+    }
+
+    env->ReleaseByteArrayElements(tk, (jbyte *) tk_ptr, 0);
+    env->ReleaseByteArrayElements(input_rows, (jbyte *) input_rows_ptr, 0);
+
+    jbyteArray ret = env->NewByteArray(output_rows_length);
+    env->SetByteArrayRegion(ret, 0, output_rows_length, (jbyte *) output_rows);
+    free(output_rows);
+
+    return ret;
 }

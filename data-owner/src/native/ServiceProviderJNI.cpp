@@ -16,7 +16,7 @@ void jni_throw(JNIEnv *env, const char *message) {
   env->ThrowNew(exception, message);
 }
 
-JNIEXPORT void JNICALL Java_edu_berkeley_cs_rise_opaque_execution_SP_Init(
+JNIEXPORT void JNICALL Java_edu_xjtu_cs_cyx_qshield_owner_SP_Init(
   JNIEnv *env, jobject obj, jbyteArray shared_key, jstring intel_cert) {
   (void)env;
   (void)obj;
@@ -46,7 +46,7 @@ JNIEXPORT void JNICALL Java_edu_berkeley_cs_rise_opaque_execution_SP_Init(
 }
 
 
-JNIEXPORT void JNICALL Java_edu_berkeley_cs_rise_opaque_execution_SP_SPProcMsg0(
+JNIEXPORT void JNICALL Java_edu_xjtu_cs_cyx_qshield_owner_SP_SPProcMsg0(
   JNIEnv *env, jobject obj, jbyteArray msg0_input) {
   (void)obj;
 
@@ -58,12 +58,12 @@ JNIEXPORT void JNICALL Java_edu_berkeley_cs_rise_opaque_execution_SP_SPProcMsg0(
     service_provider.process_msg0(*extended_epid_group_id);
   } catch (const std::runtime_error &e) {
     jni_throw(env, e.what());
-  }  
+  }
 
   env->ReleaseByteArrayElements(msg0_input, msg0_bytes, 0);
 }
 
-JNIEXPORT jbyteArray JNICALL Java_edu_berkeley_cs_rise_opaque_execution_SP_SPProcMsg1(
+JNIEXPORT jbyteArray JNICALL Java_edu_xjtu_cs_cyx_qshield_owner_SP_SPProcMsg1(
   JNIEnv *env, jobject obj, jbyteArray msg1_input) {
   (void)obj;
 
@@ -87,7 +87,7 @@ JNIEXPORT jbyteArray JNICALL Java_edu_berkeley_cs_rise_opaque_execution_SP_SPPro
   return array_ret;
 }
 
-JNIEXPORT jbyteArray JNICALL Java_edu_berkeley_cs_rise_opaque_execution_SP_SPProcMsg3(
+JNIEXPORT jbyteArray JNICALL Java_edu_xjtu_cs_cyx_qshield_owner_SP_SPProcMsg3(
   JNIEnv *env, jobject obj, jbyteArray msg3_input) {
   (void)obj;
 

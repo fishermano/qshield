@@ -15,12 +15,14 @@
  * limitations under the License.
  */
 
-package edu.berkeley.cs.rise.opaque
+package edu.xjtu.cs.cyx.qshield
 
 import org.apache.spark.SparkContext
 import org.apache.spark.internal.Logging
 
 import edu.xjtu.cs.cyx.qshield.owner.SP
+
+import edu.berkeley.cs.rise.opaque.Utils
 
 /**
  * @annotated by cyx
@@ -46,7 +48,7 @@ object RA extends Logging {
       sp.Init(Utils.sharedKey, intelCert)
 
       val epids = rdd.mapPartitions { _ =>
-        val (enclave, eid) = Utils.initEnclave()
+        val (enclave, eid) = QShieldUtils.initEnclave()
         val epid = enclave.RemoteAttestation0(eid)
         Iterator(epid)
       }.collect
@@ -56,7 +58,7 @@ object RA extends Logging {
       }
 
       val msg1s = rdd.mapPartitionsWithIndex { (i, _) =>
-        val (enclave, eid) = Utils.initEnclave()
+        val (enclave, eid) = QShieldUtils.initEnclave()
         val msg1 = enclave.RemoteAttestation1(eid)
         Iterator((i, msg1))
       }.collect.toMap
@@ -64,7 +66,7 @@ object RA extends Logging {
       val msg2s = msg1s.mapValues(msg1 => sp.SPProcMsg1(msg1)).map(identity)
 
       val msg3s = rdd.mapPartitionsWithIndex { (i, _) =>
-        val (enclave, eid) = Utils.initEnclave()
+        val (enclave, eid) = QShieldUtils.initEnclave()
         val msg3 = enclave.RemoteAttestation2(eid, msg2s(i))
         Iterator((i, msg3))
       }.collect.toMap
@@ -72,7 +74,7 @@ object RA extends Logging {
       val msg4s = msg3s.mapValues(msg3 => sp.SPProcMsg3(msg3)).map(identity)
 
       val statuses = rdd.mapPartitionsWithIndex { (i, _) =>
-        val (enclave, eid) = Utils.initEnclave()
+        val (enclave, eid) = QShieldUtils.initEnclave()
         enclave.RemoteAttestation3(eid, msg4s(i))
         Iterator((i, true))
       }.collect.toMap

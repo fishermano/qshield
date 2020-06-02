@@ -17,7 +17,8 @@ set(SOURCES
   sgxaes.cpp
   sgxaes_asm.S
   util.cpp
-  ${CMAKE_CURRENT_BINARY_DIR}/Enclave_t.c)
+  ${CMAKE_CURRENT_BINARY_DIR}/Enclave_t.c
+  ACPolicyApplied.cpp)
 #  ${CMAKE_CURRENT_BINARY_DIR}/key.cpp)
 
 add_custom_command(

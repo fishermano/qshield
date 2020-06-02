@@ -326,7 +326,7 @@ object Utils extends Logging {
         sqlContext.experimental.extraStrategies)
 
     RA.initRA(sqlContext.sparkContext)
-
+    
   }
 
   // union multiple arrays into one

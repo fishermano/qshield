@@ -77,6 +77,11 @@ enclave {
     public void ecall_ra_proc_msg4(sgx_ra_context_t context,
                                    [in,size=msg4_size] uint8_t *msg4,
                                    uint32_t msg4_size);
+
+    public void ecall_ac_policy_applied(
+      [user_check] uint8_t *input_rows, size_t input_rows_length,
+      [in, count=tk_length] uint8_t *tk, size_t tk_length,
+      [out] uint8_t **output_rows, [out] size_t *output_rows_length);
   };
 
   untrusted {

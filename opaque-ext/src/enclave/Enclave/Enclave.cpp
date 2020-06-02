@@ -14,6 +14,8 @@
 #include "Sort.h"
 #include "util.h"
 
+#include "ACPolicyApplied.h"
+
 // This file contains definitions of the ecalls declared in Enclave.edl. Errors originating within
 // these ecalls are signaled by throwing a std::runtime_error, which is caught at the top level of
 // the ecall (i.e., within these definitions), and are then rethrown as Java exceptions using
@@ -249,4 +251,22 @@ void ecall_ra_proc_msg4(
   } catch (const std::runtime_error &e) {
     ocall_throw(e.what());
   }
+}
+
+void ecall_ac_policy_applied(
+  uint8_t *input_rows, size_t input_rows_length,
+  uint8_t *tk, size_t tk_length,
+  uint8_t **output_rows, size_t *output_rows_length){
+
+    // Guard against operating on arbitrary enclave memory
+    assert(sgx_is_outside_enclave(input_rows, input_rows_length) == 1);
+    sgx_lfence();
+
+    try {
+      ac_policy_applied(input_rows, input_rows_length,
+                        tk, tk_length,
+                        output_rows, output_rows_length);
+    } catch (const std::runtime_error &e) {
+      ocall_throw(e.what());
+    }
 }

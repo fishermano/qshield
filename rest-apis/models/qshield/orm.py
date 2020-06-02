@@ -16,14 +16,14 @@ from pyspark.sql import DataFrame
 import asyncactions
 
 def init_sql_ra_context(**kw):
-    logging.info('initialize opaque context and launch remote attesation ... ')
+    logging.info('initialize qshield context and launch remote attesation ... ')
 
     global __config
     global __spark
     global __sqlContext
 
     try:
-        __config = SparkConf().setAll([('spark.jars', kw.get('jars','opaque_2.11-0.1.jar'))])
+        __config = SparkConf().setAll([('spark.jars', kw.get('jars','opaque-ext_2.11-0.1.jar,data-owner_2.11-0.1.jar'))])
         __spark = SparkSession.builder.appName(kw.get('app_name', 'qshield')).master(kw.get('master', 'localhost')).config(conf=__config).getOrCreate()
         __sqlContext = SQLContext(__spark.sparkContext)
 
@@ -41,13 +41,15 @@ async def spark_sql_exe():
     global __spark
     global __sqlContext
 
-    data = [("foo", 4), ("bar", 1), ("baz",5)]
-    df = __spark.createDataFrame(data).toDF("word", "count")
-    opaqueDF = __spark._jvm.org.apache.spark.sql.OpaqueDatasetFunctions(df._jdf)
-    opaqueDFEnc = opaqueDF.encrypted()
-    dfEnc = DataFrame(opaqueDFEnc, __sqlContext)
-    coll_fur = await asyncio.wrap_future(dfEnc.collectAsync())
-    return coll_fur
+    # data = [("foo", 4), ("bar", 1), ("baz",5)]
+    # df = __spark.createDataFrame(data).toDF("word", "count")
+    # opaqueDF = __spark._jvm.org.apache.spark.sql.OpaqueDatasetFunctions(df._jdf)
+    # opaqueDFEnc = opaqueDF.encrypted()
+    # dfEnc = DataFrame(opaqueDFEnc, __sqlContext)
+    # coll_fur = await asyncio.wrap_future(dfEnc.collectAsync())
+    # return coll_fur
+    
+
 
 class ModelMetaclass(type):
     def __new__(cls, name, bases, attrs):
