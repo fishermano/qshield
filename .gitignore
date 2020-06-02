@@ -7,3 +7,5 @@ rest-apis/build
 rest-apis/dist
 
 ./qshield
+
+opaque-ext/private_key.pem

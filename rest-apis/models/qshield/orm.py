@@ -12,6 +12,7 @@ from pyspark import SparkConf
 from pyspark.sql import SparkSession
 from pyspark.sql import SQLContext
 from pyspark.sql import DataFrame
+from pyspark.sql.types import *
 
 import asyncactions
 
@@ -27,7 +28,7 @@ def init_sql_ra_context(**kw):
         __spark = SparkSession.builder.appName(kw.get('app_name', 'qshield')).master(kw.get('master', 'localhost')).config(conf=__config).getOrCreate()
         __sqlContext = SQLContext(__spark.sparkContext)
 
-        __spark._jvm.edu.berkeley.cs.rise.opaque.Utils.initSQLContext(__sqlContext._jsqlContext)
+        __spark._jvm.edu.xjtu.cs.cyx.qshield.QShieldUtils.initQShieldSQLContext(__sqlContext._jsqlContext)
     except Exception as e:
         logging.info('init_sql_ra_context() error: %s' % str(e))
         sys.exit()
@@ -48,8 +49,13 @@ async def spark_sql_exe():
     # dfEnc = DataFrame(opaqueDFEnc, __sqlContext)
     # coll_fur = await asyncio.wrap_future(dfEnc.collectAsync())
     # return coll_fur
-    
 
+    df = __spark.read.format("edu.berkeley.cs.rise.opaque.EncryptedSource").schema(StructType([StructField("word", StringType(), True), StructField("count", IntegerType(), True)])).load("dfEncrypted")
+    qdf = __spark._jvm.org.apache.spark.sql.QShieldDatasetFunctions(df._jdf)
+    qdfAC = qdf.acPolicyApplied(bytearray())
+    dfAC = DataFrame(qdfAC, __sqlContext)
+    coll_fur = await asyncio.wrap_future(dfAC.collectAsync())
+    return coll_fur
 
 class ModelMetaclass(type):
     def __new__(cls, name, bases, attrs):
