@@ -18,7 +18,8 @@ set(SOURCES
   sgxaes_asm.S
   util.cpp
   ${CMAKE_CURRENT_BINARY_DIR}/Enclave_t.c
-  ACPolicyApplied.cpp)
+  ACPolicyApplied.cpp
+  QFlatbuffersReaders.cpp)
 #  ${CMAKE_CURRENT_BINARY_DIR}/key.cpp)
 
 add_custom_command(

@@ -6,7 +6,7 @@ lazy val commonSettings = Seq(
   spName := "cs/qshield"
 )
 
-lazy val root = (project in file(".")).aggregate(opaqueExt, dataOwner).settings(
+lazy val root = (project in file(".")).aggregate(opaqueExt, dataOwner, dataUser).settings(
     commonSettings,
     name := "qshield"
   )
@@ -19,6 +19,11 @@ lazy val opaqueExt = (project in file("opaque-ext")).dependsOn(dataOwner).settin
 lazy val dataOwner = (project in file("data-owner")).settings(
     commonSettings,
     name := "data-owner"
+  )
+
+lazy val dataUser = (project in file("data-user")).settings(
+    commonSettings,
+    name := "data-user"
   )
 
 val restApisGenRunableScriptTask = TaskKey[File]("restApisGenRunableScript",

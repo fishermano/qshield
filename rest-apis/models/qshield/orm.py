@@ -24,7 +24,7 @@ def init_sql_ra_context(**kw):
     global __sqlContext
 
     try:
-        __config = SparkConf().setAll([('spark.jars', kw.get('jars','opaque-ext_2.11-0.1.jar,data-owner_2.11-0.1.jar'))])
+        __config = SparkConf().setAll([('spark.jars', kw.get('jars','opaque-ext_2.11-0.1.jar,data-owner_2.11-0.1.jar')), ('spark.debug.maxToStringFields', '1000')])
         __spark = SparkSession.builder.appName(kw.get('app_name', 'qshield')).master(kw.get('master', 'localhost')).config(conf=__config).getOrCreate()
         __sqlContext = SQLContext(__spark.sparkContext)
 
@@ -37,7 +37,7 @@ def fur_call_back(fur):
     for row in fur.result():
         logging.info('Has row: word = %s, count = %d' % (row['word'], row['count']))
 
-async def spark_sql_exe():
+async def spark_sql_exe(st, p, tk):
 
     global __spark
     global __sqlContext
@@ -52,7 +52,7 @@ async def spark_sql_exe():
 
     df = __spark.read.format("edu.berkeley.cs.rise.opaque.EncryptedSource").schema(StructType([StructField("word", StringType(), True), StructField("count", IntegerType(), True)])).load("dfEncrypted")
     qdf = __spark._jvm.org.apache.spark.sql.QShieldDatasetFunctions(df._jdf)
-    qdfAC = qdf.acPolicyApplied(bytearray())
+    qdfAC = qdf.acPolicyApplied(tk)
     dfAC = DataFrame(qdfAC, __sqlContext)
     coll_fur = await asyncio.wrap_future(dfAC.collectAsync())
     return coll_fur
@@ -112,44 +112,14 @@ class Model(dict, metaclass=ModelMetaclass):
         return value
 
     @classmethod
-    async def exe(cls, sql = None, where = None, args = None, **kw):
+    async def exe(cls, st = None, p = None, tk = None, **kw):
 
         global __spark
         global __sqlContext
 
-        sql_exe = sql
+        if st is None or p is None or tk is None:
+            raise ValueError('Invalid query request!!!')
 
-        if sql_exe is None:
-            raise ValueError('Invalid sql statement: %s' % sql_exe)
-
-        if where:
-            if where.startswith('inner join'):
-                sql_exe.append(where)
-            else:
-                sql_exe.append('where')
-                sql_exe.append(where)
-
-        if args is None:
-            args_exe = []
-
-        orderby = kw.get('orderby', None)
-        if orderby:
-            sql_exe.append('order by')
-            sql_exe.append(orderby)
-        limit = kw.get('limit', None)
-        if limit:
-            sql_exe.append('limit')
-            if isinstance(limit, int):
-                sql_exe.append('?')
-                args_exe.append(limit)
-            elif isinstance(limit, tuple) and len(limit) == 2:
-                sql_exe.append('?, ?')
-                args_exe.extend(limit)
-            else:
-                raise ValueError('Invalid limit value: %s' % str(limit))
-
-        logging.info('SQL statement: %s' % sql_exe)
-
-        res = await spark_sql_exe()
+        res = await spark_sql_exe(st, p, tk)
         for row in res:
             logging.info('Has row: word = %s, count = %d' % (row['word'], row['count']))

@@ -69,7 +69,7 @@ def get_required_kw_args(fn):
 	for name, param in params.items():
 		if param.kind == inspect.Parameter.KEYWORD_ONLY and param.default == inspect.Parameter.empty:
 			args.append(name)
-	return tuple(args)	
+	return tuple(args)
 
 class RequestHandler(object):
 	def __init__(self, app, fn):
@@ -108,7 +108,7 @@ class RequestHandler(object):
 						if k == 'p' or k == 'pcount' or k == 'orderby' or k == 'table' or k == 'u_id' or k == 'a_id' or k == 'id':
 							kw[k] = v[0]
 						else:
-							try:				
+							try:
 								kw[k] = base64.b64decode(v[0]).decode('utf-8')
 							except Exception as e:
 								kw[k] = v[0]
@@ -169,20 +169,3 @@ def add_routes(app, module_name):
 			path = getattr(fn, '__route__', None)
 			if method and path:
 				add_route(app, fn)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

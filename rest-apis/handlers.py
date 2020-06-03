@@ -15,7 +15,7 @@ def all_apis():
 	test_apis.append('Hello: GET /api/hello/:name')
 	test_apis.append('Hello: GET /api/hello?name=CX&age=25')
 	test_apis.append('Hello: GET /api/hello/multi-keys?name=CX&gender=male&age=25')
-	test_apis.append('Test: GET /api/sql?st=test&p=test&tk=test')
+	test_apis.append('QueryRequest: POST /qshield/query')
 
 	all_apis = {'Test':test_apis}
 	return {
@@ -54,17 +54,20 @@ def hello_multi_key(**kw):
 		'name': name
 	}
 
-@get('/api/test/{sql}')
-async def test(*, sql, **kw):
-	where_str = ''
-	if kw:
-		for k, v in kw.items():
-			if k == 'where':
-				where_str = v
-				kw.pop('where')
-
-	await Test.exe(sql=sql, where=where_str, args=None, **kw)
 
 @get('/api/sql')
-async def sql(*, st, p, tk):
+def sql(*, st, p, tk):
 	print("st = %s; p = %s; tk = %s" % (st, p, tk))
+
+@post('/qshield/query')
+async def qshield_query(*, st, p, tk, **kw):
+	if st is None:
+		raise APIValueError('st', message = 'st is None')
+
+	if st is None:
+		raise APIValueError('p', message = 'p is None')
+
+	if tk is None:
+		raise APIValueError('tk', message = 'tk is None')
+
+	await Test.exe(st=st, p=p, tk=tk, **kw)

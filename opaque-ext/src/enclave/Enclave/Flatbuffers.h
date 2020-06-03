@@ -8,6 +8,7 @@
 #include "Expr_generated.h"
 #include "Rows_generated.h"
 #include "operators_generated.h"
+#include "QShield_generated.h"
 
 #include "Crypto.h"
 #include "common.h"
