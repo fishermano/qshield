@@ -19,7 +19,8 @@ set(SOURCES
   util.cpp
   ${CMAKE_CURRENT_BINARY_DIR}/Enclave_t.c
   ACPolicyApplied.cpp
-  QFlatbuffersReaders.cpp)
+  QFlatbuffersReaders.cpp
+  QFlatbuffersWriters.cpp)
 #  ${CMAKE_CURRENT_BINARY_DIR}/key.cpp)
 
 add_custom_command(

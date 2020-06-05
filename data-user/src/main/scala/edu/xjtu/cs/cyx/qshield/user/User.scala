@@ -70,6 +70,7 @@ object User {
 
     val tkOffset = QToken.createQToken(builder, cVal, wVal,
             QToken.createSkBVector(builder, skBVal))
+
     builder.finish(tkOffset)
     val tk_plain = builder.sizedByteArray()
 

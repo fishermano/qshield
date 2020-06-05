@@ -1,4 +1,4 @@
-include "EncryptedBlock.fbs";
+include "Rows.fbs";
 
 // This file is part of the interface added for QShield --
 // the QShield interface or QIX
@@ -15,7 +15,29 @@ table QEncryptedToken {
   enc_tk:[ubyte]; // when decrypted, it should contain a Token object at its root
 }
 
+table QTrace {
+  parent:string;
+  child_left:string;
+  child_right:string;
+}
+
+table QMeta {
+  uid:[ubyte];
+  c:uint;
+  w:uint;
+  exe_trace:[QTrace];
+}
+
+table QBlock{
+  num_rows:uint;
+  rows:edu.berkeley.cs.rise.opaque.tuix.Rows;
+}
+
+table QBlocks{
+  meta:QMeta;
+  blocks:[QBlock];
+}
+
 table QEncryptedBlocks{
-  w:uint; // endurance indicator
-  ebs:edu.berkeley.cs.rise.opaque.tuix.EncryptedBlocks; // encrypted data unit
+  enc_blocks:[ubyte];
 }
