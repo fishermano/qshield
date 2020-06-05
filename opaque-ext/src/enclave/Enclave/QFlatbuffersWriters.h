@@ -1,4 +1,5 @@
 #include "Flatbuffers.h"
+#include "QCrypto.h"
 
 #ifndef QFLATBUFFERS_WRITERS_H
 #define QFLATBUFFERS_WRITERS_H

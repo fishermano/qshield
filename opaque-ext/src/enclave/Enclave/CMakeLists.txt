@@ -21,7 +21,8 @@ set(SOURCES
   ACPolicyApplied.cpp
   ResPrepared.cpp
   QFlatbuffersReaders.cpp
-  QFlatbuffersWriters.cpp)
+  QFlatbuffersWriters.cpp
+  QCrypto.cpp)
 #  ${CMAKE_CURRENT_BINARY_DIR}/key.cpp)
 
 add_custom_command(

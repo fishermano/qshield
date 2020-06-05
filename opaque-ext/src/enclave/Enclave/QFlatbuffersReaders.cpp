@@ -70,7 +70,7 @@ void QRowReader::reset(BufferRefView<qix::QEncryptedBlocks> buf){
 void QRowReader::reset(const qix::QEncryptedBlocks *encrypted_blocks){
   const size_t blocks_len = dec_size(encrypted_blocks->enc_blocks()->size());
   blocks_buf.reset(new uint8_t[blocks_len]);
-  decrypt(encrypted_blocks->enc_blocks()->data(),
+  rdd_decrypt(encrypted_blocks->enc_blocks()->data(),
             encrypted_blocks->enc_blocks()->size(),
             blocks_buf.get());
   BufferRefView<qix::QBlocks> buf(blocks_buf.get(), blocks_len);

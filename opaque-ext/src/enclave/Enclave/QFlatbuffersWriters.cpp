@@ -45,7 +45,7 @@ void QRowWriter::finish_block(){
       builder,
       rows_vector.size(),
       tuix::CreateRowsDirect(builder, &rows_vector)));
-      
+
   rows_vector.clear();
 }
 
@@ -72,7 +72,7 @@ flatbuffers::Offset<qix::QEncryptedBlocks> QRowWriter::finish_blocks(){
   ocall_malloc(enc_blocks_len, &enc_blocks_ptr);
 
   std::unique_ptr<uint8_t, decltype(&ocall_free)> enc_blocks(enc_blocks_ptr, &ocall_free);
-  encrypt(builder.GetBufferPointer(), builder.GetSize(), enc_blocks.get());
+  rdd_encrypt(builder.GetBufferPointer(), builder.GetSize(), enc_blocks.get());
 
   builder.Clear();
   blocks_vector.clear();
