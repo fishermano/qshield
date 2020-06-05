@@ -35,8 +35,6 @@ import org.apache.spark.sql.catalyst.plans.JoinType
 import org.apache.spark.sql.catalyst.plans.physical.Partitioning
 import org.apache.spark.sql.execution.SparkPlan
 
-import edu.xjtu.cs.cyx.qshield.QShieldUtils
-
 /**
  * @annotated by cyx
  *

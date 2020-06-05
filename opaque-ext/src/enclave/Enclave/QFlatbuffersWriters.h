@@ -22,8 +22,8 @@ public:
 class QRowWriter {
 public:
   QRowWriter()
-    : builder(), rows_vector(), total_num_rows(0), untrusted_alloc(), blocks_builder(),
-      enc_blocks_builder(1024, &untrusted_alloc), finished(false), meta() {}
+    : builder(), rows_vector(), total_num_rows(0), untrusted_alloc(),
+      enc_blocks_builder(2048, &untrusted_alloc), finished(false), meta() {}
 
   void clear();
 
@@ -55,7 +55,6 @@ private:
   UntrustedMemoryAllocator untrusted_alloc;
 
   std::vector<flatbuffers::Offset<qix::QBlock>> blocks_vector;
-  flatbuffers::FlatBufferBuilder blocks_builder;
 
   flatbuffers::FlatBufferBuilder enc_blocks_builder;
 

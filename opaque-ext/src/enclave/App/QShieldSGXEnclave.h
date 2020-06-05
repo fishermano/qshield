@@ -15,6 +15,14 @@ extern "C" {
 JNIEXPORT jbyteArray JNICALL Java_edu_xjtu_cs_cyx_qshield_execution_QShieldSGXEnclave_ACPolicyApplied
   (JNIEnv *, jobject, jlong, jbyteArray, jbyteArray);
 
+/*
+ * Class:     edu_xjtu_cs_cyx_qshield_execution_QShieldSGXEnclave
+ * Method:    ResPrepared
+ * Signature: (J[B)[B
+ */
+JNIEXPORT jbyteArray JNICALL Java_edu_xjtu_cs_cyx_qshield_execution_QShieldSGXEnclave_ResPrepared
+  (JNIEnv *, jobject, jlong, jbyteArray);
+
 #ifdef __cplusplus
 }
 #endif

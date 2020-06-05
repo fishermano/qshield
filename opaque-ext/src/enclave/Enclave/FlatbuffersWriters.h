@@ -23,7 +23,7 @@ class RowWriter {
 public:
   RowWriter()
     : builder(), rows_vector(), total_num_rows(0), untrusted_alloc(),
-      enc_block_builder(1024, &untrusted_alloc), finished(false) {}
+      enc_block_builder(2048, &untrusted_alloc), finished(false) {}
 
   void clear();
 

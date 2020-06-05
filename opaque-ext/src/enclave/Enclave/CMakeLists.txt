@@ -19,6 +19,7 @@ set(SOURCES
   util.cpp
   ${CMAKE_CURRENT_BINARY_DIR}/Enclave_t.c
   ACPolicyApplied.cpp
+  ResPrepared.cpp
   QFlatbuffersReaders.cpp
   QFlatbuffersWriters.cpp)
 #  ${CMAKE_CURRENT_BINARY_DIR}/key.cpp)

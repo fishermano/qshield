@@ -52,3 +52,13 @@ case class ACPolicyAppliedEncryptedBlockRDD(
 
     override protected def stringArgs = Iterator(output)
 }
+
+case class ResPrepared(child: LogicalPlan)
+    extends UnaryNode with OpaqueOperator {
+  override def output: Seq[Attribute] = child.output
+}
+
+case class ResPreparedEncryptedBlockRDD(child: LogicalPlan)
+    extends UnaryNode with OpaqueOperator {
+  override def output: Seq[Attribute] = child.output
+}

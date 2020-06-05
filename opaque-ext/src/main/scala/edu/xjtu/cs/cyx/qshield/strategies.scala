@@ -32,6 +32,9 @@ object QShieldOperators extends Strategy {
     case ACPolicyAppliedEncryptedBlockRDD(output, rdd, tk) =>
       ACPolicyAppliedEncryptedBlockRDDExec(output, rdd, tk) :: Nil
 
+    case ResPreparedEncryptedBlockRDD(child) =>
+      ResPreparedEncryptedBlockRDDExec(planLater(child)) :: Nil
+
     // if the current opaque LogicalPlan is an instance of EncryptedProject,
     // return a Seq including an instance of QEncryptedProjectExec as qshield
     // physical plans.

@@ -41,17 +41,17 @@ void QRowWriter::maybe_finish_block(){
 
 void QRowWriter::finish_block(){
   blocks_vector.push_back(
-    qix::CreateQBlock(
+      qix::CreateQBlock(
       builder,
       rows_vector.size(),
       tuix::CreateRowsDirect(builder, &rows_vector)));
-
-  builder.Clear();
+      
   rows_vector.clear();
 }
 
 void QRowWriter::set_meta(const qix::QMeta *mt){
-  this->meta = flatbuffers_copy_meta(mt, blocks_builder);
+  // this->meta = flatbuffers_copy_meta(mt, blocks_builder);
+  this->meta = flatbuffers_copy_meta(mt, builder);
 }
 
 flatbuffers::Offset<qix::QEncryptedBlocks> QRowWriter::finish_blocks(){
@@ -60,21 +60,21 @@ flatbuffers::Offset<qix::QEncryptedBlocks> QRowWriter::finish_blocks(){
   }
 
   auto blocks_buf = qix::CreateQBlocks(
-    blocks_builder,
+    builder,
     meta.o,
-    blocks_builder.CreateVector(blocks_vector));
+    builder.CreateVector(blocks_vector));
 
-  blocks_builder.Finish(blocks_buf);
+  builder.Finish(blocks_buf);
 
-  size_t enc_blocks_len = enc_size(blocks_builder.GetSize());
+  size_t enc_blocks_len = enc_size(builder.GetSize());
 
   uint8_t *enc_blocks_ptr = nullptr;
   ocall_malloc(enc_blocks_len, &enc_blocks_ptr);
 
   std::unique_ptr<uint8_t, decltype(&ocall_free)> enc_blocks(enc_blocks_ptr, &ocall_free);
-  encrypt(blocks_builder.GetBufferPointer(), blocks_builder.GetSize(), enc_blocks.get());
+  encrypt(builder.GetBufferPointer(), builder.GetSize(), enc_blocks.get());
 
-  blocks_builder.Clear();
+  builder.Clear();
   blocks_vector.clear();
 
   auto result = qix::CreateQEncryptedBlocks(

@@ -52,6 +52,22 @@ case class ACPolicyAppliedEncryptedBlockRDDExec(
     }
 }
 
+case class ResPreparedEncryptedBlockRDDExec(child: SparkPlan)
+  extends UnaryExecNode with OpaqueOperatorExec{
+
+  override def output: Seq[Attribute] = child.output
+
+  override def executeBlocked(): RDD[Block] = {
+    timeOperator(child.asInstanceOf[OpaqueOperatorExec].executeBlocked(), "ResPreparedEncryptedBlockRDDExec") {
+      childRDD => childRDD.map { block =>
+        val (enclave, eid) = QShieldUtils.initEnclave()
+
+        Block(enclave.ResPrepared(eid, block.bytes))
+      }
+    }
+  }
+}
+
 /**
  * @annotated by cyx
  *

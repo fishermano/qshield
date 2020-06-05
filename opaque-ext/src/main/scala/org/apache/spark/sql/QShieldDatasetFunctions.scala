@@ -18,9 +18,14 @@
 package org.apache.spark.sql
 
 import edu.xjtu.cs.cyx.qshield.logical.ACPolicyApply
+import edu.xjtu.cs.cyx.qshield.logical.ResPrepared
 
 class QShieldDatasetFunctions[T](ds: Dataset[T]) extends Serializable {
   def acPolicyApplied(tk: Array[Byte]): DataFrame = {
     Dataset.ofRows(ds.sparkSession, ACPolicyApply(ds.logicalPlan, tk))
+  }
+
+  def resPrepared() : DataFrame = {
+    Dataset.ofRows(ds.sparkSession, ResPrepared(ds.logicalPlan))
   }
 }

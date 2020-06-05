@@ -18,6 +18,7 @@
 package edu.xjtu.cs.cyx.qshield.logical
 
 import edu.berkeley.cs.rise.opaque.logical.EncryptedBlockRDD
+import edu.berkeley.cs.rise.opaque.logical.OpaqueOperator
 
 import org.apache.spark.sql.catalyst.rules.Rule
 import org.apache.spark.sql.catalyst.plans.logical.LogicalPlan
@@ -27,5 +28,8 @@ object ACPolicyApplyEncryptedBlockRDD extends Rule[LogicalPlan] {
   def apply(plan: LogicalPlan): LogicalPlan = plan transform {
     case ACPolicyApply(EncryptedBlockRDD(output, rdd), tk) =>
       ACPolicyAppliedEncryptedBlockRDD(output, rdd, tk)
+
+    case r @ ResPrepared(child) =>
+      ResPreparedEncryptedBlockRDD(child.asInstanceOf[OpaqueOperator])
   }
 }

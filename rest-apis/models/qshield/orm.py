@@ -53,7 +53,9 @@ async def spark_sql_exe(st, p, tk):
     df = __spark.read.format("edu.berkeley.cs.rise.opaque.EncryptedSource").schema(StructType([StructField("word", StringType(), True), StructField("count", IntegerType(), True)])).load("dfEncrypted")
     qdf = __spark._jvm.org.apache.spark.sql.QShieldDatasetFunctions(df._jdf)
     qdfAC = qdf.acPolicyApplied(tk)
-    dfAC = DataFrame(qdfAC, __sqlContext)
+    qres = __spark._jvm.org.apache.spark.sql.QShieldDatasetFunctions(qdfAC)
+    qresPrep = qres.resPrepared()
+    dfAC = DataFrame(qresPrep, __sqlContext)
     coll_fur = await asyncio.wrap_future(dfAC.collectAsync())
     return coll_fur
 
