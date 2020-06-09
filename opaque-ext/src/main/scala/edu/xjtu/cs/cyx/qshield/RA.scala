@@ -45,7 +45,7 @@ object RA extends Logging {
 
     // Retry attestation a few times in case of transient failures
     Utils.retry(3) {
-      sp.Init(Utils.sharedKey, intelCert)
+      sp.QInit(Utils.sharedKey, "", 0, intelCert)
 
       val epids = rdd.mapPartitions { _ =>
         val (enclave, eid) = QShieldUtils.initEnclave()
@@ -54,7 +54,7 @@ object RA extends Logging {
       }.collect
 
       for (epid <- epids) {
-        sp.SPProcMsg0(epid)
+        sp.QSPProcMsg0(epid)
       }
 
       val msg1s = rdd.mapPartitionsWithIndex { (i, _) =>
@@ -63,7 +63,7 @@ object RA extends Logging {
         Iterator((i, msg1))
       }.collect.toMap
 
-      val msg2s = msg1s.mapValues(msg1 => sp.SPProcMsg1(msg1)).map(identity)
+      val msg2s = msg1s.mapValues(msg1 => sp.QSPProcMsg1(msg1)).map(identity)
 
       val msg3s = rdd.mapPartitionsWithIndex { (i, _) =>
         val (enclave, eid) = QShieldUtils.initEnclave()
@@ -71,7 +71,7 @@ object RA extends Logging {
         Iterator((i, msg3))
       }.collect.toMap
 
-      val msg4s = msg3s.mapValues(msg3 => sp.SPProcMsg3(msg3)).map(identity)
+      val msg4s = msg3s.mapValues(msg3 => sp.QSPProcMsg3(msg3)).map(identity)
 
       val statuses = rdd.mapPartitionsWithIndex { (i, _) =>
         val (enclave, eid) = QShieldUtils.initEnclave()
