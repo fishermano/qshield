@@ -20,7 +20,7 @@ package edu.xjtu.cs.cyx.qshield
 import org.apache.spark.SparkContext
 import org.apache.spark.internal.Logging
 
-import edu.xjtu.cs.cyx.qshield.owner.SP
+import edu.xjtu.cs.cyx.qshield.owner.QSP
 
 import edu.berkeley.cs.rise.opaque.Utils
 
@@ -41,11 +41,12 @@ object RA extends Logging {
 
     val intelCert = Utils.findResource("AttestationReportSigningCACert.pem")
     val param = Utils.findResource("a.param");
-    val sp = new SP()
+    val qsp = new QSP()
+    // qsp.QOutsource("!!!!!!!!!!!!!!!!Test")
 
     // Retry attestation a few times in case of transient failures
     Utils.retry(3) {
-      sp.QInit(Utils.sharedKey, param, intelCert)
+      qsp.QInit(Utils.sharedKey, param, intelCert)
 
       val epids = rdd.mapPartitions { _ =>
         val (enclave, eid) = QShieldUtils.initEnclave()
@@ -54,7 +55,7 @@ object RA extends Logging {
       }.collect
 
       for (epid <- epids) {
-        sp.QSPProcMsg0(epid)
+        qsp.QSPProcMsg0(epid)
       }
 
       val msg1s = rdd.mapPartitionsWithIndex { (i, _) =>
@@ -63,7 +64,7 @@ object RA extends Logging {
         Iterator((i, msg1))
       }.collect.toMap
 
-      val msg2s = msg1s.mapValues(msg1 => sp.QSPProcMsg1(msg1)).map(identity)
+      val msg2s = msg1s.mapValues(msg1 => qsp.QSPProcMsg1(msg1)).map(identity)
 
       val msg3s = rdd.mapPartitionsWithIndex { (i, _) =>
         val (enclave, eid) = QShieldUtils.initEnclave()
@@ -71,7 +72,7 @@ object RA extends Logging {
         Iterator((i, msg3))
       }.collect.toMap
 
-      val msg4s = msg3s.mapValues(msg3 => sp.QSPProcMsg3(msg3)).map(identity)
+      val msg4s = msg3s.mapValues(msg3 => qsp.QSPProcMsg3(msg3)).map(identity)
 
       val statuses = rdd.mapPartitionsWithIndex { (i, _) =>
         val (enclave, eid) = QShieldUtils.initEnclave()

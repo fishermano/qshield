@@ -54,7 +54,7 @@ find_library(TGMP_LIB sgx_tgmp)
 
 target_link_libraries(ra_jni "${CRYPTO_LIB}" "${SSL_LIB}" -Wl,--no-whole-archive
   -Wl,--start-group "${TKEY_EXCHANGE_LIB}" "${TCRYPTO_LIB}" "${TESCHEME_LIB}"
-  "${TPBC_LIB}" "${TGMP_LIB}"-Wl,--end-group)
+  "${TPBC_LIB}" "${TGMP_LIB}" -Wl,--end-group)
 
 add_executable(keygen ${SOURCES})
 target_link_libraries(keygen "${CRYPTO_LIB}" "${SSL_LIB}")

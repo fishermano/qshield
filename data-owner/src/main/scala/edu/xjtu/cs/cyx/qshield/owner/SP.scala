@@ -26,9 +26,4 @@ class SP extends java.io.Serializable {
   @native def SPProcMsg0(msg0Input: Array[Byte]): Unit
   @native def SPProcMsg1(msg1Input: Array[Byte]): Array[Byte]
   @native def SPProcMsg3(msg3Input: Array[Byte]): Array[Byte]
-
-  @native def QInit(sharedKey: Array[Byte], param: String, intelCert: String): Unit
-  @native def QSPProcMsg0(msg0Input: Array[Byte]): Unit
-  @native def QSPProcMsg1(msg1Input: Array[Byte]): Array[Byte]
-  @native def QSPProcMsg3(msg3Input: Array[Byte]): Array[Byte]
 }

@@ -5,7 +5,8 @@
 #include "pbc/pbc.h"
 #include "sgx_tcrypto.h"
 
-#define E_AESGCM_MAC_SIZE             16
+#define E_AESGCM_MAC_SIZE 16
+#define E_AESGCM_IV_SIZE 12
 #define SKBI_GTI_TAG_LEN 32
 #define USER_NUM 10
 

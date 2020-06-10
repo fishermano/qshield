@@ -6,16 +6,19 @@
 extern "C" {
 #endif
 
-  JNIEXPORT void JNICALL Java_edu_xjtu_cs_cyx_qshield_owner_SP_QInit
+  JNIEXPORT void JNICALL Java_edu_xjtu_cs_cyx_qshield_owner_QSP_QInit
     (JNIEnv *, jobject, jbyteArray, jstring, jstring);
 
-  JNIEXPORT void JNICALL Java_edu_xjtu_cs_cyx_qshield_owner_SP_QSPProcMsg0
+  JNIEXPORT void JNICALL Java_edu_xjtu_cs_cyx_qshield_owner_QSP_QSPProcMsg0
     (JNIEnv *, jobject, jbyteArray);
 
-  JNIEXPORT jbyteArray JNICALL Java_edu_xjtu_cs_cyx_qshield_owner_SP_QSPProcMsg1
+  JNIEXPORT jbyteArray JNICALL Java_edu_xjtu_cs_cyx_qshield_owner_QSP_QSPProcMsg1
     (JNIEnv *, jobject, jbyteArray);
 
-  JNIEXPORT jbyteArray JNICALL Java_edu_xjtu_cs_cyx_qshield_owner_SP_QSPProcMsg3
+  JNIEXPORT jbyteArray JNICALL Java_edu_xjtu_cs_cyx_qshield_owner_QSP_QSPProcMsg3
+    (JNIEnv *, jobject, jbyteArray);
+
+  JNIEXPORT jbyteArray JNICALL Java_edu_xjtu_cs_cyx_qshield_owner_QSP_QEncrypt
     (JNIEnv *, jobject, jbyteArray);
 
 #ifdef __cplusplus

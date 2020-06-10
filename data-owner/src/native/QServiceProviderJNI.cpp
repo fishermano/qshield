@@ -1,7 +1,6 @@
 #include "QSP.h"
 
 #include "QServiceProvider.h"
-#include "ServiceProvider.h"
 
 #include <fstream>
 
@@ -13,7 +12,7 @@
  */
 extern void jni_throw(JNIEnv *env, const char *message);
 
-JNIEXPORT void JNICALL Java_edu_xjtu_cs_cyx_qshield_owner_SP_QInit
+JNIEXPORT void JNICALL Java_edu_xjtu_cs_cyx_qshield_owner_QSP_QInit
   (JNIEnv *env, jobject obj, jbyteArray shared_key, jstring param, jstring intel_cert){
   (void)env;
   (void)obj;
@@ -61,7 +60,7 @@ JNIEXPORT void JNICALL Java_edu_xjtu_cs_cyx_qshield_owner_SP_QInit
   env->ReleaseStringUTFChars(intel_cert, intel_cert_str);
 }
 
-JNIEXPORT void JNICALL Java_edu_xjtu_cs_cyx_qshield_owner_SP_QSPProcMsg0(
+JNIEXPORT void JNICALL Java_edu_xjtu_cs_cyx_qshield_owner_QSP_QSPProcMsg0(
   JNIEnv *env, jobject obj, jbyteArray msg0_input) {
   (void)obj;
 
@@ -78,7 +77,7 @@ JNIEXPORT void JNICALL Java_edu_xjtu_cs_cyx_qshield_owner_SP_QSPProcMsg0(
   env->ReleaseByteArrayElements(msg0_input, msg0_bytes, 0);
 }
 
-JNIEXPORT jbyteArray JNICALL Java_edu_xjtu_cs_cyx_qshield_owner_SP_QSPProcMsg1(
+JNIEXPORT jbyteArray JNICALL Java_edu_xjtu_cs_cyx_qshield_owner_QSP_QSPProcMsg1(
   JNIEnv *env, jobject obj, jbyteArray msg1_input) {
   (void)obj;
 
@@ -102,7 +101,7 @@ JNIEXPORT jbyteArray JNICALL Java_edu_xjtu_cs_cyx_qshield_owner_SP_QSPProcMsg1(
   return array_ret;
 }
 
-JNIEXPORT jbyteArray JNICALL Java_edu_xjtu_cs_cyx_qshield_owner_SP_QSPProcMsg3(
+JNIEXPORT jbyteArray JNICALL Java_edu_xjtu_cs_cyx_qshield_owner_QSP_QSPProcMsg3(
   JNIEnv *env, jobject obj, jbyteArray msg3_input) {
   (void)obj;
 
@@ -124,5 +123,26 @@ JNIEXPORT jbyteArray JNICALL Java_edu_xjtu_cs_cyx_qshield_owner_SP_QSPProcMsg3(
 
   env->ReleaseByteArrayElements(msg3_input, msg3_bytes, 0);
 
+  return ret;
+}
+
+JNIEXPORT jbyteArray JNICALL Java_edu_xjtu_cs_cyx_qshield_owner_QSP_QEncrypt
+  (JNIEnv *env, jobject obj, jbyteArray pt){
+  (void)obj;
+
+  jboolean if_copy = false;
+  jbyte *pt_bytes = env->GetByteArrayElements(pt, &if_copy);
+  uint8_t *plaintext = reinterpret_cast<uint8_t *>(pt_bytes);
+  int32_t plaintext_length = static_cast<uint32_t>(env->GetArrayLength(pt));
+
+  int32_t ciphertext_length = qservice_provider.enc_size(plaintext_length);
+  uint8_t *ciphertext_ptr = (uint8_t *)malloc(ciphertext_length);
+
+  std::unique_ptr<uint8_t, decltype(&free)> ciphertext(ciphertext_ptr, &free);
+  qservice_provider.encrypt(plaintext, plaintext_length, ciphertext.get());
+
+  jbyteArray ret = env->NewByteArray(ciphertext_length);
+  env->SetByteArrayRegion(ret, 0, ciphertext_length, reinterpret_cast<jbyte *>(ciphertext.get()));
+  env->ReleaseByteArrayElements(pt, pt_bytes, 0);
   return ret;
 }
