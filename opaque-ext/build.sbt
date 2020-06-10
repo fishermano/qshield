@@ -89,6 +89,13 @@ val fetchIntelAttestationReportSigningCACertTask = TaskKey[Seq[File]](
 
 resourceGenerators in Compile += fetchIntelAttestationReportSigningCACertTask.taskValue
 
+val fetchPairingParamTask = TaskKey[Seq[File]](
+  "fetchPairingParam",
+  "Fetches pairing parameters, required for "
+    + "pairing initialization.")
+
+resourceGenerators in Compile += fetchPairingParamTask.taskValue
+
 // Watch the enclave C++ files
 watchSources ++=
   ((sourceDirectory.value / "enclave") ** (
@@ -301,6 +308,15 @@ fetchIntelAttestationReportSigningCACertTask := {
     IO.copyFile(cert_resource, cert)
   }
   Seq(cert)
+}
+
+fetchPairingParamTask := {
+  val param_a = resourceManaged.value / "a.param"
+  if (!param_a.exists) {
+    val param_a_resource = baseDirectory.value / "src" / "deps" / "a.param"
+    IO.copyFile(param_a_resource, param_a)
+  }
+  Seq(param_a)
 }
 
 synthTestDataTask := {

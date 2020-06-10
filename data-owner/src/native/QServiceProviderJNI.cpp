@@ -3,6 +3,8 @@
 #include "QServiceProvider.h"
 #include "ServiceProvider.h"
 
+#include <fstream>
+
 /**
  * Throw a Java exception with the specified message.
  *
@@ -12,7 +14,7 @@
 extern void jni_throw(JNIEnv *env, const char *message);
 
 JNIEXPORT void JNICALL Java_edu_xjtu_cs_cyx_qshield_owner_SP_QInit
-  (JNIEnv *env, jobject obj, jbyteArray shared_key, jstring param, jint count, jstring intel_cert){
+  (JNIEnv *env, jobject obj, jbyteArray shared_key, jstring param, jstring intel_cert){
   (void)env;
   (void)obj;
 
@@ -23,6 +25,21 @@ JNIEXPORT void JNICALL Java_edu_xjtu_cs_cyx_qshield_owner_SP_QInit
   size_t intel_cert_len = static_cast<size_t>(env->GetStringUTFLength(intel_cert));
 
   const char *param_str = env->GetStringUTFChars(param, nullptr);
+  FILE *param_file = fopen(param_str, "r");
+  if (param_file == nullptr){
+    throw std::runtime_error(
+      std::string("Error: Param file '")
+      + param_str
+      + std::string("' does not exist. "));
+  }
+  char param_data[10240];
+  int count = fread(param_data, 1, 10240, param_file);
+  if(!count){
+    throw std::runtime_error(
+      std::string("Error: Read Param file '")
+      + param_str);
+  }
+  fclose(param_file);
 
 
   try {
@@ -34,7 +51,7 @@ JNIEXPORT void JNICALL Java_edu_xjtu_cs_cyx_qshield_owner_SP_QInit
     }
     qservice_provider.load_private_key(private_key_path);
     qservice_provider.set_shared_key(reinterpret_cast<uint8_t *>(shared_key_bytes));
-    // qservice_provider.setup(param_str, count);
+    qservice_provider.setup(param_data, count);
     qservice_provider.connect_to_ias(std::string(intel_cert_str, intel_cert_len));
   } catch (const std::runtime_error &e) {
     jni_throw(env, e.what());

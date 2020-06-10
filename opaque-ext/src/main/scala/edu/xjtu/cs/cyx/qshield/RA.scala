@@ -40,12 +40,12 @@ object RA extends Logging {
     val rdd = sc.makeRDD(Seq.fill(1) { () }, 1)
 
     val intelCert = Utils.findResource("AttestationReportSigningCACert.pem")
-
+    val param = Utils.findResource("a.param");
     val sp = new SP()
 
     // Retry attestation a few times in case of transient failures
     Utils.retry(3) {
-      sp.QInit(Utils.sharedKey, "", 0, intelCert)
+      sp.QInit(Utils.sharedKey, param, intelCert)
 
       val epids = rdd.mapPartitions { _ =>
         val (enclave, eid) = QShieldUtils.initEnclave()
