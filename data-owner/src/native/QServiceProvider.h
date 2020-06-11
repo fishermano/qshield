@@ -5,6 +5,7 @@
 
 #include "ServiceProvider.h"
 #include "escheme/e-scheme.h"
+#include "sample_libcrypto.h"
 
 class QServiceProvider: public ServiceProvider{
 public:

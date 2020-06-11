@@ -4,10 +4,12 @@
 __author__ = 'CYX'
 
 from orm import Model
-from field import MediumBlobField
+from field import StringField, IntegerField
 
-class Test(Model):
-    __table__ = 'test'
+class Rankings(Model):
+    __table__ = 'RANKINGS'
+    __path__ = 'outsourced/RANKINGS'
 
-    word = MediumBlobField()
-    count = MediumBlobField()
+    pageURL = StringField()
+    pageRank = IntegerField()
+    avgDuration = IntegerField()

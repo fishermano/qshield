@@ -6,7 +6,7 @@ __author__ = 'CYX'
 from coroweb import get, post
 
 from apis import APIError, APIValueError, APIResourceNotFoundError, APIPermissionError
-from models import Test
+from models import Rankings
 
 
 @get('/')
@@ -70,4 +70,4 @@ async def qshield_query(*, st, p, tk, **kw):
 	if tk is None:
 		raise APIValueError('tk', message = 'tk is None')
 
-	await Test.exe(st=st, p=p, tk=tk, **kw)
+	await Rankings.exe(st=st, p=p, tk=tk, **kw)

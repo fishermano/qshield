@@ -147,5 +147,13 @@ copyNativeLibrariesToResourcesTask :={
     IO.copyFile(file, resource)
     resource
   }
-  resources
+  val cryptoLib = ((baseDirectory.value / "tpl") ** "*.so").get
+  val cryptoMappings: Seq[(File, String)] =
+    cryptoLib pair rebase(baseDirectory.value / "tpl" , s"/native/${nativePlatform.value}")
+  val cryptoResources: Seq[File] = for ((file, path) <- cryptoMappings) yield {
+    val resource = resourceManaged.value / path
+    IO.copyFile(file, resource)
+    resource
+  }
+  resources ++ cryptoResources
 }

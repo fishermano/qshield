@@ -139,7 +139,12 @@ JNIEXPORT jbyteArray JNICALL Java_edu_xjtu_cs_cyx_qshield_owner_QSP_QEncrypt
   uint8_t *ciphertext_ptr = (uint8_t *)malloc(ciphertext_length);
 
   std::unique_ptr<uint8_t, decltype(&free)> ciphertext(ciphertext_ptr, &free);
-  qservice_provider.encrypt(plaintext, plaintext_length, ciphertext.get());
+
+  try{
+    qservice_provider.encrypt(plaintext, plaintext_length, ciphertext.get());
+  } catch (const std::runtime_error &e){
+    jni_throw(env, e.what());
+  }
 
   jbyteArray ret = env->NewByteArray(ciphertext_length);
   env->SetByteArrayRegion(ret, 0, ciphertext_length, reinterpret_cast<jbyte *>(ciphertext.get()));

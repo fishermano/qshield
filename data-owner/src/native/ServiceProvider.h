@@ -72,7 +72,6 @@ private:
 
   sgx_ec256_public_t sp_pub_key;
   sgx_ec256_private_t sp_priv_key;
-  uint8_t shared_key[LC_AESGCM_KEY_SIZE];
   sp_db_item_t sp_db;
   std::string spid;
 
@@ -82,6 +81,9 @@ private:
   uint16_t ias_api_version;
 
   bool require_attestation;
+
+protected:
+  uint8_t shared_key[LC_AESGCM_KEY_SIZE];
 };
 
 extern ServiceProvider service_provider;

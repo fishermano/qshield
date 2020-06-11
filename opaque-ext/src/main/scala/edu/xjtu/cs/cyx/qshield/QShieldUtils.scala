@@ -38,7 +38,17 @@ object QShieldUtils extends Logging{
       (Seq(QShieldOperators) ++
         sqlContext.experimental.extraStrategies)
 
-    RA.initRA(sqlContext.sparkContext)
+    QOwnerStuber.initRA(sqlContext)
+    /**
+      QOwnerStuber.dataOut(sqlContext,
+                            "file:///home/hadoop/QShield-DP/data/bdb/rankings/tiny",
+                            "RANKINGS",
+                            StructType(Seq(
+                              StructField("pageURL", StringType),
+                              StructField("pageRank", IntegerType),
+                              StructField("avgDuration", IntegerType))),
+                            sqlContext.sparkContext.defaultParallelism)
+    */
 
   }
 

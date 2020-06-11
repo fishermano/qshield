@@ -35,6 +35,9 @@ import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.Dataset
 import org.apache.spark.sql.Row
 
+import org.apache.hadoop.fs.Path
+import java.io.ObjectOutputStream
+
 case class Block(bytes: Array[Byte]) extends Serializable
 
 @nativeLoader("ra_jni")
@@ -268,7 +271,7 @@ class QSP extends java.io.Serializable {
               tuix.MapField.createKeysVector(builder, Array.empty),
               tuix.MapField.createValuesVector(builder, Array.empty)),
             isNull)
-        case (s: UTF8String, StringType) =>
+        case (s: String, StringType) =>
           val utf8 = s.getBytes()
           tuix.Field.createField(
             builder,
@@ -313,6 +316,7 @@ class QSP extends java.io.Serializable {
         val plaintext = builder.sizedByteArray()
 
         //2. Encrypt the row data and put it into a tuix.EncryptedBlock
+
         val ciphertext = QEncrypt(plaintext)
 
         encryptedBlockOffsets += tuix.EncryptedBlock.createEncryptedBlock(
@@ -372,7 +376,19 @@ class QSP extends java.io.Serializable {
         encryptRowsFlatbuffers(slice, schema.map(_.dataType))
       )
 
-    srcFilePath
+    val resRDD = spark.sparkContext.parallelize(encryptedPartitions)
+
+    val outPath = "outsourced/".concat(tableName)
+    val dataDir = new Path(outPath, "data")
+    resRDD.map(block => (0, block.bytes)).saveAsSequenceFile(dataDir.toString)
+
+    val schemaDir = new Path(outPath, "schema")
+    val fs = schemaDir.getFileSystem(spark.sparkContext.hadoopConfiguration)
+    val os = new ObjectOutputStream(fs.create(schemaDir))
+    os.writeObject(schema)
+    os.close()
+
+    outPath
   }
 
   // Remote attestation, master side

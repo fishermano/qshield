@@ -6,7 +6,7 @@ __author__ = 'CYX'
 import asyncio, sys , logging
 logging.basicConfig(level = logging.INFO)
 
-from field import Field
+from field import *
 
 from pyspark import SparkConf
 from pyspark.sql import SparkSession
@@ -33,11 +33,7 @@ def init_sql_ra_context(**kw):
         logging.info('init_sql_ra_context() error: %s' % str(e))
         sys.exit()
 
-def fur_call_back(fur):
-    for row in fur.result():
-        logging.info('Has row: word = %s, count = %d' % (row['word'], row['count']))
-
-async def spark_sql_exe(st, p, tk):
+async def spark_sql_exe(obj, st, p, tk):
 
     global __spark
     global __sqlContext
@@ -50,7 +46,11 @@ async def spark_sql_exe(st, p, tk):
     # coll_fur = await asyncio.wrap_future(dfEnc.collectAsync())
     # return coll_fur
 
-    df = __spark.read.format("edu.berkeley.cs.rise.opaque.EncryptedSource").schema(StructType([StructField("word", StringType(), True), StructField("count", IntegerType(), True)])).load("dfEncrypted")
+    # df = __spark.read.format("edu.berkeley.cs.rise.opaque.EncryptedSource").schema(StructType([StructField("word", StringType(), True), StructField("count", IntegerType(), True)])).load("dfEncrypted")
+
+    df = __spark.read.format("edu.berkeley.cs.rise.opaque.EncryptedSource") \
+                            .schema(obj.schema) \
+                            .load(obj.path)
     qdf = __spark._jvm.org.apache.spark.sql.QShieldDatasetFunctions(df._jdf)
     qdfAC = qdf.acPolicyApplied(tk)
     qres = __spark._jvm.org.apache.spark.sql.QShieldDatasetFunctions(qdfAC)
@@ -59,13 +59,19 @@ async def spark_sql_exe(st, p, tk):
     coll_fur = await asyncio.wrap_future(dfAC.collectAsync())
     return coll_fur
 
+class DataObj(object):
+    def __init__(self, path, schema):
+        self.path = path
+        self.schema = schema
+
 class ModelMetaclass(type):
     def __new__(cls, name, bases, attrs):
         if name == 'Model':
             return type.__new__(cls, name, bases, attrs)
 
         tableName = attrs.get('__table__', None) or name
-        logging.info('found model: %s (table: %s)' % (name, tableName))
+        path = attrs.get('__path__', None) or 'NULL'
+        logging.info('found model: %s (table: %s; path: %s)' % (name, tableName, path))
 
         mappings = dict()
         fields = []
@@ -82,6 +88,7 @@ class ModelMetaclass(type):
         attrs['__table__'] = tableName
 		#attrs['__primary_key__'] = primaryKey
         attrs['__fields__'] = fields
+        attrs['__path__'] = path
 
         return type.__new__(cls, name, bases, attrs)
 
@@ -122,6 +129,23 @@ class Model(dict, metaclass=ModelMetaclass):
         if st is None or p is None or tk is None:
             raise ValueError('Invalid query request!!!')
 
-        res = await spark_sql_exe(st, p, tk)
+        sfs = []
+        for k, v in cls.__mappings__.items():
+            if isinstance(v, StringField):
+                sfs.append(StructField(k, StringType(), True))
+            elif isinstance(v, IntegerField):
+                sfs.append(StructField(k, IntegerType(), True))
+
+        obj = DataObj(cls.__path__, StructType(sfs))
+
+        res = await spark_sql_exe(obj, st, p, tk)
+        i = 1
         for row in res:
-            logging.info('Has row: word = %s, count = %d' % (row['word'], row['count']))
+            logging.info('Has row [%d]: ' % i)
+            i = i + 1
+            for k, v in cls.__mappings__.items():
+                if isinstance(v, StringField):
+                    logging.info('Col %s = %s' % (k, row[k]))
+                else:
+                    logging.info('Col %s = %s' % (k, str(row[k])))
+            logging.info('\n')
