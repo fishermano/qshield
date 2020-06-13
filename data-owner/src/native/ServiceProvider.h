@@ -64,10 +64,10 @@ public:
    *
    * You must call `ensure_ias_connection` before calling this method.
    */
-  std::unique_ptr<ra_msg4_t> process_msg3(
-    sgx_ra_msg3_t *msg3, uint32_t msg3_size, uint32_t *msg4_size);
+  // std::unique_ptr<ra_msg4_t> process_msg3(
+  //   sgx_ra_msg3_t *msg3, uint32_t msg3_size, uint32_t *msg4_size);
 
-private:
+protected:
   void connect_to_ias_helper(const std::string &ias_report_signing_ca_file);
 
   sgx_ec256_public_t sp_pub_key;
@@ -81,8 +81,6 @@ private:
   uint16_t ias_api_version;
 
   bool require_attestation;
-
-protected:
   uint8_t shared_key[LC_AESGCM_KEY_SIZE];
 };
 

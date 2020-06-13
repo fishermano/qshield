@@ -11,6 +11,8 @@
  */
 extern const sgx_ec256_public_t g_sp_pub_key;
 
+void initKeySchedule();
+
 /**
  * Set the symmetric key used to encrypt row data using message 4 of the remote attestation process.
  */

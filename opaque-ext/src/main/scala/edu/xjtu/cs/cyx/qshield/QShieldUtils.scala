@@ -24,6 +24,7 @@ import edu.berkeley.cs.rise.opaque.Utils
 
 import org.apache.spark.internal.Logging
 import org.apache.spark.sql.SQLContext
+import org.apache.spark.sql.types._
 
 object QShieldUtils extends Logging{
 
@@ -39,16 +40,15 @@ object QShieldUtils extends Logging{
         sqlContext.experimental.extraStrategies)
 
     QOwnerStuber.initRA(sqlContext)
-    /**
-      QOwnerStuber.dataOut(sqlContext,
-                            "file:///home/hadoop/QShield-DP/data/bdb/rankings/tiny",
-                            "RANKINGS",
-                            StructType(Seq(
-                              StructField("pageURL", StringType),
-                              StructField("pageRank", IntegerType),
-                              StructField("avgDuration", IntegerType))),
-                            sqlContext.sparkContext.defaultParallelism)
-    */
+
+    QOwnerStuber.dataOut(sqlContext,
+                          "file:///home/hadoop/QShield-DP/data/bdb/rankings/tiny",
+                          "RANKINGS",
+                          StructType(Seq(
+                            StructField("pageURL", StringType),
+                            StructField("pageRank", IntegerType),
+                            StructField("avgDuration", IntegerType))),
+                          sqlContext.sparkContext.defaultParallelism)
 
   }
 

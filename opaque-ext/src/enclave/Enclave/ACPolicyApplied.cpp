@@ -5,7 +5,12 @@
 #include "QFlatbuffersReaders.h"
 #include "QFlatbuffersWriters.h"
 
+#include "escheme/e-scheme.h"
+
 #include <string.h>
+
+extern unsigned char *sk_str;
+extern sgx_aes_gcm_128bit_key_t shared_key;
 
 using namespace edu::berkeley::cs::rise::opaque;
 using namespace edu::xjtu::cs::cyx::qshield;
@@ -13,6 +18,18 @@ using namespace edu::xjtu::cs::cyx::qshield;
 void ac_policy_applied(uint8_t *input_rows, size_t input_rows_length,
                         uint8_t *tk, size_t tk_length,
                         uint8_t **output_rows, size_t *output_rows_length) {
+
+  //reconstruct shared secret key
+  // uint32_t sk_len = element_length_in_bytes(g_sk.sk);
+
+  // unsigned char sk_str[sk_len];
+  // element_to_bytes(sk_str, g_sk.sk);
+  // (void)sk_str;
+  memcpy(reinterpret_cast<uint8_t *>(shared_key), reinterpret_cast<uint8_t *>(sk_str), SGX_AESGCM_KEY_SIZE);
+
+  // char shared_key_str[16] = {'O','p','a','q','u','e',' ','d','e','v','e','l',' ','k','e','y'};
+  // memcpy(reinterpret_cast<uint8_t *>(shared_key), reinterpret_cast<uint8_t *>(shared_key_str), SGX_AESGCM_KEY_SIZE);
+  initKeySchedule();
 
   RowReader row_r(BufferRefView<tuix::EncryptedBlocks>(input_rows, input_rows_length));
   QTokenReader tk_r(BufferRefView<qix::QEncryptedToken>(tk, tk_length));

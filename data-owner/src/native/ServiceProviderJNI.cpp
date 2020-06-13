@@ -99,7 +99,9 @@ JNIEXPORT jbyteArray JNICALL Java_edu_xjtu_cs_cyx_qshield_owner_SP_SPProcMsg3(
   uint32_t msg4_size = 0;
   std::unique_ptr<ra_msg4_t> msg4;
   try {
-    msg4 = service_provider.process_msg3(msg3, msg3_size, &msg4_size);
+    (void) msg3;
+    (void) msg3_size;
+    // msg4 = service_provider.process_msg3(msg3, msg3_size, &msg4_size);
   } catch (const std::runtime_error &e) {
     jni_throw(env, e.what());
   }

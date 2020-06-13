@@ -72,4 +72,10 @@ typedef struct ra_msg4_t {
   uint8_t shared_key_ciphertext[SGX_AESGCM_KEY_SIZE];
 } ra_msg4_t;
 
+typedef struct q_ra_msg4_t {
+  uint8_t shared_key_mac[SGX_AESGCM_MAC_SIZE];
+  uint32_t shared_key_size;
+  uint8_t shared_key_ciphertext[];
+} q_ra_msg4_t;
+
 #endif // COMMON_H

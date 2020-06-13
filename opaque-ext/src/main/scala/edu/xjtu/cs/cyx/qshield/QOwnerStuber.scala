@@ -100,4 +100,9 @@ object QOwnerStuber extends Logging {
 
     println("***Data haved been outsourced to " + dstFilePath)
   }
+
+  // for test only
+  def getSk(): Array[Byte] = {
+    return qsp.QSk()
+  }
 }

@@ -378,13 +378,22 @@ class QSP extends java.io.Serializable {
 
     val resRDD = spark.sparkContext.parallelize(encryptedPartitions)
 
+
     val outPath = "outsourced/".concat(tableName)
+
     val dataDir = new Path(outPath, "data")
+    val dfs = dataDir.getFileSystem(spark.sparkContext.hadoopConfiguration)
+    if (dfs.exists(dataDir)){
+      dfs.delete(dataDir, true)
+    }
     resRDD.map(block => (0, block.bytes)).saveAsSequenceFile(dataDir.toString)
 
     val schemaDir = new Path(outPath, "schema")
-    val fs = schemaDir.getFileSystem(spark.sparkContext.hadoopConfiguration)
-    val os = new ObjectOutputStream(fs.create(schemaDir))
+    val sfs = schemaDir.getFileSystem(spark.sparkContext.hadoopConfiguration)
+    if (sfs.exists(schemaDir)){
+      sfs.delete(schemaDir, true)
+    }
+    val os = new ObjectOutputStream(sfs.create(schemaDir))
     os.writeObject(schema)
     os.close()
 
@@ -397,5 +406,11 @@ class QSP extends java.io.Serializable {
   @native def QSPProcMsg1(msg1Input: Array[Byte]): Array[Byte]
   @native def QSPProcMsg3(msg3Input: Array[Byte]): Array[Byte]
   @native def QEncrypt(pt: Array[Byte]): Array[Byte]
+
+  // sk_b delivery
+  @native def QSkbDeliver(uId: Int): Array[Byte]
+
+  // encryption key, for test only
+  @native def QSk(): Array[Byte]
 
 }

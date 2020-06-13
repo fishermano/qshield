@@ -3,7 +3,7 @@
 void QEncryptedTokenToQTokenReader::reset(const qix::QEncryptedToken *encrypted_token){
   const size_t tk_len = dec_size(encrypted_token->enc_tk()->size());
   tk_buf.reset(new uint8_t[tk_len]);
-  decrypt(encrypted_token->enc_tk()->data(), encrypted_token->enc_tk()->size(), tk_buf.get());
+  tk_decrypt(encrypted_token->enc_tk()->data(), encrypted_token->enc_tk()->size(), tk_buf.get());
   BufferRefView<qix::QToken> buf(tk_buf.get(), tk_len);
   buf.verify();
 

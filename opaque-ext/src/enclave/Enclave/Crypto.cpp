@@ -7,8 +7,6 @@
 #include "common.h"
 #include "util.h"
 
-#include "QCrypto.h"
-
 /**
  * Symmetric key used to encrypt row data. This key is shared among the driver and all enclaves.
  *
@@ -43,8 +41,6 @@ void set_shared_key(sgx_ra_context_t context, uint8_t *msg4_bytes, uint32_t msg4
                                        nullptr, 0,
                                        &msg4->shared_key_mac));
 
-  initKeySchedule();
-  init_rdd_key_schedule();
 }
 
 

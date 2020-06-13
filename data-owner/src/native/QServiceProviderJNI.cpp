@@ -111,7 +111,7 @@ JNIEXPORT jbyteArray JNICALL Java_edu_xjtu_cs_cyx_qshield_owner_QSP_QSPProcMsg3(
   uint32_t msg3_size = static_cast<uint32_t>(env->GetArrayLength(msg3_input));
 
   uint32_t msg4_size = 0;
-  std::unique_ptr<ra_msg4_t> msg4;
+  std::unique_ptr<q_ra_msg4_t> msg4;
   try {
     msg4 = qservice_provider.process_msg3(msg3, msg3_size, &msg4_size);
   } catch (const std::runtime_error &e) {
@@ -151,3 +151,33 @@ JNIEXPORT jbyteArray JNICALL Java_edu_xjtu_cs_cyx_qshield_owner_QSP_QEncrypt
   env->ReleaseByteArrayElements(pt, pt_bytes, 0);
   return ret;
 }
+
+JNIEXPORT jbyteArray JNICALL Java_edu_xjtu_cs_cyx_qshield_owner_QSP_QSkbDeliver
+  (JNIEnv *env, jobject obj, jint u_id){
+  (void)obj;
+
+  element_t *sk_b = qservice_provider.get_skb(u_id);
+
+  uint32_t sk_b_len = element_length_in_bytes(*sk_b);
+  uint8_t sk_b_str[sk_b_len];
+  element_to_bytes(sk_b_str, *sk_b);
+
+  jbyteArray ret = env->NewByteArray(sk_b_len);
+  env->SetByteArrayRegion(ret, 0, sk_b_len, reinterpret_cast<jbyte *>(sk_b_str));
+  return ret;
+}
+
+JNIEXPORT jbyteArray JNICALL Java_edu_xjtu_cs_cyx_qshield_owner_QSP_QSk
+  (JNIEnv *env, jobject obj){
+  (void)obj;
+
+  uint8_t *sk = (uint8_t *)malloc(16);
+  qservice_provider.get_sk(&sk);
+
+  jbyteArray ret = env->NewByteArray(16);
+  env->SetByteArrayRegion(ret, 0, 16, reinterpret_cast<jbyte *>(sk));
+  free(sk);
+  return ret;
+
+
+  }

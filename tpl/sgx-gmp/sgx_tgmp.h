@@ -43,7 +43,7 @@ see https://www.gnu.org/licenses/.  */
 #define GMP_LIMB_BITS                      64
 #define GMP_NAIL_BITS                      0
 /* Were we built for Intel SGX? John Mechalas <john.p.mechalas@intel.com> */
-#define GMP_WITH_SGX 1 
+#define GMP_WITH_SGX 1
 #endif
 #define GMP_NUMB_BITS     (GMP_LIMB_BITS - GMP_NAIL_BITS)
 #define GMP_NUMB_MASK     ((~ __GMP_CAST (mp_limb_t, 0)) >> GMP_NAIL_BITS)
@@ -271,7 +271,7 @@ typedef __mpq_struct *mpq_ptr;
   || defined (__DEFINED_FILE)         /* musl */
 #define _GMP_H_HAVE_FILE 1
 #endif
-#endif 
+#endif
 
 /* In ISO C, if a prototype involving "struct obstack *" is given without
    that structure defined, then the struct is scoped down to just the
@@ -471,7 +471,7 @@ typedef __mpq_struct *mpq_ptr;
 
 #if defined (__cplusplus)
 extern "C" {
-using std::FILE;
+// using std::FILE;
 #endif
 
 #define mp_set_memory_functions __gmp_set_memory_functions
@@ -2280,12 +2280,12 @@ mpn_neg (mp_ptr __gmp_rp, mp_srcptr __gmp_up, mp_size_t __gmp_n)
 /**************** C++ routines ****************/
 
 #ifdef __cplusplus
-__GMP_DECLSPEC_XX std::ostream& operator<< (std::ostream &, mpz_srcptr);
-__GMP_DECLSPEC_XX std::ostream& operator<< (std::ostream &, mpq_srcptr);
-__GMP_DECLSPEC_XX std::ostream& operator<< (std::ostream &, mpf_srcptr);
-__GMP_DECLSPEC_XX std::istream& operator>> (std::istream &, mpz_ptr);
-__GMP_DECLSPEC_XX std::istream& operator>> (std::istream &, mpq_ptr);
-__GMP_DECLSPEC_XX std::istream& operator>> (std::istream &, mpf_ptr);
+// __GMP_DECLSPEC_XX std::ostream& operator<< (std::ostream &, mpz_srcptr);
+// __GMP_DECLSPEC_XX std::ostream& operator<< (std::ostream &, mpq_srcptr);
+// __GMP_DECLSPEC_XX std::ostream& operator<< (std::ostream &, mpf_srcptr);
+// __GMP_DECLSPEC_XX std::istream& operator>> (std::istream &, mpz_ptr);
+// __GMP_DECLSPEC_XX std::istream& operator>> (std::istream &, mpq_ptr);
+// __GMP_DECLSPEC_XX std::istream& operator>> (std::istream &, mpf_ptr);
 #endif
 
 

@@ -39,7 +39,7 @@ include_directories(SYSTEM "$ENV{SGX_SDK}/include/libcxx")
 include_directories(SYSTEM "$ENV{SGX_SDK}/include/tlibc")
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -nostdinc -fvisibility=hidden -fpie -fstack-protector")
-set(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} ${CMAKE_CXX_FLAGS} -nostdinc++")
+set(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} ${CMAKE_CXX_FLAGS} -nostdinc++ -Wall -Wextra -Werror=unused-variable")
 set(ENCLAVE_LINK_FLAGS "-Wl,--no-undefined -nostdlib -nodefaultlibs -nostartfiles -Wl,-Bstatic -Wl,-Bsymbolic -Wl,--no-undefined -Wl,-pie,-eenclave_entry -Wl,--export-dynamic -Wl,--defsym,__ImageBase=0 -Wl,--version-script=${CMAKE_CURRENT_SOURCE_DIR}/Enclave.lds")
 
 add_library(enclave_trusted SHARED ${SOURCES})
@@ -54,6 +54,9 @@ find_library(TKEY_EXCHANGE_LIB sgx_tkey_exchange)
 find_library(TCRYPTO_LIB sgx_tcrypto)
 find_library(SERVICE_LIB sgx_tservice)
 find_library(SERVICE_SIM_LIB sgx_tservice_sim)
+find_library(TESCHEME_LIB sgx_tescheme)
+find_library(TPBC_LIB sgx_tpbc)
+find_library(TGMP_LIB sgx_tgmp)
 
 if(NOT "$ENV{SGX_MODE}" STREQUAL "HW")
   message(STATUS "Building for simulated SGX")
@@ -66,7 +69,7 @@ else()
 endif()
 
 target_link_libraries(enclave_trusted -Wl,--whole-archive "${Trts_Library_Path}" -Wl,--no-whole-archive -Wl,--start-group "${TSTDC_LIB}" "${TSTDCXX_LIB}"
-  "${TKEY_EXCHANGE_LIB}" "${TCRYPTO_LIB}" "${Service_Library_Path}" -Wl,--end-group)
+  "${TKEY_EXCHANGE_LIB}" "${TCRYPTO_LIB}" "${Service_Library_Path}" "${TESCHEME_LIB}" "${TPBC_LIB}" "${TGMP_LIB}" -Wl,--end-group)
 
 add_custom_command(
   COMMAND ${SGX_ENCLAVE_SIGNER} sign -key "$ENV{SGX_SDK}/SampleCode/SampleEnclave/Enclave/Enclave_private_test.pem" -enclave $<TARGET_FILE:enclave_trusted> -out libenclave_trusted_signed.so -config ${CMAKE_CURRENT_SOURCE_DIR}/Enclave.config.xml

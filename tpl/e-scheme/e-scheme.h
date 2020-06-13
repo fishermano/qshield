@@ -15,6 +15,7 @@ extern "C" {
 
 typedef uint8_t e_aes_gcm_128bit_tag_t[E_AESGCM_MAC_SIZE];
 
+#pragma pack(1)
 typedef struct{
   element_t gti;
   sgx_sha256_hash_t skbi_tag;
@@ -27,6 +28,7 @@ typedef struct{
 }e_ska;
 
 typedef struct{
+  uint8_t ph; // one byte placeholder used to make the struct accessed with uint_8 * pointer
   element_t g;
   element_t m;
   element_t r;
@@ -34,6 +36,7 @@ typedef struct{
   element_t sk;
   element_t skb[USER_NUM];
 }e_sk;
+#pragma pack(0)
 
 
 /**

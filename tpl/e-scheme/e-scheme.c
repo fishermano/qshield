@@ -29,6 +29,8 @@ sgx_status_t epairinginit(pairing_t pairing, const char* param, int count){
 
 sgx_status_t ekeygen(e_sk *esk, const char* param, int count){
   sgx_status_t ret = SGX_SUCCESS;
+
+  esk->ph = 0;
   /**
   init pairing
   */
