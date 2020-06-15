@@ -934,6 +934,78 @@ JNIEXPORT jbyteArray JNICALL Java_edu_xjtu_cs_cyx_qshield_execution_QShieldSGXEn
     return ret;
 }
 
+JNIEXPORT jbyteArray JNICALL Java_edu_xjtu_cs_cyx_qshield_execution_QShieldSGXEnclave_QProject
+  (JNIEnv *env, jobject obj, jlong eid, jbyteArray project_list, jbyteArray input_rows){
+  (void)obj;
+
+  jboolean if_copy;
+
+  uint32_t project_list_length = (uint32_t) env->GetArrayLength(project_list);
+  uint8_t *project_list_ptr = (uint8_t *) env->GetByteArrayElements(project_list, &if_copy);
+
+  uint32_t input_rows_length = (uint32_t) env->GetArrayLength(input_rows);
+  uint8_t *input_rows_ptr = (uint8_t *) env->GetByteArrayElements(input_rows, &if_copy);
+
+  uint8_t *output_rows = nullptr;
+  size_t output_rows_length = 0;
+
+  if (input_rows_ptr == nullptr) {
+    ocall_throw("QProject: JNI failed to get input byte array.");
+  } else {
+    sgx_check_and_time("QProject",
+                       ecall_qproject(
+                         eid,
+                         project_list_ptr, project_list_length,
+                         input_rows_ptr, input_rows_length,
+                         &output_rows, &output_rows_length));
+  }
+
+  env->ReleaseByteArrayElements(project_list, (jbyte *) project_list_ptr, 0);
+  env->ReleaseByteArrayElements(input_rows, (jbyte *) input_rows_ptr, 0);
+
+  jbyteArray ret = env->NewByteArray(output_rows_length);
+  env->SetByteArrayRegion(ret, 0, output_rows_length, (jbyte *) output_rows);
+  free(output_rows);
+
+  return ret;
+}
+
+JNIEXPORT jbyteArray JNICALL Java_edu_xjtu_cs_cyx_qshield_execution_QShieldSGXEnclave_QFilter
+  (JNIEnv *env, jobject obj, jlong eid, jbyteArray condition, jbyteArray input_rows){
+  (void)obj;
+
+  jboolean if_copy;
+
+  size_t condition_length = (size_t) env->GetArrayLength(condition);
+  uint8_t *condition_ptr = (uint8_t *) env->GetByteArrayElements(condition, &if_copy);
+
+  uint32_t input_rows_length = (uint32_t) env->GetArrayLength(input_rows);
+  uint8_t *input_rows_ptr = (uint8_t *) env->GetByteArrayElements(input_rows, &if_copy);
+
+  uint8_t *output_rows = nullptr;
+  size_t output_rows_length = 0;
+
+  if (input_rows_ptr == nullptr) {
+    ocall_throw("QFilter: JNI failed to get input byte array.");
+  } else {
+    sgx_check_and_time("QFilter",
+                       ecall_qfilter(
+                         eid,
+                         condition_ptr, condition_length,
+                         input_rows_ptr, input_rows_length,
+                         &output_rows, &output_rows_length));
+  }
+
+  env->ReleaseByteArrayElements(condition, (jbyte *) condition_ptr, 0);
+  env->ReleaseByteArrayElements(input_rows, (jbyte *) input_rows_ptr, 0);
+
+  jbyteArray ret = env->NewByteArray(output_rows_length);
+  env->SetByteArrayRegion(ret, 0, output_rows_length, (jbyte *) output_rows);
+  free(output_rows);
+
+  return ret;
+}
+
 JNIEXPORT void JNICALL Java_edu_xjtu_cs_cyx_qshield_execution_QShieldSGXEnclave_InitPairing
   (JNIEnv *env, jobject obj, jlong eid, jbyteArray param){
     (void)obj;

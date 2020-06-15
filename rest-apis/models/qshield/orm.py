@@ -24,7 +24,7 @@ def init_sql_ra_context(**kw):
     global __sqlContext
 
     try:
-        __config = SparkConf().setAll([('spark.jars', kw.get('jars','opaque-ext_2.11-0.1.jar,data-owner_2.11-0.1.jar')), ('spark.debug.maxToStringFields', '1000'), ('spark.driver.memory', '2g'), ('spark.executor.memory', '8g')])
+        __config = SparkConf().setAll([('spark.jars', kw.get('jars','opaque-ext_2.11-0.1.jar,data-owner_2.11-0.1.jar')), ('spark.debug.maxToStringFields', '1000'), ('spark.driver.memory', '2g'), ('spark.executor.memory', '2g')])
         __spark = SparkSession.builder.appName(kw.get('app_name', 'qshield')).master(kw.get('master', 'localhost')).config(conf=__config).getOrCreate()
         __sqlContext = SQLContext(__spark.sparkContext)
 
@@ -53,10 +53,16 @@ async def spark_sql_exe(obj, st, p, tk):
                             .load(obj.path)
     qdf = __spark._jvm.org.apache.spark.sql.QShieldDatasetFunctions(df._jdf)
     qdfAC = qdf.acPolicyApplied(tk)
-    qres = __spark._jvm.org.apache.spark.sql.QShieldDatasetFunctions(qdfAC)
+
+    dfAC = DataFrame(qdfAC, __sqlContext)
+    dffilter = dfAC.filter(dfAC['pageRank'] < 40)
+
+    dfproj = dffilter.select(dffilter['pageURL'])
+
+    qres = __spark._jvm.org.apache.spark.sql.QShieldDatasetFunctions(dfproj._jdf)
     qresPrep = qres.resPrepared()
-    dfAC = DataFrame(qresPrep, __sqlContext)
-    coll_fur = await asyncio.wrap_future(dfAC.collectAsync())
+    resPrep = DataFrame(qresPrep, __sqlContext)
+    coll_fur = await asyncio.wrap_future(resPrep.collectAsync())
     return coll_fur
 
 class DataObj(object):
@@ -143,9 +149,6 @@ class Model(dict, metaclass=ModelMetaclass):
         for row in res:
             logging.info('Has row [%d]: ' % i)
             i = i + 1
-            for k, v in cls.__mappings__.items():
-                if isinstance(v, StringField):
-                    logging.info('Col %s = %s' % (k, row[k]))
-                else:
-                    logging.info('Col %s = %s' % (k, str(row[k])))
+            for v in row:
+                logging.info('Value: %s' % str(v))
             logging.info('\n')

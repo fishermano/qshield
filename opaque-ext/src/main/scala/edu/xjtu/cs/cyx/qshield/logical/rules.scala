@@ -28,8 +28,21 @@ object ACPolicyApplyEncryptedBlockRDD extends Rule[LogicalPlan] {
   def apply(plan: LogicalPlan): LogicalPlan = plan transform {
     case ACPolicyApply(EncryptedBlockRDD(output, rdd), tk) =>
       ACPolicyAppliedEncryptedBlockRDD(output, rdd, tk)
+  }
+}
 
-    case r @ ResPrepared(child) =>
+object ConvertToQShieldOperators extends Rule[LogicalPlan] {
+
+  def isEncrypted(plan: LogicalPlan): Boolean = {
+    plan.find {
+      case _: OpaqueOperator => true
+      case _ => false
+    }.nonEmpty
+  }
+
+  def apply(plan: LogicalPlan): LogicalPlan = plan transformUp {
+
+    case r @ ResPrepared(child) if isEncrypted(child) =>
       ResPreparedEncryptedBlockRDD(child.asInstanceOf[OpaqueOperator])
   }
 }

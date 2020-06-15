@@ -18,7 +18,7 @@
 package edu.xjtu.cs.cyx.qshield
 
 import edu.xjtu.cs.cyx.qshield.execution.QShieldSGXEnclave
-import edu.xjtu.cs.cyx.qshield.logical.ACPolicyApplyEncryptedBlockRDD
+import edu.xjtu.cs.cyx.qshield.logical._
 import edu.berkeley.cs.rise.opaque.logical.ConvertToOpaqueOperators
 import edu.berkeley.cs.rise.opaque.Utils
 
@@ -33,7 +33,7 @@ object QShieldUtils extends Logging{
   // perform remote attestation with sql context
   def initQShieldSQLContext(sqlContext: SQLContext): Unit = {
     sqlContext.experimental.extraOptimizations =
-      (Seq(ACPolicyApplyEncryptedBlockRDD, ConvertToOpaqueOperators) ++
+      (Seq(ACPolicyApplyEncryptedBlockRDD, ConvertToOpaqueOperators, ConvertToQShieldOperators) ++
         sqlContext.experimental.extraOptimizations)
     sqlContext.experimental.extraStrategies =
       (Seq(QShieldOperators) ++

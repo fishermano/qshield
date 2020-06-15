@@ -1,5 +1,42 @@
 #include "QFlatbuffersWriters.h"
 
+flatbuffers::Offset<qix::QMeta> QRowWriter::unary_update_meta(
+  const qix::QMeta *meta, bool is_first_node, std::string parent, flatbuffers::FlatBufferBuilder& builder){
+
+    if(meta->w() <= 0){
+      throw std::runtime_error(
+        parent
+        + std::string(" refuses to run for insufficient w."));
+    }
+
+    if(is_first_node){
+
+    }
+
+    uint32_t trace_num = meta->exe_trace()->size() +1;
+    std::vector<flatbuffers::Offset<qix::QTrace>> trace_values(trace_num);
+    flatbuffers::uoffset_t i = 0;
+    for(; i < trace_num -1; i++){
+      trace_values[i] = qix::CreateQTrace(
+                          builder,
+                          builder.CreateString(meta->exe_trace()->Get(i)->parent()),
+                          builder.CreateString(meta->exe_trace()->Get(i)->child_left()),
+                          builder.CreateString(meta->exe_trace()->Get(i)->child_right()));
+    }
+    trace_values[i] = qix::CreateQTrace(
+                          builder,
+                          builder.CreateString(parent),
+                          builder.CreateString(meta->exe_trace()->Get(i-1)->parent()),
+                          builder.CreateString("null"));
+    auto result = qix::CreateQMeta(
+                            builder,
+                            builder.CreateVector(meta->uid()->data(), meta->uid()->size()),
+                            meta->c(),
+                            meta->w()-1,
+                            builder.CreateVector(trace_values));
+    return result;
+}
+
 flatbuffers::Offset<qix::QMeta> QRowWriter::flatbuffers_copy_meta(
   const qix::QMeta *meta, flatbuffers::FlatBufferBuilder& builder){
 
@@ -50,7 +87,6 @@ void QRowWriter::finish_block(){
 }
 
 void QRowWriter::set_meta(const qix::QMeta *mt){
-  // this->meta = flatbuffers_copy_meta(mt, blocks_builder);
   this->meta = flatbuffers_copy_meta(mt, builder);
 }
 

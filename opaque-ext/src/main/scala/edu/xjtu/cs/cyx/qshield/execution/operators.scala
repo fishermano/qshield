@@ -84,7 +84,7 @@ case class QEncryptedFilterExec(condition: Expression, child: SparkPlan)
     timeOperator(child.asInstanceOf[OpaqueOperatorExec].executeBlocked(), "EncryptedFilterExec") {
       childRDD => childRDD.map { block =>
         val (enclave, eid) = QShieldUtils.initEnclave()
-        Block(enclave.Filter(eid, conditionSer, block.bytes))
+        Block(enclave.QFilter(eid, conditionSer, block.bytes))
       }
     }
   }
@@ -106,7 +106,7 @@ case class QEncryptedProjectExec(projectList: Seq[NamedExpression], child: Spark
     timeOperator(child.asInstanceOf[OpaqueOperatorExec].executeBlocked(), "EncryptedProjectExec") {
       childRDD => childRDD.map { block =>
         val (enclave, eid) = QShieldUtils.initEnclave()
-        Block(enclave.Project(eid, projectListSer, block.bytes))
+        Block(enclave.QProject(eid, projectListSer, block.bytes))
       }
     }
   }

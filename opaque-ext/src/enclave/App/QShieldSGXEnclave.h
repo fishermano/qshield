@@ -7,22 +7,18 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-/*
- * Class:     edu_xjtu_cs_cyx_qshield_execution_QShieldSGXEnclave
- * Method:    ACPolicyApplied
- * Signature: (J[B[B)[B
- */
+
 JNIEXPORT jbyteArray JNICALL Java_edu_xjtu_cs_cyx_qshield_execution_QShieldSGXEnclave_ACPolicyApplied
   (JNIEnv *, jobject, jlong, jbyteArray, jbyteArray);
 
-/*
- * Class:     edu_xjtu_cs_cyx_qshield_execution_QShieldSGXEnclave
- * Method:    ResPrepared
- * Signature: (J[B)[B
- */
 JNIEXPORT jbyteArray JNICALL Java_edu_xjtu_cs_cyx_qshield_execution_QShieldSGXEnclave_ResPrepared
   (JNIEnv *, jobject, jlong, jbyteArray);
 
+JNIEXPORT jbyteArray JNICALL Java_edu_xjtu_cs_cyx_qshield_execution_QShieldSGXEnclave_QProject
+  (JNIEnv *, jobject, jlong, jbyteArray, jbyteArray);
+
+JNIEXPORT jbyteArray JNICALL Java_edu_xjtu_cs_cyx_qshield_execution_QShieldSGXEnclave_QFilter
+  (JNIEnv *, jobject, jlong, jbyteArray, jbyteArray);
 
 JNIEXPORT void JNICALL Java_edu_xjtu_cs_cyx_qshield_execution_QShieldSGXEnclave_InitPairing
   (JNIEnv *, jobject, jlong, jbyteArray);

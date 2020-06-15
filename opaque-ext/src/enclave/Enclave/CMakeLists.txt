@@ -20,6 +20,8 @@ set(SOURCES
   ${CMAKE_CURRENT_BINARY_DIR}/Enclave_t.c
   ACPolicyApplied.cpp
   ResPrepared.cpp
+  QProject.cpp
+  QFilter.cpp
   QFlatbuffersReaders.cpp
   QFlatbuffersWriters.cpp
   QCrypto.cpp)

@@ -42,6 +42,9 @@ public:
 
   uint32_t num_rows();
 
+  flatbuffers::Offset<qix::QMeta> unary_update_meta(
+    const qix::QMeta *meta, bool is_first_node, std::string parent, flatbuffers::FlatBufferBuilder& builder);
+
 private:
   flatbuffers::Offset<qix::QMeta> flatbuffers_copy_meta(
     const qix::QMeta *meta, flatbuffers::FlatBufferBuilder& builder);

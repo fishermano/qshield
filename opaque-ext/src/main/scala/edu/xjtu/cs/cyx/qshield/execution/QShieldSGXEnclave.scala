@@ -25,5 +25,8 @@ class QShieldSGXEnclave extends SGXEnclave with java.io.Serializable {
   @native def ACPolicyApplied(eid: Long, input: Array[Byte], tk: Array[Byte]): Array[Byte]
   @native def ResPrepared(eid: Long, input: Array[Byte]): Array[Byte]
 
+  @native def QProject(eid: Long, projectList: Array[Byte], input: Array[Byte]): Array[Byte]
+  @native def QFilter(eid: Long, condition: Array[Byte], input: Array[Byte]): Array[Byte]
+
   @native def InitPairing(eid: Long, param: Array[Byte]): Unit
 }

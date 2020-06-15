@@ -89,6 +89,16 @@ enclave {
 
     public void ecall_pairing_init(
       [user_check] uint8_t *param, size_t param_length);
+
+    public void ecall_qproject(
+      [in, count=project_list_length] uint8_t *project_list, size_t project_list_length,
+      [user_check] uint8_t *input_rows, size_t input_rows_length,
+      [out] uint8_t **output_rows, [out] size_t *output_rows_length);
+
+    public void ecall_qfilter(
+      [in, count=condition_length] uint8_t *condition, size_t condition_length,
+      [user_check] uint8_t *input_rows, size_t input_rows_length,
+      [out] uint8_t **output_rows, [out] size_t *output_rows_length);
   };
 
   untrusted {
