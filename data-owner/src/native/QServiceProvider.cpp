@@ -51,17 +51,28 @@ void QServiceProvider::encrypt(uint8_t *plaintext, uint32_t plaintext_length,
       "memory of ciphertext should be malloced by the caller.");
   }
 
+  /*
+   * Error: undefined symbol: memset_s
+   */
+  // uint8_t *iv_ptr = ciphertext;
+  // uint8_t *ciphertext_ptr = ciphertext + SGX_AESGCM_IV_SIZE;
+  // sgx_aes_gcm_128bit_tag_t *mac_ptr =
+  //   (sgx_aes_gcm_128bit_tag_t *) (ciphertext + SGX_AESGCM_IV_SIZE + plaintext_length);
+  // sgx_status_t ret = eenc(&g_e_sk.sk,
+  //                           plaintext, plaintext_length,
+  //                           ciphertext_ptr,
+  //                           iv_ptr, SGX_AESGCM_IV_SIZE,
+  //                           NULL, 0,
+  //                           mac_ptr);
+  // if(SGX_SUCCESS != ret){
+  //   throw std::runtime_error(
+  //     std::string("e scheme data encrypt error. "));
+  // }
+
   uint8_t *iv_ptr = ciphertext;
   uint8_t *ciphertext_ptr = ciphertext + SAMPLE_AESGCM_IV_SIZE;
   sample_aes_gcm_128bit_tag_t *mac_ptr =
     (sample_aes_gcm_128bit_tag_t *) (ciphertext + SAMPLE_AESGCM_IV_SIZE + plaintext_length);
-
-  // sgx_status_t ret = eenc(&g_e_sk.sk,
-  //                           plaintext, plaintext_length,
-  //                           ciphertext_ptr,
-  //                           iv_ptr, E_AESGCM_IV_SIZE,
-  //                           NULL, 0,
-  //                           mac_ptr);
   sample_status_t ret = SAMPLE_SUCCESS;
 
   uint32_t sk_len = element_length_in_bytes(g_e_sk.sk);
@@ -77,13 +88,6 @@ void QServiceProvider::encrypt(uint8_t *plaintext, uint32_t plaintext_length,
                                     NULL, 0,
                                     mac_ptr);
 
-  // //for test only
-  // ret = sample_rijndael128GCM_encrypt(reinterpret_cast<sample_aes_gcm_128bit_key_t *>(shared_key),
-  //                                   plaintext, plaintext_length,
-  //                                   ciphertext_ptr,
-  //                                   iv_ptr, SAMPLE_AESGCM_IV_SIZE,
-  //                                   NULL, 0,
-  //                                   mac_ptr);
   if(SAMPLE_SUCCESS != ret){
     throw std::runtime_error(
       std::string("e scheme data encrypt error. "));
@@ -204,30 +208,20 @@ std::unique_ptr<q_ra_msg4_t> QServiceProvider::process_msg3(
   }
 
   // Generate msg4, containing ska to be sent to the enclave.
-  uint32_t sk_len = element_length_in_bytes(g_e_sk.sk);
-  unsigned char sk_str[sk_len];
-  element_to_bytes(sk_str, g_e_sk.sk);
-
-  *msg4_size = sizeof(q_ra_msg4_t) + sk_len;
+  uint32_t sk_a_len = sizeof(e_ska);
+  *msg4_size = sizeof(q_ra_msg4_t) + sk_a_len;
   void *ct = (void *)malloc(*msg4_size);
   uint8_t aes_gcm_iv[LC_AESGCM_IV_SIZE] = {0};
   lc_check(lc_rijndael128GCM_encrypt(&sp_db.sk_key,
-                                     sk_str, sk_len,
+                                     &g_e_sk.ska.ph, sk_a_len,
                                      ((q_ra_msg4_t *)ct)->shared_key_ciphertext,
                                      &aes_gcm_iv[0], LC_AESGCM_IV_SIZE,
                                      nullptr, 0,
                                      &((q_ra_msg4_t *)ct)->shared_key_mac));
-  ((q_ra_msg4_t *)ct)->shared_key_size = sk_len;
+  ((q_ra_msg4_t *)ct)->shared_key_size = sk_a_len;
 
-  // std::unique_ptr<q_ra_msg4_t> msg4(new q_ra_msg4_t);
   std::unique_ptr<q_ra_msg4_t> msg4((q_ra_msg4_t *)ct);
 
-  // lc_check(lc_rijndael128GCM_encrypt(&sp_db.sk_key,
-  //                                    shared_key, LC_AESGCM_KEY_SIZE,
-  //                                    &msg4->shared_key_ciphertext[0],
-  //                                    &aes_gcm_iv[0], LC_AESGCM_IV_SIZE,
-  //                                    nullptr, 0,
-  //                                    &msg4->shared_key_mac));
   return msg4;
 }
 

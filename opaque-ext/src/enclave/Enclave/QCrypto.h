@@ -17,4 +17,7 @@ void tk_decrypt(const uint8_t *ciphertext, uint32_t ciphertext_length, uint8_t *
 
 void set_ska(sgx_ra_context_t context, uint8_t *msg4_bytes, uint32_t msg4_size);
 
+//for test only
+void init_pairing_env(const char *param, uint32_t count);
+
 #endif//QCRYPTO_H

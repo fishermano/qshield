@@ -9,9 +9,10 @@
 #include "Crypto.h"
 #include "escheme/e-scheme.h"
 
-// e_ska ska;
-// e_sk g_sk
-unsigned char *sk_str;
+e_ska sk_a;
+element_t sk_b[USER_NUM];
+
+extern sgx_aes_gcm_128bit_key_t shared_key;
 
 sgx_aes_gcm_128bit_key_t rdd_key = {0};
 std::unique_ptr<KeySchedule> rdd_ks;
@@ -46,14 +47,13 @@ void set_ska(sgx_ra_context_t context, uint8_t *msg4_bytes, uint32_t msg4_size){
   sgx_check(sgx_ra_get_keys(context, SGX_RA_KEY_SK, &sk_key));
 
   uint8_t aes_gcm_iv[SGX_AESGCM_IV_SIZE] = {0};
-
-  sk_str = (unsigned char *)malloc(msg4->shared_key_size);
   sgx_check(sgx_rijndael128GCM_decrypt(&sk_key,
                                        &msg4->shared_key_ciphertext[0], msg4->shared_key_size,
-                                       sk_str,
+                                       &sk_a.ph,
                                        &aes_gcm_iv[0], SGX_AESGCM_IV_SIZE,
                                        nullptr, 0,
                                        &msg4->shared_key_mac));
+
 }
 
 void rdd_encrypt(uint8_t *plaintext, uint32_t plaintext_length, uint8_t *ciphertext){
@@ -115,4 +115,16 @@ void tk_decrypt(const uint8_t *ciphertext, uint32_t ciphertext_length, uint8_t *
   if (memcmp(mac_ptr, decipher.tag().t, SGX_AESGCM_MAC_SIZE) != 0) {
     printf("Decrypt: invalid mac\n");
   }
+}
+
+void init_pairing_env(const char *param, uint32_t count){
+  e_sk g_e_sk;
+  sgx_status_t ret = ekeygen(&g_e_sk, param, count);
+  if(SGX_SUCCESS != ret){
+    throw std::runtime_error(
+      std::string("enclave e scheme key generate error. "));
+  }
+  memcpy(&sk_a.ph, &g_e_sk.ska.ph, sizeof(e_ska));
+  memcpy(&sk_b, &g_e_sk.skb, USER_NUM*sizeof(element_t));
+  (void)g_e_sk;
 }

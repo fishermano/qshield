@@ -86,6 +86,9 @@ enclave {
     public void ecall_res_prepared(
       [user_check] uint8_t *input_rows, size_t input_rows_length,
       [out] uint8_t **output_rows, [out] size_t *output_rows_length);
+
+    public void ecall_pairing_init(
+      [user_check] uint8_t *param, size_t param_length);
   };
 
   untrusted {

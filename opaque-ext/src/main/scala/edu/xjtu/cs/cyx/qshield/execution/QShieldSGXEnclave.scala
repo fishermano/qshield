@@ -24,4 +24,6 @@ import edu.berkeley.cs.rise.opaque.execution.SGXEnclave
 class QShieldSGXEnclave extends SGXEnclave with java.io.Serializable {
   @native def ACPolicyApplied(eid: Long, input: Array[Byte], tk: Array[Byte]): Array[Byte]
   @native def ResPrepared(eid: Long, input: Array[Byte]): Array[Byte]
+
+  @native def InitPairing(eid: Long, param: Array[Byte]): Unit
 }

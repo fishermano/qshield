@@ -79,9 +79,16 @@ object QOwnerStuber extends Logging {
 
       val msg4s = msg3s.mapValues(msg3 => qsp.QSPProcMsg3(msg3)).map(identity)
 
+      import java.io.BufferedInputStream
+      import java.io.FileInputStream
+      import scala.language.postfixOps
+      val bis = new BufferedInputStream(new FileInputStream("/home/hadoop/QShield-DP/data-owner/src/main/resources/param/a.param"))
+      val bArray = Stream.continually(bis.read).takeWhile(-1 !=).map(_.toByte).toArray
+
       val statuses = rdd.mapPartitionsWithIndex { (i, _) =>
         val (enclave, eid) = QShieldUtils.initEnclave()
         enclave.RemoteAttestation3(eid, msg4s(i))
+        enclave.InitPairing(eid, bArray)
         Iterator((i, true))
       }.collect.toMap
 

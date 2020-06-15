@@ -5,12 +5,13 @@
 #include "QFlatbuffersReaders.h"
 #include "QFlatbuffersWriters.h"
 
-#include "escheme/e-scheme.h"
-
 #include <string.h>
 
-extern unsigned char *sk_str;
+#include "escheme/e-scheme.h"
+
 extern sgx_aes_gcm_128bit_key_t shared_key;
+extern e_ska sk_a;
+extern element_t sk_b[USER_NUM];
 
 using namespace edu::berkeley::cs::rise::opaque;
 using namespace edu::xjtu::cs::cyx::qshield;
@@ -18,17 +19,12 @@ using namespace edu::xjtu::cs::cyx::qshield;
 void ac_policy_applied(uint8_t *input_rows, size_t input_rows_length,
                         uint8_t *tk, size_t tk_length,
                         uint8_t **output_rows, size_t *output_rows_length) {
-
-  //reconstruct shared secret key
-  // uint32_t sk_len = element_length_in_bytes(g_sk.sk);
-
-  // unsigned char sk_str[sk_len];
-  // element_to_bytes(sk_str, g_sk.sk);
-  // (void)sk_str;
-  memcpy(reinterpret_cast<uint8_t *>(shared_key), reinterpret_cast<uint8_t *>(sk_str), SGX_AESGCM_KEY_SIZE);
-
-  // char shared_key_str[16] = {'O','p','a','q','u','e',' ','d','e','v','e','l',' ','k','e','y'};
-  // memcpy(reinterpret_cast<uint8_t *>(shared_key), reinterpret_cast<uint8_t *>(shared_key_str), SGX_AESGCM_KEY_SIZE);
+  //reconstruct decryption key
+  unsigned char *sk_bytes = (unsigned char *)malloc(SGX_AESGCM_KEY_SIZE);
+  if (SGX_SUCCESS != erec(&sk_a, &sk_b[0], reinterpret_cast<void **>(&sk_bytes))){
+      ocall_throw("sk reconstruction failed!!!");
+  }
+  memcpy(reinterpret_cast<uint8_t *>(shared_key), reinterpret_cast<uint8_t *>(sk_bytes), SGX_AESGCM_KEY_SIZE);
   initKeySchedule();
 
   RowReader row_r(BufferRefView<tuix::EncryptedBlocks>(input_rows, input_rows_length));

@@ -30,7 +30,8 @@ sgx_status_t epairinginit(pairing_t pairing, const char* param, int count){
 sgx_status_t ekeygen(e_sk *esk, const char* param, int count){
   sgx_status_t ret = SGX_SUCCESS;
 
-  esk->ph = 0;
+  esk->ph = 100;
+  esk->ska.ph = 50;
   /**
   init pairing
   */
@@ -135,7 +136,7 @@ sgx_status_t eenc(element_t *sk,
   uint8_t sk_str[sk_len];
   element_to_bytes(sk_str, *sk);
   uint8_t u_key[16];
-  strncpy(u_key, sk_str, 16);
+  strncpy(u_key, sk_str, SGX_AESGCM_KEY_SIZE);
   ret = sgx_rijndael128GCM_encrypt(&u_key,
                                     p_src, src_len,
                                     p_dst,
@@ -211,5 +212,63 @@ sgx_status_t edec(e_ska *sk_a, element_t *sk_b,
                                     p_iv, iv_len,
                                     p_aad, aad_len,
                                     p_in_mac);
+  return ret;
+}
+
+sgx_status_t erec(e_ska *sk_a, element_t *sk_b, void **sk_bytes){
+  sgx_status_t ret = SGX_SUCCESS;
+
+  sgx_sha256_hash_t sk_b_tag;
+
+  uint32_t sk_b_len = element_length_in_bytes(*sk_b);
+  uint8_t sk_b_str[sk_b_len];
+  element_to_bytes(sk_b_str, *sk_b);
+  sgx_sha_state_handle_t sha_context;
+  ret = sgx_sha256_init(&sha_context);
+  if(SGX_SUCCESS != ret){
+    return ret;
+  }
+  ret = sgx_sha256_update(sk_b_str, sk_b_len, sha_context);
+  if(SGX_SUCCESS != ret){
+    return ret;
+  }
+  ret = sgx_sha256_get_hash(sha_context, &sk_b_tag);
+  if(SGX_SUCCESS != ret){
+    sgx_sha256_close(sha_context);
+    return ret;
+  }
+  sgx_sha256_close(sha_context);
+
+  //find the gti of sk_b
+  bool flag = false;
+  element_t gti;
+  element_init_G1(gti, sk_a->pairing);
+  for(int i = 0; i < USER_NUM; i++){
+    flag=etag_is_same(&sk_b_tag, &(sk_a->comps[i].skbi_tag));
+    if(flag){
+      element_set(gti, sk_a->comps[i].gti);
+      break;
+    }
+  }
+  if(!flag){
+    return SGX_ERROR_UNEXPECTED;
+  }
+
+  //get sk
+  element_t tmp1, tmp2;
+  element_init_GT(tmp1, sk_a->pairing);
+  element_init_GT(tmp2, sk_a->pairing);
+  pairing_apply(tmp1, gti, *sk_b, sk_a->pairing);
+  element_mul(tmp2, sk_a->sk_a, sk_a->sk_a);
+  element_t sk;
+  element_init_GT(sk, sk_a->pairing);
+  element_div(sk, tmp2, tmp1);
+
+  //decrypt aes_gcm_data_t
+  uint32_t len = element_length_in_bytes(sk);
+  uint8_t sk_str[len];
+  element_to_bytes(sk_str, sk);
+  strncpy(*sk_bytes, sk_str, SGX_AESGCM_KEY_SIZE);
+
   return ret;
 }

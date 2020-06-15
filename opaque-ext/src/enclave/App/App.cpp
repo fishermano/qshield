@@ -933,3 +933,22 @@ JNIEXPORT jbyteArray JNICALL Java_edu_xjtu_cs_cyx_qshield_execution_QShieldSGXEn
 
     return ret;
 }
+
+JNIEXPORT void JNICALL Java_edu_xjtu_cs_cyx_qshield_execution_QShieldSGXEnclave_InitPairing
+  (JNIEnv *env, jobject obj, jlong eid, jbyteArray param){
+    (void)obj;
+
+    jboolean if_copy;
+
+    uint32_t param_length = (uint32_t) env->GetArrayLength(param);
+    uint8_t *param_ptr = (uint8_t *) env->GetByteArrayElements(param, &if_copy);
+
+    if (param_ptr == nullptr) {
+      ocall_throw("InitPairing: JNI failed to get param byte array.");
+    } else {
+      sgx_check_and_time("InitPairing",
+                         ecall_pairing_init(
+                           eid,
+                           param_ptr, param_length));
+    }
+}

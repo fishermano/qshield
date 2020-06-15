@@ -23,6 +23,10 @@ JNIEXPORT jbyteArray JNICALL Java_edu_xjtu_cs_cyx_qshield_execution_QShieldSGXEn
 JNIEXPORT jbyteArray JNICALL Java_edu_xjtu_cs_cyx_qshield_execution_QShieldSGXEnclave_ResPrepared
   (JNIEnv *, jobject, jlong, jbyteArray);
 
+
+JNIEXPORT void JNICALL Java_edu_xjtu_cs_cyx_qshield_execution_QShieldSGXEnclave_InitPairing
+  (JNIEnv *, jobject, jlong, jbyteArray);
+
 #ifdef __cplusplus
 }
 #endif

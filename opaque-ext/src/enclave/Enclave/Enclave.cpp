@@ -249,11 +249,9 @@ void ecall_enclave_ra_close(sgx_ra_context_t context) {
 void ecall_ra_proc_msg4(
   sgx_ra_context_t context, uint8_t *msg4, uint32_t msg4_size) {
   try {
-    // set_shared_key(context, msg4, msg4_size);
-    // initKeySchedule();
-    init_tk_key_schedule();
     set_ska(context, msg4, msg4_size);
     init_rdd_key_schedule();
+    init_tk_key_schedule();
   } catch (const std::runtime_error &e) {
     ocall_throw(e.what());
   }
@@ -288,6 +286,21 @@ void ecall_res_prepared(
     try{
       res_prepared(input_rows, input_rows_length,
                     output_rows, output_rows_length);
+    } catch (const std::runtime_error &e) {
+      ocall_throw(e.what());
+    }
+}
+
+
+void ecall_pairing_init(
+  uint8_t *param, size_t param_length){
+
+    // Guard against operating on arbitrary enclave memory
+    assert(sgx_is_outside_enclave(param, param_length) == 1);
+    sgx_lfence();
+
+    try{
+      init_pairing_env(reinterpret_cast<const char*>(param), param_length);
     } catch (const std::runtime_error &e) {
       ocall_throw(e.what());
     }

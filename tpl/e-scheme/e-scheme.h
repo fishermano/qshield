@@ -22,6 +22,7 @@ typedef struct{
 }e_ska_compon;
 
 typedef struct{
+ uint8_t ph; // one byte placeholder used to make the struct accessed with uint_8 * pointer
  element_t sk_a;
  pairing_t pairing;
  e_ska_compon comps[USER_NUM];
@@ -55,6 +56,8 @@ sgx_status_t edec(e_ska *sk_a, element_t *sk_b,
                   uint8_t *p_iv, uint32_t iv_len,
                   uint8_t *p_aad, uint32_t aad_len,
                   e_aes_gcm_128bit_tag_t *p_in_mac);
+
+sgx_status_t erec(e_ska *sk_a, element_t *sk_b, void **sk_bytes);
 
 #ifdef __cplusplus
 };
