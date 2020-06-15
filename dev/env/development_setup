@@ -474,8 +474,30 @@ or "copy pysaprk py4j source code from spark protject to /home/hadoop/.local/lib
 ~$ pip3 install pyspark-asyncactions
 
 ########################################################################
-setup qshield development environment
+setup QShield-DP development environment
 ########################################################################
 
 install pyinstaller:
 ~ pip3 install pyinstaller
+
+########################################################################
+dependencies for compiling QShield-DP
+########################################################################
+
+install sgx-enabled GMP library:
+~$ cp ./QShield-DP/tpl/sgx-gmp/sgx_tgmp.h /opt/sgxsdk/include
+~$ cp ./QShield-DP/tpl/sgx-gmp/libsgx_tgmp.a /opt/sgxsdk/lib64
+
+install sgx-enabled PBC library:
+~$ cd ./QShield-DP/tpl/sgx-pbc
+~/QShield-DP/tpl/sgx-pbc$ ./bootstrap
+~/QShield-DP/tpl/sgx-pbc$ ./configure prefix=/opt/sgxsdk
+~/QShield-DP/tpl/sgx-pbc$ make
+~/QShield-DP/tpl/sgx-pbc$ make install
+
+install sgx-enabled e-scheme library:
+~$ cd ./QShield-DP/tpl/e-scheme
+~/QShield-DP/tpl/e-scheme$ ./bootstrap
+~/QShield-DP/tpl/e-scheme$ ./configure prefix=/opt/sgxsdk
+~/QShield-DP/tpl/e-scheme$ make
+~/QShield-DP/tpl/e-scheme$ make install

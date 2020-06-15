@@ -5,7 +5,6 @@
 
 #include "ServiceProvider.h"
 #include "escheme/e-scheme.h"
-#include "sample_libcrypto.h"
 
 #include <sgx_key_exchange.h>
 

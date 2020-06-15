@@ -36,7 +36,7 @@ void QServiceProvider::setup(const char *param, int count){
 }
 
 uint32_t QServiceProvider::enc_size(uint32_t plaintext_size) {
-  return plaintext_size + SAMPLE_AESGCM_IV_SIZE + SAMPLE_AESGCM_MAC_SIZE;
+  return plaintext_size + LC_AESGCM_IV_SIZE + LC_AESGCM_MAC_SIZE;
 }
 
 void QServiceProvider::encrypt(uint8_t *plaintext, uint32_t plaintext_length,
@@ -70,28 +70,23 @@ void QServiceProvider::encrypt(uint8_t *plaintext, uint32_t plaintext_length,
   // }
 
   uint8_t *iv_ptr = ciphertext;
-  uint8_t *ciphertext_ptr = ciphertext + SAMPLE_AESGCM_IV_SIZE;
-  sample_aes_gcm_128bit_tag_t *mac_ptr =
-    (sample_aes_gcm_128bit_tag_t *) (ciphertext + SAMPLE_AESGCM_IV_SIZE + plaintext_length);
-  sample_status_t ret = SAMPLE_SUCCESS;
+  uint8_t *ciphertext_ptr = ciphertext + LC_AESGCM_IV_SIZE;
+  lc_aes_gcm_128bit_tag_t *mac_ptr =
+    (lc_aes_gcm_128bit_tag_t *) (ciphertext + LC_AESGCM_IV_SIZE + plaintext_length);
 
   uint32_t sk_len = element_length_in_bytes(g_e_sk.sk);
   unsigned char sk_str[sk_len];
   element_to_bytes(sk_str, g_e_sk.sk);
-  uint8_t u_key[SAMPLE_AESGCM_KEY_SIZE];
-  memcpy(u_key, reinterpret_cast<uint8_t *>(sk_str), SAMPLE_AESGCM_KEY_SIZE);
+  uint8_t u_key[LC_AESGCM_KEY_SIZE];
+  memcpy(u_key, reinterpret_cast<uint8_t *>(sk_str), LC_AESGCM_KEY_SIZE);
 
-  ret = sample_rijndael128GCM_encrypt(reinterpret_cast<sample_aes_gcm_128bit_key_t *>(u_key),
+  lc_check(lc_rijndael128GCM_encrypt(reinterpret_cast<lc_aes_gcm_128bit_key_t *>(u_key),
                                     plaintext, plaintext_length,
                                     ciphertext_ptr,
-                                    iv_ptr, SAMPLE_AESGCM_IV_SIZE,
+                                    iv_ptr, LC_AESGCM_IV_SIZE,
                                     NULL, 0,
-                                    mac_ptr);
+                                    mac_ptr));
 
-  if(SAMPLE_SUCCESS != ret){
-    throw std::runtime_error(
-      std::string("e scheme data encrypt error. "));
-  }
 }
 
 element_t *QServiceProvider::get_skb(uint32_t id){
@@ -229,5 +224,5 @@ void QServiceProvider::get_sk(uint8_t **sk){
   uint32_t sk_len = element_length_in_bytes(g_e_sk.sk);
   unsigned char sk_str[sk_len];
   element_to_bytes(sk_str, g_e_sk.sk);
-  memcpy(*sk, reinterpret_cast<uint8_t *>(sk_str), SAMPLE_AESGCM_KEY_SIZE);
+  memcpy(*sk, reinterpret_cast<uint8_t *>(sk_str), LC_AESGCM_KEY_SIZE);
 }
