@@ -65,6 +65,37 @@ private:
   bool finished;
 
   flatbuffers::Offset<qix::QMeta> meta;
+
+  friend class QSortedRunsWriter;
+};
+
+/** Append-only container for rows wrapped in qix::QSortedRuns. */
+class QSortedRunsWriter {
+public:
+  QSortedRunsWriter() : container() {}
+
+  void clear();
+
+  void append(const tuix::Row *row);
+
+  void append(const std::vector<const tuix::Field *> &row_fields);
+
+  void append(const tuix::Row *row1, const tuix::Row *row2);
+
+  void finish_run();
+
+  uint32_t num_runs();
+
+  UntrustedBufferRef<qix::QSortedRuns> output_buffer();
+
+  QRowWriter *as_row_writer();
+
+  void set_meta(const qix::QMeta *meta);
+
+private:
+  QRowWriter container;
+  std::vector<flatbuffers::Offset<qix::QEncryptedBlocks>> runs;
+
 };
 
 #endif//QFLATBUFFERS_WRITERS_H

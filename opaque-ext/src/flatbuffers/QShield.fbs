@@ -41,3 +41,7 @@ table QBlocks{
 table QEncryptedBlocks{
   enc_blocks:[ubyte];
 }
+
+table QSortedRuns{
+  runs:[QEncryptedBlocks];
+}

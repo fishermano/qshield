@@ -20,6 +20,27 @@ JNIEXPORT jbyteArray JNICALL Java_edu_xjtu_cs_cyx_qshield_execution_QShieldSGXEn
 JNIEXPORT jbyteArray JNICALL Java_edu_xjtu_cs_cyx_qshield_execution_QShieldSGXEnclave_QFilter
   (JNIEnv *, jobject, jlong, jbyteArray, jbyteArray);
 
+JNIEXPORT jobject JNICALL Java_edu_xjtu_cs_cyx_qshield_execution_QShieldSGXEnclave_QAggregateStep1
+  (JNIEnv *, jobject, jlong, jbyteArray, jbyteArray);
+
+JNIEXPORT jbyteArray JNICALL Java_edu_xjtu_cs_cyx_qshield_execution_QShieldSGXEnclave_QAggregateStep2
+  (JNIEnv *, jobject, jlong, jbyteArray, jbyteArray, jbyteArray, jbyteArray, jbyteArray);
+
+JNIEXPORT jbyteArray JNICALL Java_edu_xjtu_cs_cyx_qshield_execution_QShieldSGXEnclave_QSample
+  (JNIEnv *, jobject, jlong, jbyteArray);
+
+JNIEXPORT jbyteArray JNICALL Java_edu_xjtu_cs_cyx_qshield_execution_QShieldSGXEnclave_QFindRangeBounds
+  (JNIEnv *, jobject, jlong, jbyteArray, jint, jbyteArray);
+
+JNIEXPORT jobjectArray JNICALL Java_edu_xjtu_cs_cyx_qshield_execution_QShieldSGXEnclave_QPartitionForSort
+  (JNIEnv *, jobject, jlong, jbyteArray, jint, jbyteArray, jbyteArray);
+
+JNIEXPORT jbyteArray JNICALL Java_edu_xjtu_cs_cyx_qshield_execution_QShieldSGXEnclave_QExternalSort
+  (JNIEnv *, jobject, jlong, jbyteArray, jbyteArray);
+
+JNIEXPORT jbyteArray JNICALL Java_edu_xjtu_cs_cyx_qshield_execution_QShieldSGXEnclave_QConcatBlocks
+  (JNIEnv *, jobject, jlong, jbyteArray);
+
 JNIEXPORT void JNICALL Java_edu_xjtu_cs_cyx_qshield_execution_QShieldSGXEnclave_InitPairing
   (JNIEnv *, jobject, jlong, jbyteArray);
 

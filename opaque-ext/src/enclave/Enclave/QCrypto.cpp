@@ -23,7 +23,9 @@ std::unique_ptr<KeySchedule> tk_ks;
 void init_rdd_key_schedule(){
   // one enclave, for test only.
   // rdd_key should be negotiated by all enclaves through attestation for a practicl distributed environment.
-  sgx_read_rand(reinterpret_cast<uint8_t *>(rdd_key), SGX_AESGCM_KEY_SIZE);
+  // sgx_read_rand(reinterpret_cast<uint8_t *>(rdd_key), SGX_AESGCM_KEY_SIZE);
+  char rdd_key_str[16] = {'Q','S','h','i','e','l','d','d','e','v','e','l',' ','k','e','y'};
+  memcpy(reinterpret_cast<uint8_t *>(rdd_key), reinterpret_cast<uint8_t *>(rdd_key_str), SGX_AESGCM_KEY_SIZE);
   rdd_ks.reset(new KeySchedule(reinterpret_cast<unsigned char*>(rdd_key), SGX_AESGCM_KEY_SIZE));
 }
 

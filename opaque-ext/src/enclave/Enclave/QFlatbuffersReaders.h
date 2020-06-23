@@ -92,4 +92,52 @@ private:
   QBlockToQRowReader block_reader;
 };
 
+/**
+ * A reader for Rows organized into sorted runs.
+ *
+ * Different runs can be read independently. Within a run, access is performed using an
+ * iterator-style sequential interface.
+ */
+class QSortedRunsReader {
+public:
+  QSortedRunsReader(BufferRefView<qix::QSortedRuns> buf);
+
+  void reset(BufferRefView<qix::QSortedRuns> buf);
+
+  uint32_t num_runs();
+  bool run_has_next(uint32_t run_idx);
+  /**
+   * Access the next Row from the given run. Invalidates any previously-returned Row pointers from
+   * the same run.
+   */
+  const tuix::Row *next_from_run(uint32_t run_idx);
+
+  const qix::QMeta *meta();
+
+private:
+  const qix::QSortedRuns *sorted_runs;
+  std::vector<QRowReader> run_readers;
+};
+
+/** A range-style reader for QBlock objects within an QEncryptedBlocks object. */
+class QEncryptedBlocksToQBlockReader {
+public:
+  QEncryptedBlocksToQBlockReader(BufferRefView<qix::QEncryptedBlocks> buf);
+
+  flatbuffers::Vector<flatbuffers::Offset<qix::QBlock>>::const_iterator begin() {
+    return blocks->blocks()->begin();
+  }
+  flatbuffers::Vector<flatbuffers::Offset<qix::QBlock>>::const_iterator end() {
+    return blocks->blocks()->end();
+  }
+
+  const qix::QMeta *meta() {
+    return blocks->meta();
+  }
+
+private:
+  std::unique_ptr<uint8_t> blocks_buf;
+  const qix::QBlocks *blocks;
+};
+
 #endif//QFLATBUFFERS_READERS_H

@@ -22,6 +22,8 @@ set(SOURCES
   ResPrepared.cpp
   QProject.cpp
   QFilter.cpp
+  QAggregate.cpp
+  QSort.cpp
   QFlatbuffersReaders.cpp
   QFlatbuffersWriters.cpp
   QCrypto.cpp)

@@ -28,5 +28,20 @@ class QShieldSGXEnclave extends SGXEnclave with java.io.Serializable {
   @native def QProject(eid: Long, projectList: Array[Byte], input: Array[Byte]): Array[Byte]
   @native def QFilter(eid: Long, condition: Array[Byte], input: Array[Byte]): Array[Byte]
 
+  @native def QAggregateStep1(
+    eid: Long, aggOp: Array[Byte], inputRows: Array[Byte]): (Array[Byte], Array[Byte], Array[Byte])
+  @native def QAggregateStep2(
+    eid: Long, aggOp: Array[Byte], inputRows: Array[Byte], nextPartitionFirstRow: Array[Byte],
+    prevPartitionLastGroup: Array[Byte], prevPartitionLastRow: Array[Byte]): Array[Byte]
+
+  @native def QSample(eid: Long, input: Array[Byte]): Array[Byte]
+  @native def QFindRangeBounds(
+    eid: Long, order: Array[Byte], numPartitions: Int, input: Array[Byte]): Array[Byte]
+  @native def QPartitionForSort(
+    eid: Long, order: Array[Byte], numPartitions: Int, input: Array[Byte],
+    boundaries: Array[Byte]): Array[Array[Byte]]
+  @native def QExternalSort(eid: Long, order: Array[Byte], input: Array[Byte]): Array[Byte]
+  @native def QConcatBlocks(eid: Long, input: Array[Byte]): Array[Byte]
+
   @native def InitPairing(eid: Long, param: Array[Byte]): Unit
 }

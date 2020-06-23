@@ -65,7 +65,7 @@ object User {
     val cipherBuilder = new FlatBufferBuilder
 
     val cVal: Long = 10002011
-    val wVal: Long = 5
+    val wVal: Long = 20
     val skBVal: Array[Byte] = "Opaque devel key".getBytes("UTF-8")
 
     val tkOffset = QToken.createQToken(builder, cVal, wVal,

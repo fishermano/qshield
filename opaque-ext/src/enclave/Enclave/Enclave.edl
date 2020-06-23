@@ -99,6 +99,48 @@ enclave {
       [in, count=condition_length] uint8_t *condition, size_t condition_length,
       [user_check] uint8_t *input_rows, size_t input_rows_length,
       [out] uint8_t **output_rows, [out] size_t *output_rows_length);
+
+    public void ecall_qaggregate_step1(
+      [in, count=agg_op_length] uint8_t *agg_op, size_t agg_op_length,
+      [user_check] uint8_t *input_rows, size_t input_rows_length,
+      [out] uint8_t **first_row, [out] size_t *first_row_length,
+      [out] uint8_t **last_group, [out] size_t *last_group_length,
+      [out] uint8_t **last_row, [out] size_t *last_row_length);
+
+    public void ecall_qaggregate_step2(
+      [in, count=agg_op_length] uint8_t *agg_op, size_t agg_op_length,
+      [user_check] uint8_t *input_rows, size_t input_rows_length,
+      [user_check] uint8_t *next_partition_first_row, size_t next_partition_first_row_length,
+      [user_check] uint8_t *prev_partition_last_group, size_t prev_partition_last_group_length,
+      [user_check] uint8_t *prev_partition_last_row, size_t prev_partition_last_row_length,
+      [out] uint8_t **output_rows, [out] size_t *output_rows_length);
+
+    public void ecall_qsample(
+      [user_check] uint8_t *input_rows, size_t input_rows_length,
+      [out] uint8_t **output_rows, [out] size_t *output_rows_length);
+
+    public void ecall_qfind_range_bounds(
+      [in, count=sort_order_length] uint8_t *sort_order, size_t sort_order_length,
+      uint32_t num_partitions,
+      [user_check] uint8_t *input_rows, size_t input_rows_length,
+      [out] uint8_t **output_rows, [out] size_t *output_rows_length);
+
+    public void ecall_qpartition_for_sort(
+      [in, count=sort_order_length] uint8_t *sort_order, size_t sort_order_length,
+      uint32_t num_partitions,
+      [user_check] uint8_t *input_rows, size_t input_rows_length,
+      [user_check] uint8_t *boundary_rows, size_t boundary_rows_length,
+      [out, count=num_partitions] uint8_t **output_partitions,
+      [out, count=num_partitions] size_t *output_partition_lengths);
+
+    public void ecall_qexternal_sort(
+      [in, count=sort_order_length] uint8_t *sort_order, size_t sort_order_length,
+      [user_check] uint8_t *input_rows, size_t input_rows_length,
+      [out] uint8_t **output_rows, [out] size_t *output_rows_length);
+
+    public void ecall_qconcat_blocks(
+      [user_check] uint8_t *input, size_t input_length,
+      [out] uint8_t **output, [out] size_t *output_length);
   };
 
   untrusted {

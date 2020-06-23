@@ -21,7 +21,11 @@ import edu.xjtu.cs.cyx.qshield.execution.QShieldSGXEnclave
 import edu.xjtu.cs.cyx.qshield.logical._
 import edu.berkeley.cs.rise.opaque.logical.ConvertToOpaqueOperators
 import edu.berkeley.cs.rise.opaque.Utils
+import edu.berkeley.cs.rise.opaque.execution.Block
 
+import java.nio.ByteBuffer
+import scala.collection.mutable.ArrayBuilder
+import com.google.flatbuffers.FlatBufferBuilder
 import org.apache.spark.internal.Logging
 import org.apache.spark.sql.SQLContext
 import org.apache.spark.sql.types._
@@ -68,4 +72,30 @@ object QShieldUtils extends Logging{
     }
   }
 
+  def emptyBlock: Block = {
+    val builder = new FlatBufferBuilder
+    builder.finish(
+      qix.QEncryptedBlocks.createQEncryptedBlocks(
+        builder, qix.QEncryptedBlocks.createEncBlocksVector(builder, Array.empty)))
+    Block(builder.sizedByteArray())
+  }
+
+  def concatQEncryptedBlocks(blocks: Seq[Block]): Block = {
+    val runs = ArrayBuilder.make[qix.QEncryptedBlocks]
+    for (block <- blocks) {
+      val qEncryptedBlocks = qix.QEncryptedBlocks.getRootAsQEncryptedBlocks(ByteBuffer.wrap(block.bytes))
+      runs += qEncryptedBlocks
+    }
+
+    val builder = new FlatBufferBuilder
+    builder.finish(
+      qix.QSortedRuns.createQSortedRuns(
+        builder, qix.QSortedRuns.createRunsVector(builder, runs.result.map { run =>
+          val runBytes = new Array[Byte](run.encBlocksLength)
+          run.encBlocksAsByteBuffer.get(runBytes)
+          qix.QEncryptedBlocks.createQEncryptedBlocks(
+            builder, qix.QEncryptedBlocks.createEncBlocksVector(builder, runBytes))
+        })))
+    Block(builder.sizedByteArray())
+  }
 }

@@ -114,3 +114,46 @@ const tuix::Row *QRowReader::next() {
 const qix::QMeta *QRowReader::meta(){
   return blocks->meta();
 }
+
+QSortedRunsReader::QSortedRunsReader(BufferRefView<qix::QSortedRuns> buf){
+  reset(buf);
+}
+
+void QSortedRunsReader::reset(BufferRefView<qix::QSortedRuns> buf){
+  buf.verify();
+  sorted_runs = buf.root();
+  run_readers.clear();
+  for(auto it = sorted_runs->runs()->begin(); it != sorted_runs->runs()->end(); ++it){
+    run_readers.push_back(QRowReader(*it));
+  }
+}
+
+uint32_t QSortedRunsReader::num_runs(){
+  return sorted_runs->runs()->size();
+}
+
+bool QSortedRunsReader::run_has_next(uint32_t run_idx){
+  return run_readers[run_idx].has_next();
+}
+
+const tuix::Row *QSortedRunsReader::next_from_run(uint32_t run_idx){
+  return run_readers[run_idx].next();
+}
+
+const qix::QMeta *QSortedRunsReader::meta(){
+  return run_readers[0].meta();
+}
+
+
+QEncryptedBlocksToQBlockReader::QEncryptedBlocksToQBlockReader(BufferRefView<qix::QEncryptedBlocks> buf){
+  buf.verify();
+  const qix::QEncryptedBlocks *encrypted_blocks = buf.root();
+  const size_t blocks_len = dec_size(encrypted_blocks->enc_blocks()->size());
+  blocks_buf.reset(new uint8_t[blocks_len]);
+  rdd_decrypt(encrypted_blocks->enc_blocks()->data(),
+            encrypted_blocks->enc_blocks()->size(),
+            blocks_buf.get());
+  BufferRefView<qix::QBlocks> buf2(blocks_buf.get(), blocks_len);
+  buf2.verify();
+  blocks = buf2.root();
+}

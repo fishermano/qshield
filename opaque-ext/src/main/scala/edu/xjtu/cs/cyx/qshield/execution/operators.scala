@@ -71,7 +71,7 @@ case class ResPreparedEncryptedBlockRDDExec(child: SparkPlan)
 /**
  * @annotated by cyx
  *
- * define QEncryptedFilterExec opaque physical plan, which executes filter over
+ * define QEncryptedFilterExec qshield physical plan, which executes filter over
  * its child output within enclave.
  */
 case class QEncryptedFilterExec(condition: Expression, child: SparkPlan)
@@ -93,7 +93,7 @@ case class QEncryptedFilterExec(condition: Expression, child: SparkPlan)
 /**
  * @annotated by cyx
  *
- * define QEncryptedProjectExec opaque physical plan, which executes project over
+ * define QEncryptedProjectExec qshield physical plan, which executes project over
  * its child output within enclave.
  */
 case class QEncryptedProjectExec(projectList: Seq[NamedExpression], child: SparkPlan)
@@ -108,6 +108,136 @@ case class QEncryptedProjectExec(projectList: Seq[NamedExpression], child: Spark
         val (enclave, eid) = QShieldUtils.initEnclave()
         Block(enclave.QProject(eid, projectListSer, block.bytes))
       }
+    }
+  }
+}
+
+/**
+ * @annotated by cyx
+ *
+ * define QEncryptedAggregateExec opaque qshield plan, which executes aggregate over
+ * its child output within enclave.
+ */
+case class QEncryptedAggregateExec(
+    groupingExpressions: Seq[Expression],
+    aggExpressions: Seq[NamedExpression],
+    child: SparkPlan)
+  extends UnaryExecNode with OpaqueOperatorExec {
+
+  override def producedAttributes: AttributeSet =
+    AttributeSet(aggExpressions) -- AttributeSet(groupingExpressions)
+
+  override def output: Seq[Attribute] = aggExpressions.map(_.toAttribute)
+
+  override def executeBlocked(): RDD[Block] = {
+    val aggExprSer = Utils.serializeAggOp(groupingExpressions, aggExpressions, child.output)
+
+    timeOperator(
+      child.asInstanceOf[OpaqueOperatorExec].executeBlocked(),
+      "QEncryptedAggregateExec") { childRDD =>
+
+        val (firstRows, lastGroups, lastRows) = childRDD.map { block =>
+          val (enclave, eid) = QShieldUtils.initEnclave()
+          val (firstRow, lastGroup, lastRow) = enclave.QAggregateStep1(eid, aggExprSer, block.bytes)
+          println(firstRow.length)
+          println(lastGroup.length)
+          println(lastRow.length)
+          (Block(firstRow), Block(lastGroup), Block(lastRow))
+        }.collect.unzip3
+
+        // Send first row to previous partition and last group to next partition
+        val shiftedFirstRows = firstRows.drop(1) :+ QShieldUtils.emptyBlock
+        val shiftedLastGroups = QShieldUtils.emptyBlock +: lastGroups.dropRight(1)
+        val shiftedLastRows = QShieldUtils.emptyBlock +: lastRows.dropRight(1)
+        val shifted = (shiftedFirstRows, shiftedLastGroups, shiftedLastRows).zipped.toSeq
+        assert(shifted.size == childRDD.partitions.length)
+        val shiftedRDD = sparkContext.parallelize(shifted, childRDD.partitions.length)
+
+        childRDD.zipPartitions(shiftedRDD) { (blockIter, boundaryIter) =>
+          (blockIter.toSeq, boundaryIter.toSeq) match {
+            case (Seq(block), Seq(Tuple3(
+              nextPartitionFirstRow, prevPartitionLastGroup, prevPartitionLastRow))) =>
+              val (enclave, eid) = QShieldUtils.initEnclave()
+              Iterator(Block(enclave.QAggregateStep2(
+                eid, aggExprSer, block.bytes, nextPartitionFirstRow.bytes, prevPartitionLastGroup.bytes, prevPartitionLastRow.bytes)))
+          }
+        }
+      }
+  }
+}
+
+/**
+ * @annotated by cyx
+ *
+ * define QEncryptedSortExec qshield physical plan, which executes sort over
+ * its child output within enclave.
+ */
+case class QEncryptedSortExec(order: Seq[SortOrder], child: SparkPlan)
+  extends UnaryExecNode with OpaqueOperatorExec{
+
+  override def output: Seq[Attribute] = child.output
+
+  override def executeBlocked(): RDD[Block] = {
+    val orderSer = Utils.serializeSortOrder(order, child.output)
+    QEncryptedSortExec.sort(child.asInstanceOf[OpaqueOperatorExec].executeBlocked(), orderSer)
+  }
+}
+
+object QEncryptedSortExec {
+  import Utils.time
+
+  def sort(childRDD: RDD[Block], orderSer: Array[Byte]): RDD[Block] = {
+    Utils.ensureCached(childRDD)
+    time("force child of QEncryptedSort") {childRDD.count}
+
+    time("sort"){
+      val numPartitions = childRDD.partitions.length
+      val result =
+        if (numPartitions <= 1){
+          childRDD.map { block =>
+            val (enclave, eid) = QShieldUtils.initEnclave()
+            val sortedRows = enclave.QExternalSort(eid, orderSer, block.bytes)
+            Block(sortedRows)
+          }
+        }else{
+          // Collect a sample of the input rows
+          val sampled = time("sort - QSample"){
+            QShieldUtils.concatQEncryptedBlocks(childRDD.map { block =>
+                          val (enclave, eid) = QShieldUtils.initEnclave()
+                          val sampledBlock = enclave.QSample(eid, block.bytes)
+                          Block(sampledBlock)
+                        }.collect)
+          }
+
+          // Find range boundaries parceled out to a single worker
+          val boundaries = time("sort - QFindRangeBounds"){
+            childRDD.context.parallelize(Array(sampled.bytes), 1).map { sampledBytes =>
+              val (enclave, eid) = QShieldUtils.initEnclave()
+              enclave.QFindRangeBounds(eid, orderSer, numPartitions, sampledBytes)
+            }.collect.head
+          }
+
+          // Broadcast the range boundaries and use them to partition the input
+          childRDD.flatMap { block =>
+            val (enclave, eid) = QShieldUtils.initEnclave()
+            val partitions = enclave.QPartitionForSort(
+              eid, orderSer, numPartitions, block.bytes, boundaries)
+            partitions.zipWithIndex.map {
+              case (partition, i) => (i, Block(partition))
+            }
+          }
+          //Shuffle the input to achieve range partitioning and sort locally
+            .groupByKey(numPartitions).map{
+              case (i, blocks) =>
+                val blockRuns = QShieldUtils.concatQEncryptedBlocks(blocks.toSeq)
+                val (enclave, eid) = QShieldUtils.initEnclave()
+                val concatedBlock = enclave.QConcatBlocks(eid, blockRuns.bytes)
+                Block(enclave.QExternalSort(eid, orderSer, concatedBlock))
+            }
+        }
+      Utils.ensureCached(result)
+      result.count()
+      result
     }
   }
 }

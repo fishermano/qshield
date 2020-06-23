@@ -19,6 +19,8 @@
 #include "ResPrepared.h"
 #include "QFilter.h"
 #include "QProject.h"
+#include "QAggregate.h"
+#include "QSort.h"
 
 // This file contains definitions of the ecalls declared in Enclave.edl. Errors originating within
 // these ecalls are signaled by throwing a std::runtime_error, which is caught at the top level of
@@ -338,4 +340,136 @@ void ecall_qfilter(uint8_t *condition, size_t condition_length,
   } catch (const std::runtime_error &e) {
     ocall_throw(e.what());
   }
+}
+
+void ecall_qaggregate_step1(
+  uint8_t *agg_op, size_t agg_op_length,
+  uint8_t *input_rows, size_t input_rows_length,
+  uint8_t **first_row, size_t *first_row_length,
+  uint8_t **last_group, size_t *last_group_length,
+  uint8_t **last_row, size_t *last_row_length) {
+  // Guard against operating on arbitrary enclave memory
+  assert(sgx_is_outside_enclave(input_rows, input_rows_length) == 1);
+  sgx_lfence();
+
+  try {
+    qaggregate_step1(
+      agg_op, agg_op_length,
+      input_rows, input_rows_length,
+      first_row, first_row_length,
+      last_group, last_group_length,
+      last_row, last_row_length);
+  } catch (const std::runtime_error &e) {
+    ocall_throw(e.what());
+  }
+}
+
+void ecall_qaggregate_step2(
+  uint8_t *agg_op, size_t agg_op_length,
+  uint8_t *input_rows, size_t input_rows_length,
+  uint8_t *next_partition_first_row, size_t next_partition_first_row_length,
+  uint8_t *prev_partition_last_group, size_t prev_partition_last_group_length,
+  uint8_t *prev_partition_last_row, size_t prev_partition_last_row_length,
+  uint8_t **output_rows, size_t *output_rows_length) {
+  // Guard against operating on arbitrary enclave memory
+  assert(sgx_is_outside_enclave(input_rows, input_rows_length) == 1);
+  assert(sgx_is_outside_enclave(next_partition_first_row, next_partition_first_row_length) == 1);
+  assert(sgx_is_outside_enclave(prev_partition_last_group, prev_partition_last_group_length) == 1);
+  assert(sgx_is_outside_enclave(prev_partition_last_row, prev_partition_last_row_length) == 1);
+  sgx_lfence();
+
+  try {
+    qaggregate_step2(
+      agg_op, agg_op_length,
+      input_rows, input_rows_length,
+      next_partition_first_row, next_partition_first_row_length,
+      prev_partition_last_group, prev_partition_last_group_length,
+      prev_partition_last_row, prev_partition_last_row_length,
+      output_rows, output_rows_length);
+  } catch (const std::runtime_error &e) {
+    ocall_throw(e.what());
+  }
+}
+
+void ecall_qsample(uint8_t *input_rows, size_t input_rows_length,
+                  uint8_t **output_rows, size_t *output_rows_length) {
+  // Guard against operating on arbitrary enclave memory
+  assert(sgx_is_outside_enclave(input_rows, input_rows_length) == 1);
+  sgx_lfence();
+
+  try {
+    qsample(input_rows, input_rows_length,
+           output_rows, output_rows_length);
+  } catch (const std::runtime_error &e) {
+    ocall_throw(e.what());
+  }
+}
+
+void ecall_qfind_range_bounds(uint8_t *sort_order, size_t sort_order_length,
+                             uint32_t num_partitions,
+                             uint8_t *input_rows, size_t input_rows_length,
+                             uint8_t **output_rows, size_t *output_rows_length) {
+  // Guard against operating on arbitrary enclave memory
+  assert(sgx_is_outside_enclave(input_rows, input_rows_length) == 1);
+  sgx_lfence();
+
+  try {
+    qfind_range_bounds(sort_order, sort_order_length,
+                      num_partitions,
+                      input_rows, input_rows_length,
+                      output_rows, output_rows_length);
+  } catch (const std::runtime_error &e) {
+    ocall_throw(e.what());
+  }
+}
+
+void ecall_qpartition_for_sort(uint8_t *sort_order, size_t sort_order_length,
+                              uint32_t num_partitions,
+                              uint8_t *input_rows, size_t input_rows_length,
+                              uint8_t *boundary_rows, size_t boundary_rows_length,
+                              uint8_t **output_partitions, size_t *output_partition_lengths) {
+  // Guard against operating on arbitrary enclave memory
+  assert(sgx_is_outside_enclave(input_rows, input_rows_length) == 1);
+  assert(sgx_is_outside_enclave(boundary_rows, boundary_rows_length) == 1);
+  sgx_lfence();
+
+  try {
+    qpartition_for_sort(sort_order, sort_order_length,
+                       num_partitions,
+                       input_rows, input_rows_length,
+                       boundary_rows, boundary_rows_length,
+                       output_partitions, output_partition_lengths);
+  } catch (const std::runtime_error &e) {
+    ocall_throw(e.what());
+  }
+}
+
+void ecall_qexternal_sort(uint8_t *sort_order, size_t sort_order_length,
+                         uint8_t *input_rows, size_t input_rows_length,
+                         uint8_t **output_rows, size_t *output_rows_length) {
+  // Guard against operating on arbitrary enclave memory
+  assert(sgx_is_outside_enclave(input_rows, input_rows_length) == 1);
+  sgx_lfence();
+
+  try {
+    qexternal_sort(sort_order, sort_order_length,
+                  input_rows, input_rows_length,
+                  output_rows, output_rows_length);
+  } catch (const std::runtime_error &e) {
+    ocall_throw(e.what());
+  }
+}
+
+void ecall_qconcat_blocks(uint8_t *input, size_t input_length,
+                          uint8_t **output, size_t *output_length){
+    // Guard against operating on arbitrary enclave memory
+    assert(sgx_is_outside_enclave(input, input_length) == 1);
+    sgx_lfence();
+
+    try{
+      qconcat_blocks(input, input_length,
+                    output, output_length);
+    } catch (const std::runtime_error &e){
+      ocall_throw(e.what());
+    }
 }

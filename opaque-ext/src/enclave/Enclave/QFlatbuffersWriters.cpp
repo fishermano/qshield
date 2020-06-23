@@ -181,3 +181,58 @@ void QRowWriter::output_buffer(uint8_t **output_rows, size_t *output_rows_length
 uint32_t QRowWriter::num_rows(){
   return total_num_rows;
 }
+
+void QSortedRunsWriter::clear(){
+  container.clear();
+  runs.clear();
+}
+
+void QSortedRunsWriter::append(const tuix::Row *row){
+  container.append(row);
+}
+
+void QSortedRunsWriter::append(const std::vector<const tuix::Field *> &row_fields) {
+  container.append(row_fields);
+}
+
+void QSortedRunsWriter::append(const tuix::Row *row1, const tuix::Row *row2) {
+  container.append(row1, row2);
+}
+
+void QSortedRunsWriter::finish_run() {
+  runs.push_back(container.finish_blocks());
+}
+
+uint32_t QSortedRunsWriter::num_runs() {
+  return runs.size();
+}
+
+void QSortedRunsWriter::set_meta(const qix::QMeta *mt){
+  container.set_meta(mt);
+}
+
+UntrustedBufferRef<qix::QSortedRuns> QSortedRunsWriter::output_buffer() {
+  container.enc_blocks_builder.Finish(
+    qix::CreateQSortedRunsDirect(container.enc_blocks_builder, &runs));
+
+  uint8_t *buf_ptr;
+  ocall_malloc(container.enc_blocks_builder.GetSize(), &buf_ptr);
+
+  std::unique_ptr<uint8_t, decltype(&ocall_free)> buf(buf_ptr, &ocall_free);
+  memcpy(buf.get(),
+         container.enc_blocks_builder.GetBufferPointer(),
+         container.enc_blocks_builder.GetSize());
+
+  UntrustedBufferRef<qix::QSortedRuns> buffer(
+    std::move(buf), container.enc_blocks_builder.GetSize());
+  return buffer;
+}
+
+QRowWriter *QSortedRunsWriter::as_row_writer() {
+  if (runs.size() > 1) {
+    throw std::runtime_error("Invalid attempt to convert QSortedRunsWriter with more than one run "
+                             "to QRowWriter");
+  }
+
+  return &container;
+}

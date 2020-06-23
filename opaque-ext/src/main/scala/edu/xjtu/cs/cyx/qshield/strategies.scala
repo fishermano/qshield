@@ -47,6 +47,12 @@ object QShieldOperators extends Strategy {
     case EncryptedFilter(condition, child) =>
       QEncryptedFilterExec(condition, planLater(child)) :: Nil
 
+    case EncryptedAggregate(groupingExpressions, aggExpressions, child) =>
+      QEncryptedAggregateExec(groupingExpressions, aggExpressions, planLater(child)) :: Nil
+
+    case EncryptedSort(order, child) =>
+      QEncryptedSortExec(order, planLater(child)) :: Nil
+
     case _ => Nil
   }
 }
