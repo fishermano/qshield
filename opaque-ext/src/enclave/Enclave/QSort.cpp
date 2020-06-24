@@ -91,7 +91,7 @@ void qexternal_sort(uint8_t *sort_order, size_t sort_order_length,
       w.set_meta(meta);
       qsort_single_block(w, *it, sort_eval);
     }
-    debug("number of runs: %d\n", w.num_runs());
+
     if (w.num_runs() <= 1) {
       // Only 0 or 1 runs, so we are done - no need to merge runs
       w.as_row_writer()->output_buffer(output_rows, output_rows_length);

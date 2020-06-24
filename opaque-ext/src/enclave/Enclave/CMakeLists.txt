@@ -24,6 +24,7 @@ set(SOURCES
   QFilter.cpp
   QAggregate.cpp
   QSort.cpp
+  QJoin.cpp
   QFlatbuffersReaders.cpp
   QFlatbuffersWriters.cpp
   QCrypto.cpp)

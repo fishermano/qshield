@@ -28,10 +28,12 @@ import edu.xjtu.cs.cyx.qshield.QShieldUtils
 import edu.berkeley.cs.rise.opaque.execution.Block
 import edu.berkeley.cs.rise.opaque.execution.UnaryExecNode
 import edu.berkeley.cs.rise.opaque.execution.LeafExecNode
+import edu.berkeley.cs.rise.opaque.execution.BinaryExecNode
 import edu.berkeley.cs.rise.opaque.execution.OpaqueOperatorExec
 import edu.berkeley.cs.rise.opaque.Utils
 
 import org.apache.spark.rdd.RDD
+import org.apache.spark.sql.catalyst.plans.JoinType
 import org.apache.spark.sql.catalyst.expressions._
 import org.apache.spark.sql.execution.SparkPlan
 
@@ -239,5 +241,101 @@ object QEncryptedSortExec {
       result.count()
       result
     }
+  }
+}
+
+/**
+ * @annotated by cyx
+ *
+ * define QEncryptedSortMergeJoinExec opaque physical plan, which executes sort merge join over
+ * its children output within enclave.
+ */
+case class QEncryptedSortMergeJoinExec(
+    joinType: JoinType,
+    leftKeys: Seq[Expression],
+    rightKeys: Seq[Expression],
+    leftSchema: Seq[Attribute],
+    rightSchema: Seq[Attribute],
+    output: Seq[Attribute],
+    child: SparkPlan)
+  extends UnaryExecNode with OpaqueOperatorExec {
+
+  override def executeBlocked(): RDD[Block] = {
+    val joinExprSer = Utils.serializeJoinExpression(
+      joinType, leftKeys, rightKeys, leftSchema, rightSchema)
+
+    timeOperator(
+      child.asInstanceOf[OpaqueOperatorExec].executeBlocked(),
+      "QEncryptedSortMergeJoinExec"){ childRDD =>
+
+      val lastPrimaryRows = childRDD.map { block =>
+        val (enclave, eid) = QShieldUtils.initEnclave()
+        Block(enclave.QScanCollectLastPrimary(eid, joinExprSer, block.bytes))
+      }.collect
+
+      println(lastPrimaryRows.length)
+
+      val shifted = QShieldUtils.emptyBlock +: lastPrimaryRows.dropRight(1)
+      assert(shifted.size == childRDD.partitions.length)
+      val processedJoinRowsRDD =
+        sparkContext.parallelize(shifted, childRDD.partitions.length)
+
+      childRDD.zipPartitions(processedJoinRowsRDD) { (blockIter, joinRowIter) =>
+        (blockIter.toSeq, joinRowIter.toSeq) match {
+          case (Seq(block), Seq(joinRow)) =>
+            val (enclave, eid) = QShieldUtils.initEnclave()
+            val sorted = enclave.QSortMergeJoin(
+              eid, joinExprSer, block.bytes, joinRow.bytes)
+            Iterator(Block(sorted))
+        }
+      }
+
+    }
+  }
+}
+
+/**
+ * @annotated by cyx
+ *
+ * define QEncryptedUnionExec opaque physical plan, which executes union over
+ * its child output within enclave.
+ */
+case class QEncryptedUnionExec(
+    left: SparkPlan,
+    right: SparkPlan)
+  extends BinaryExecNode with OpaqueOperatorExec {
+
+  import Utils.time
+
+  override def output: Seq[Attribute] = left.output
+
+  override def executeBlocked(): RDD[Block] = {
+    var leftRDD = left.asInstanceOf[OpaqueOperatorExec].executeBlocked()
+    var rightRDD = right.asInstanceOf[OpaqueOperatorExec].executeBlocked()
+    Utils.ensureCached(leftRDD)
+    time("Force left child of QEncryptedUnionExec") { leftRDD.count }
+    Utils.ensureCached(rightRDD)
+    time("Force right child of QEncryptedUnionExec") { rightRDD.count }
+
+    val num_left_partitions = leftRDD.getNumPartitions
+    val num_right_partitions = rightRDD.getNumPartitions
+    if (num_left_partitions != num_right_partitions) {
+      if (num_left_partitions > num_right_partitions) {
+        leftRDD = leftRDD.coalesce(num_right_partitions)
+      } else {
+        rightRDD = rightRDD.coalesce(num_left_partitions)
+      }
+    }
+    val unioned = leftRDD.zipPartitions(rightRDD) {
+      (leftBlockIter, rightBlockIter) =>
+        val blockRuns = QShieldUtils.concatQEncryptedBlocks(leftBlockIter.toSeq ++
+                                                            rightBlockIter.toSeq)
+        val (enclave, eid) = QShieldUtils.initEnclave()
+        val concatedBlock = enclave.QConcatBlocks(eid, blockRuns.bytes)
+        Iterator(Block(concatedBlock))
+    }
+    Utils.ensureCached(unioned)
+    time("QEncryptedUnionExec") {unioned.count}
+    unioned
   }
 }

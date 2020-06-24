@@ -24,6 +24,15 @@ import edu.berkeley.cs.rise.opaque.logical._
 
 import org.apache.spark.sql.Strategy
 import org.apache.spark.sql.catalyst.plans.logical.LogicalPlan
+import org.apache.spark.sql.catalyst.plans.logical.Join
+import org.apache.spark.sql.catalyst.planning.ExtractEquiJoinKeys
+import org.apache.spark.sql.catalyst.expressions.NamedExpression
+import org.apache.spark.sql.catalyst.expressions.Expression
+import org.apache.spark.sql.catalyst.expressions.Attribute
+import org.apache.spark.sql.catalyst.expressions.SortOrder
+import org.apache.spark.sql.catalyst.expressions.Alias
+import org.apache.spark.sql.catalyst.expressions.Literal
+import org.apache.spark.sql.catalyst.expressions.Ascending
 import org.apache.spark.sql.execution.SparkPlan
 
 object QShieldOperators extends Strategy {
@@ -53,6 +62,66 @@ object QShieldOperators extends Strategy {
     case EncryptedSort(order, child) =>
       QEncryptedSortExec(order, planLater(child)) :: Nil
 
+    case EncryptedUnion(left, right) =>
+      QEncryptedUnionExec(planLater(left), planLater(right)) :: Nil
+
+    case EncryptedJoin(left, right, joinType, condition) =>
+      Join(left, right, joinType, condition) match {
+        case ExtractEquiJoinKeys(_, leftKeys, rightKeys, condition, _, _) =>
+          val (leftProjSchema, leftKeysProj, tag) = tagForJoin(leftKeys, left.output, true)
+          val (rightProjSchema, rightKeysProj, _) = tagForJoin(rightKeys, right.output, false)
+          val leftProj = QEncryptedProjectExec(leftProjSchema, planLater(left))
+          val rightProj = QEncryptedProjectExec(rightProjSchema, planLater(right))
+          val unioned = QEncryptedUnionExec(leftProj, rightProj)
+          val sorted = QEncryptedSortExec(sortForJoin(leftKeysProj, tag, unioned.output), unioned)
+          val joined = QEncryptedSortMergeJoinExec(
+            joinType,
+            leftKeysProj,
+            rightKeysProj,
+            leftProjSchema.map(_.toAttribute),
+            rightProjSchema.map(_.toAttribute),
+            (leftProjSchema ++ rightProjSchema).map(_.toAttribute),
+            sorted)
+          val tagsDropped = QEncryptedProjectExec(dropTags(left.output, right.output), joined)
+          val filtered = condition match {
+            case Some(condition) => QEncryptedFilterExec(condition, tagsDropped)
+            case None => tagsDropped
+          }
+          filtered :: Nil
+        case _ => Nil
+      }
+
     case _ => Nil
   }
+
+  /**
+   * @annotated by cyx
+   *
+   * add tags to join keys
+   */
+  private def tagForJoin(
+      keys: Seq[Expression], input: Seq[Attribute], isLeft: Boolean)
+    : (Seq[NamedExpression], Seq[NamedExpression], NamedExpression) = {
+    val keysProj = keys.zipWithIndex.map { case (k, i) => Alias(k, "_" + i)() }
+    val tag = Alias(Literal(if (isLeft) 0 else 1), "_tag")()
+    (Seq(tag) ++ keysProj ++ input, keysProj.map(_.toAttribute), tag.toAttribute)
+  }
+
+  /**
+   * @annotated by cyx
+   *
+   * add sort order for tags
+   */
+  private def sortForJoin(
+      leftKeys: Seq[Expression], tag: Expression, input: Seq[Attribute]): Seq[SortOrder] =
+    leftKeys.map(k => SortOrder(k, Ascending)) :+ SortOrder(tag, Ascending)
+
+    /**
+     * @annotated by cyx
+     *
+     * combine the left output with right output
+     */
+  private def dropTags(
+      leftOutput: Seq[Attribute], rightOutput: Seq[Attribute]): Seq[NamedExpression] =
+    leftOutput ++ rightOutput
 }

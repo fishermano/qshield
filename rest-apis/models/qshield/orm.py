@@ -59,8 +59,12 @@ async def spark_sql_exe(obj, st, p, tk):
 
     dfproj = dffilter.select(dffilter['pageURL'], 'pageRank')
 
+    dfproj2 = dffilter.select('pageURL', 'avgDuration')
+
+    dfjoin = dfproj.join(dfproj2, 'pageURL', 'inner')
+
     # dfagg = dfproj.groupBy('pageURL').agg({'pageRank': 'mean'})
-    dfsort = dfproj.sort('pageRank', ascending=False)
+    dfsort = dfjoin.sort('pageRank', ascending=False)
 
     qres = __spark._jvm.org.apache.spark.sql.QShieldDatasetFunctions(dfsort._jdf)
     qresPrep = qres.resPrepared()

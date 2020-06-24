@@ -68,18 +68,23 @@ void QRowReader::reset(BufferRefView<qix::QEncryptedBlocks> buf){
 }
 
 void QRowReader::reset(const qix::QEncryptedBlocks *encrypted_blocks){
-  const size_t blocks_len = dec_size(encrypted_blocks->enc_blocks()->size());
-  blocks_buf.reset(new uint8_t[blocks_len]);
-  rdd_decrypt(encrypted_blocks->enc_blocks()->data(),
-            encrypted_blocks->enc_blocks()->size(),
-            blocks_buf.get());
-  BufferRefView<qix::QBlocks> buf(blocks_buf.get(), blocks_len);
-  buf.verify();
+  if(encrypted_blocks->enc_blocks()->size() != 0){
+    const size_t blocks_len = dec_size(encrypted_blocks->enc_blocks()->size());
 
-  blocks = buf.root();
-  block_idx = 0;
-
-  init_block_reader();
+    blocks_buf.reset(new uint8_t[blocks_len]);
+    rdd_decrypt(encrypted_blocks->enc_blocks()->data(),
+              encrypted_blocks->enc_blocks()->size(),
+              blocks_buf.get());
+    BufferRefView<qix::QBlocks> buf(blocks_buf.get(), blocks_len);
+    buf.verify();
+    blocks = buf.root();
+    block_idx = 0;
+    init_block_reader();
+  }else{
+    blocks_buf = nullptr;
+    blocks = nullptr;
+    block_idx = 0;
+  }
 }
 
 void QRowReader::init_block_reader(){
@@ -98,7 +103,7 @@ uint32_t QRowReader::num_rows() {
 }
 
 bool QRowReader::has_next() {
-    return block_reader.has_next() || block_idx + 1 < blocks->blocks()->size();
+    return block_reader.has_next() || (blocks != nullptr && block_idx + 1 < blocks->blocks()->size());
 }
 
 const tuix::Row *QRowReader::next() {

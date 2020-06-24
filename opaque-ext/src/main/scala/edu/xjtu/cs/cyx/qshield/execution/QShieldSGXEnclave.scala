@@ -43,5 +43,10 @@ class QShieldSGXEnclave extends SGXEnclave with java.io.Serializable {
   @native def QExternalSort(eid: Long, order: Array[Byte], input: Array[Byte]): Array[Byte]
   @native def QConcatBlocks(eid: Long, input: Array[Byte]): Array[Byte]
 
+  @native def QScanCollectLastPrimary(
+    eid: Long, joinExpr: Array[Byte], input: Array[Byte]): Array[Byte]
+  @native def QSortMergeJoin(
+    eid: Long, joinExpr: Array[Byte], input: Array[Byte], joinRow: Array[Byte]): Array[Byte]
+
   @native def InitPairing(eid: Long, param: Array[Byte]): Unit
 }

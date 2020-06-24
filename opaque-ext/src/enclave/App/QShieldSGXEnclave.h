@@ -41,6 +41,12 @@ JNIEXPORT jbyteArray JNICALL Java_edu_xjtu_cs_cyx_qshield_execution_QShieldSGXEn
 JNIEXPORT jbyteArray JNICALL Java_edu_xjtu_cs_cyx_qshield_execution_QShieldSGXEnclave_QConcatBlocks
   (JNIEnv *, jobject, jlong, jbyteArray);
 
+JNIEXPORT jbyteArray JNICALL Java_edu_xjtu_cs_cyx_qshield_execution_QShieldSGXEnclave_QScanCollectLastPrimary
+  (JNIEnv *, jobject, jlong, jbyteArray, jbyteArray);
+
+JNIEXPORT jbyteArray JNICALL Java_edu_xjtu_cs_cyx_qshield_execution_QShieldSGXEnclave_QSortMergeJoin
+  (JNIEnv *, jobject, jlong, jbyteArray, jbyteArray, jbyteArray);
+
 JNIEXPORT void JNICALL Java_edu_xjtu_cs_cyx_qshield_execution_QShieldSGXEnclave_InitPairing
   (JNIEnv *, jobject, jlong, jbyteArray);
 
