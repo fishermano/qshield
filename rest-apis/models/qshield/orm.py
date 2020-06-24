@@ -63,10 +63,11 @@ async def spark_sql_exe(obj, st, p, tk):
 
     dfjoin = dfproj.join(dfproj2, 'pageURL', 'inner')
 
-    # dfagg = dfproj.groupBy('pageURL').agg({'pageRank': 'mean'})
     dfsort = dfjoin.sort('pageRank', ascending=False)
 
-    qres = __spark._jvm.org.apache.spark.sql.QShieldDatasetFunctions(dfsort._jdf)
+    dfagg = dfsort.groupBy('pageURL').agg({'pageRank': 'mean'})
+
+    qres = __spark._jvm.org.apache.spark.sql.QShieldDatasetFunctions(dfagg._jdf)
     qresPrep = qres.resPrepared()
     resPrep = DataFrame(qresPrep, __sqlContext)
     coll_fur = await asyncio.wrap_future(resPrep.collectAsync())

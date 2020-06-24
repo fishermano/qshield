@@ -95,6 +95,10 @@ void QRowReader::init_block_reader(){
 
 uint32_t QRowReader::num_rows() {
   uint32_t result = 0;
+  if(blocks == nullptr){
+    return result;
+  }
+
   for (auto it = blocks->blocks()->begin();
         it != blocks->blocks()->end(); ++it) {
       result += it->num_rows();

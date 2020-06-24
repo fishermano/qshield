@@ -141,9 +141,6 @@ case class QEncryptedAggregateExec(
         val (firstRows, lastGroups, lastRows) = childRDD.map { block =>
           val (enclave, eid) = QShieldUtils.initEnclave()
           val (firstRow, lastGroup, lastRow) = enclave.QAggregateStep1(eid, aggExprSer, block.bytes)
-          println(firstRow.length)
-          println(lastGroup.length)
-          println(lastRow.length)
           (Block(firstRow), Block(lastGroup), Block(lastRow))
         }.collect.unzip3
 
@@ -272,8 +269,6 @@ case class QEncryptedSortMergeJoinExec(
         val (enclave, eid) = QShieldUtils.initEnclave()
         Block(enclave.QScanCollectLastPrimary(eid, joinExprSer, block.bytes))
       }.collect
-
-      println(lastPrimaryRows.length)
 
       val shifted = QShieldUtils.emptyBlock +: lastPrimaryRows.dropRight(1)
       assert(shifted.size == childRDD.partitions.length)
