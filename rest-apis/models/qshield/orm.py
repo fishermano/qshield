@@ -33,41 +33,35 @@ def init_sql_ra_context(**kw):
         logging.info('init_sql_ra_context() error: %s' % str(e))
         sys.exit()
 
-async def spark_sql_exe(obj, st, p, tk):
+# for single table sql execution
+async def spark_st_sql_exe(obj, name, st, p, tk):
 
     global __spark
     global __sqlContext
-
-    # data = [("foo", 4), ("bar", 1), ("baz",5)]
-    # df = __spark.createDataFrame(data).toDF("word", "count")
-    # opaqueDF = __spark._jvm.org.apache.spark.sql.OpaqueDatasetFunctions(df._jdf)
-    # opaqueDFEnc = opaqueDF.encrypted()
-    # dfEnc = DataFrame(opaqueDFEnc, __sqlContext)
-    # coll_fur = await asyncio.wrap_future(dfEnc.collectAsync())
-    # return coll_fur
-
-    # df = __spark.read.format("edu.berkeley.cs.rise.opaque.EncryptedSource").schema(StructType([StructField("word", StringType(), True), StructField("count", IntegerType(), True)])).load("dfEncrypted")
 
     df = __spark.read.format("edu.berkeley.cs.rise.opaque.EncryptedSource") \
                             .schema(obj.schema) \
                             .load(obj.path)
     qdf = __spark._jvm.org.apache.spark.sql.QShieldDatasetFunctions(df._jdf)
     qdfAC = qdf.acPolicyApplied(tk)
-
     dfAC = DataFrame(qdfAC, __sqlContext)
-    dffilter = dfAC.filter(dfAC['pageRank'] < 40)
 
-    dfproj = dffilter.select(dffilter['pageURL'], 'pageRank')
+    dfAC.createOrReplaceTempView(name)
+    dfsql = __spark.sql(st)
 
-    dfproj2 = dffilter.select('pageURL', 'avgDuration')
+    #dffilter = dfAC.filter(dfAC['pageRank'] < 40)
 
-    dfjoin = dfproj.join(dfproj2, 'pageURL', 'inner')
+    #dfproj = dffilter.select(dffilter['pageURL'], 'pageRank')
 
-    dfsort = dfjoin.sort('pageRank', ascending=False)
+    #dfproj2 = dffilter.select('pageURL', 'avgDuration')
 
-    dfagg = dfsort.groupBy('pageURL').agg({'pageRank': 'mean'})
+    #dfjoin = dfproj.join(dfproj2, 'pageURL', 'inner')
 
-    qres = __spark._jvm.org.apache.spark.sql.QShieldDatasetFunctions(dfagg._jdf)
+    #dfsort = dfjoin.sort('pageRank', ascending=False)
+
+    #dfagg = dfsort.groupBy('pageURL').agg({'pageRank': 'mean'})
+
+    qres = __spark._jvm.org.apache.spark.sql.QShieldDatasetFunctions(dfsql._jdf)
     qresPrep = qres.resPrepared()
     resPrep = DataFrame(qresPrep, __sqlContext)
     coll_fur = await asyncio.wrap_future(resPrep.collectAsync())
@@ -152,7 +146,7 @@ class Model(dict, metaclass=ModelMetaclass):
 
         obj = DataObj(cls.__path__, StructType(sfs))
 
-        res = await spark_sql_exe(obj, st, p, tk)
+        res = await spark_st_sql_exe(obj, cls.__table__, st, p, tk)
         i = 1
         for row in res:
             logging.info('Has row [%d]: ' % i)

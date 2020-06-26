@@ -82,7 +82,7 @@ object User {
 
     Http("http://localhost:9090/qshield/query")
       .charset("UTF-8")
-      .postForm(Seq("st" -> "select * from *", "p" -> "test"))
+      .postForm(Seq("st" -> "select pageURL from RANKINGS where pageRank < 20", "p" -> "test"))
       .postMulti(MultiPart("tk", "", "", tk))
       .asString
 
