@@ -6,7 +6,7 @@ __author__ = 'CYX'
 ############################################################################################
 #							format for data results
 #
-#	code:	200(ok);	204(not found);	401(unauthorized); 	500(error);	
+#	code:	200(ok);	204(not found);	401(unauthorized); 	500(error);
 #	ok:		true(has results);		false(no results);
 #	msg:	information about the status
 #	needLogin:	true(need authorization);		false(not need authorization);
@@ -15,21 +15,17 @@ __author__ = 'CYX'
 #	data:	data entity
 ############################################################################################
 
-def data_res_format(*, code = 200, ok = True, msg = '', need_login = False, p = 0, pcount = 0, data = None):
+def data_res_format(*, code = 200, msg = '', data = None):
 	return {
 		'code': code,
-		'ok': ok,
 		'msg': msg,
-		'needLogin': need_login,
-		'p': p,
-		'pcount': pcount,
 		'data': data
 	}
 
 ############################################################################################
 #							format for data items number
 #
-#	code:	200(ok);	204(not found);	401(unauthorized); 	500(error);	
+#	code:	200(ok);	204(not found);	401(unauthorized); 	500(error);
 #	ok:		true(has results);		false(no results);
 #	msg:	information about the status
 #	needLogin:	true(need authorization);		false(not need authorization);
@@ -48,7 +44,7 @@ def items_num_format(*, code = 200, ok = True, msg = '', need_login = False, tot
 ############################################################################################
 #							repo format for data items number
 #
-#	code:	200(ok);	204(not found);	401(unauthorized); 	500(error);	
+#	code:	200(ok);	204(not found);	401(unauthorized); 	500(error);
 #	ok:		true(has results);		false(no results);
 #	msg:	information about the status
 #	needLogin:	true(need authorization);		false(not need authorization);
@@ -67,7 +63,7 @@ def repo_items_num_format(*, code = 200, ok = True, msg = '', need_login = False
 ############################################################################################
 #						repo format for data results
 #
-#	code:	200(ok);	204(not found);	401(unauthorized); 	500(error);	
+#	code:	200(ok);	204(not found);	401(unauthorized); 	500(error);
 #	ok:		true(has results);		false(no results);
 #	msg:	information about the status
 #	needLogin:	true(need authorization);		false(not need authorization);

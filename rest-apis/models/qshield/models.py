@@ -4,7 +4,11 @@
 __author__ = 'CYX'
 
 from orm import Model
-from field import StringField, IntegerField
+from field import StringField, IntegerField, FloatField
+
+class Tables(Model):
+    __table__ = '*'
+    __path__ = '*'
 
 class Rankings(Model):
     __table__ = 'RANKINGS'
@@ -13,3 +17,17 @@ class Rankings(Model):
     pageURL = StringField()
     pageRank = IntegerField()
     avgDuration = IntegerField()
+
+class Uservisits(Model):
+    __table__ = 'USERVISITS'
+    __path__ = 'outsourced/USERVISITS'
+
+    sourceIP = StringField()
+    destURL = StringField()
+    visitDate = StringField()
+    adRevenue = FloatField()
+    userAgent = StringField()
+    countryCode = StringField()
+    languageCode = StringField()
+    searchWord = StringField()
+    duration = IntegerField()

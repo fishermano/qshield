@@ -80,12 +80,48 @@ object User {
     cipherBuilder.finish(tk_cipherOffset)
     val tk = cipherBuilder.sizedByteArray()
 
-    Http("http://localhost:9090/qshield/query")
+    val res1 = Http("http://localhost:9090/qshield/query")
       .charset("UTF-8")
-      .postForm(Seq("st" -> "select pageURL from RANKINGS where pageRank < 20", "p" -> "test"))
+      .postForm(Seq("st" -> "select pageURL, pageRank from RANKINGS where pageRank < 20", "p" -> "test"))
       .postMulti(MultiPart("tk", "", "", tk))
-      .asString
+      .asString.body
 
+    val res2 = Http("http://localhost:9090/qshield/query")
+      .charset("UTF-8")
+      .postForm(Seq("st" -> "select sourceIP, visitDate from USERVISITS", "p" -> "test"))
+      .postMulti(MultiPart("tk", "", "", tk))
+      .asString.body
+
+    val res3 = Http("http://localhost:9090/qshield/selector")
+      .charset("UTF-8")
+      .postForm(Seq("st" -> "sourceIP,duration", "t" -> "USERVISITS"))
+      .postMulti(MultiPart("tk", "", "", tk))
+      .asString.body
+
+    val res4 = Http("http://localhost:9090/qshield/filter")
+      .charset("UTF-8")
+      .postForm(Seq("st" -> "pageRank<20", "t" -> "RANKINGS"))
+      .postMulti(MultiPart("tk", "", "", tk))
+      .asString.body
+
+    val res5 = Http("http://localhost:9090/qshield/sorter")
+      .charset("UTF-8")
+      .postForm(Seq("st" -> "pageRank", "t" -> "RANKINGS", "asc" -> "False"))
+      .postMulti(MultiPart("tk", "", "", tk))
+      .asString.body
+
+    val res6 = Http("http://localhost:9090/qshield/joiner")
+      .charset("UTF-8")
+      .postForm(Seq("st" -> "pageURL", "t1" -> "RANKINGS", "t2" -> "RANKINGS", "mode" -> "inner"))
+      .postMulti(MultiPart("tk", "", "", tk))
+      .asString.body
+
+    //println(res1)
+    //println(res2)
+    //println(res3)
+    //println(res4)
+    //println(res5)
+    println(res6)
   }
 
 }

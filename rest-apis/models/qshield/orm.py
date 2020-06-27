@@ -33,8 +33,40 @@ def init_sql_ra_context(**kw):
         logging.info('init_sql_ra_context() error: %s' % str(e))
         sys.exit()
 
-# for single table sql execution
-async def spark_st_sql_exe(obj, name, st, p, tk):
+def table_schema(t_model):
+    sfs = []
+    for k, v in t_model.__mappings__.items():
+        if isinstance(v, StringField):
+            sfs.append(StructField(k, StringType(), True))
+        elif isinstance(v, IntegerField):
+            sfs.append(StructField(k, IntegerType(), True))
+        elif isinstance(v, FloatField):
+            sfs.append(StructField(k, FloatType(), True))
+    return sfs
+
+async def spark_sql_exe(objs, st, p, tk):
+
+    global __spark
+    global __sqlContext
+
+    for obj in objs:
+        df = __spark.read.format("edu.berkeley.cs.rise.opaque.EncryptedSource") \
+                                .schema(obj.schema) \
+                                .load(obj.path)
+        qdf = __spark._jvm.org.apache.spark.sql.QShieldDatasetFunctions(df._jdf)
+        qdfAC = qdf.acPolicyApplied(tk)
+        dfAC = DataFrame(qdfAC, __sqlContext)
+        dfAC.createOrReplaceTempView(obj.name)
+
+    dfsql = __spark.sql(st)
+
+    qres = __spark._jvm.org.apache.spark.sql.QShieldDatasetFunctions(dfsql._jdf)
+    qresPrep = qres.resPrepared()
+    resPrep = DataFrame(qresPrep, __sqlContext)
+    coll_fur = await asyncio.wrap_future(resPrep.collectAsync())
+    return coll_fur
+
+async def spark_filter(obj, st, tk):
 
     global __spark
     global __sqlContext
@@ -46,29 +78,94 @@ async def spark_st_sql_exe(obj, name, st, p, tk):
     qdfAC = qdf.acPolicyApplied(tk)
     dfAC = DataFrame(qdfAC, __sqlContext)
 
-    dfAC.createOrReplaceTempView(name)
-    dfsql = __spark.sql(st)
+    dffilter = dfAC.filter(st)
 
-    #dffilter = dfAC.filter(dfAC['pageRank'] < 40)
+    qres = __spark._jvm.org.apache.spark.sql.QShieldDatasetFunctions(dffilter._jdf)
+    qresPrep = qres.resPrepared()
+    resPrep = DataFrame(qresPrep, __sqlContext)
+    coll_fur = await asyncio.wrap_future(resPrep.collectAsync())
+    return coll_fur
 
-    #dfproj = dffilter.select(dffilter['pageURL'], 'pageRank')
+async def spark_selector(obj, st, tk):
 
-    #dfproj2 = dffilter.select('pageURL', 'avgDuration')
+    global __spark
+    global __sqlContext
 
-    #dfjoin = dfproj.join(dfproj2, 'pageURL', 'inner')
+    df = __spark.read.format("edu.berkeley.cs.rise.opaque.EncryptedSource") \
+                            .schema(obj.schema) \
+                            .load(obj.path)
+    qdf = __spark._jvm.org.apache.spark.sql.QShieldDatasetFunctions(df._jdf)
+    qdfAC = qdf.acPolicyApplied(tk)
+    dfAC = DataFrame(qdfAC, __sqlContext)
 
-    #dfsort = dfjoin.sort('pageRank', ascending=False)
+    cols = st.split(',')
+    cols_stripped = []
+    for col in cols:
+        cols_stripped.append(col.strip())
+    dfproj = dfAC.select(cols_stripped)
+
+    qres = __spark._jvm.org.apache.spark.sql.QShieldDatasetFunctions(dfproj._jdf)
+    qresPrep = qres.resPrepared()
+    resPrep = DataFrame(qresPrep, __sqlContext)
+    coll_fur = await asyncio.wrap_future(resPrep.collectAsync())
+    return coll_fur
+
+async def spark_sorter(obj, st, asc, tk):
+
+    global __spark
+    global __sqlContext
+
+    df = __spark.read.format("edu.berkeley.cs.rise.opaque.EncryptedSource") \
+                            .schema(obj.schema) \
+                            .load(obj.path)
+    qdf = __spark._jvm.org.apache.spark.sql.QShieldDatasetFunctions(df._jdf)
+    qdfAC = qdf.acPolicyApplied(tk)
+    dfAC = DataFrame(qdfAC, __sqlContext)
+
+    dfsort = None
+    if asc == 'False':
+        dfsort = dfAC.sort(st, ascending=False)
+    else:
+        dfsort = dfAC.sort(st, ascending=True)
+
+    qres = __spark._jvm.org.apache.spark.sql.QShieldDatasetFunctions(dfsort._jdf)
+    qresPrep = qres.resPrepared()
+    resPrep = DataFrame(qresPrep, __sqlContext)
+    coll_fur = await asyncio.wrap_future(resPrep.collectAsync())
+    return coll_fur
+
+async def spark_joiner(obj1, obj2, st, mode, tk):
+
+    global __spark
+    global __sqlContext
+
+    df1 = __spark.read.format("edu.berkeley.cs.rise.opaque.EncryptedSource") \
+                            .schema(obj1.schema) \
+                            .load(obj1.path)
+    qdf1 = __spark._jvm.org.apache.spark.sql.QShieldDatasetFunctions(df1._jdf)
+    qdfAC1 = qdf1.acPolicyApplied(tk)
+    dfAC1 = DataFrame(qdfAC1, __sqlContext)
+
+    df2 = __spark.read.format("edu.berkeley.cs.rise.opaque.EncryptedSource") \
+                            .schema(obj2.schema) \
+                            .load(obj2.path)
+    qdf2 = __spark._jvm.org.apache.spark.sql.QShieldDatasetFunctions(df2._jdf)
+    qdfAC2 = qdf2.acPolicyApplied(tk)
+    dfAC2 = DataFrame(qdfAC2, __sqlContext)
+
+    dfjoin = dfAC1.join(dfAC2, st, mode)
 
     #dfagg = dfsort.groupBy('pageURL').agg({'pageRank': 'mean'})
 
-    qres = __spark._jvm.org.apache.spark.sql.QShieldDatasetFunctions(dfsql._jdf)
+    qres = __spark._jvm.org.apache.spark.sql.QShieldDatasetFunctions(dfjoin._jdf)
     qresPrep = qres.resPrepared()
     resPrep = DataFrame(qresPrep, __sqlContext)
     coll_fur = await asyncio.wrap_future(resPrep.collectAsync())
     return coll_fur
 
 class DataObj(object):
-    def __init__(self, path, schema):
+    def __init__(self, name, path, schema):
+        self.name = name
         self.path = path
         self.schema = schema
 
@@ -94,7 +191,6 @@ class ModelMetaclass(type):
 
         attrs['__mappings__'] = mappings
         attrs['__table__'] = tableName
-		#attrs['__primary_key__'] = primaryKey
         attrs['__fields__'] = fields
         attrs['__path__'] = path
 
@@ -129,28 +225,35 @@ class Model(dict, metaclass=ModelMetaclass):
         return value
 
     @classmethod
-    async def exe(cls, st = None, p = None, tk = None, **kw):
+    async def sql_exe(cls, tables = None, st = None, p = None, tk = None, **kw):
+        objs = []
+        for t in tables:
+            sfs = table_schema(t)
+            objs.append(DataObj(t.__table__, t.__path__, StructType(sfs)))
+        return await spark_sql_exe(objs, st, p, tk)
 
-        global __spark
-        global __sqlContext
+    @classmethod
+    async def filter(cls, st = None, tk = None, **kw):
+        sfs = table_schema(cls)
+        obj = DataObj(cls.__table__, cls.__path__, StructType(sfs))
+        return await spark_filter(obj, st, tk)
 
-        if st is None or p is None or tk is None:
-            raise ValueError('Invalid query request!!!')
+    @classmethod
+    async def selector(cls, st = None, tk = None, **kw):
+        sfs = table_schema(cls)
+        obj = DataObj(cls.__table__, cls.__path__, StructType(sfs))
+        return await spark_selector(obj, st, tk)
 
-        sfs = []
-        for k, v in cls.__mappings__.items():
-            if isinstance(v, StringField):
-                sfs.append(StructField(k, StringType(), True))
-            elif isinstance(v, IntegerField):
-                sfs.append(StructField(k, IntegerType(), True))
+    @classmethod
+    async def sorter(cls, st = None, asc = None, tk = None, **kw):
+        sfs = table_schema(cls)
+        obj = DataObj(cls.__table__, cls.__path__, StructType(sfs))
+        return await spark_sorter(obj, st, asc, tk)
 
-        obj = DataObj(cls.__path__, StructType(sfs))
-
-        res = await spark_st_sql_exe(obj, cls.__table__, st, p, tk)
-        i = 1
-        for row in res:
-            logging.info('Has row [%d]: ' % i)
-            i = i + 1
-            for v in row:
-                logging.info('Value: %s' % str(v))
-            logging.info('\n')
+    @classmethod
+    async def joiner(cls, table2 = None, st = None, mode = None, tk = None, **kw):
+        sfs1 = table_schema(cls)
+        obj1 = DataObj(cls.__table__, cls.__path__, StructType(sfs1))
+        sfs2 = table_schema(table2)
+        obj2 = DataObj(table2.__table__, table2.__path__, StructType(sfs2))
+        return await spark_joiner(obj1, obj2, st, mode, tk)

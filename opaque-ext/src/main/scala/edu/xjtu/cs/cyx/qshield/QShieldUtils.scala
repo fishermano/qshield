@@ -54,6 +54,21 @@ object QShieldUtils extends Logging{
                             StructField("avgDuration", IntegerType))),
                           sqlContext.sparkContext.defaultParallelism)
 
+    QOwnerStuber.dataOut(sqlContext,
+                          "file:///home/hadoop/QShield-DP/data/bdb/uservisits/tiny",
+                          "USERVISITS",
+                          StructType(Seq(
+                            StructField("sourceIP", StringType),
+                            StructField("destURL", StringType),
+                            StructField("visitDate", StringType),
+                            StructField("adRevenue", FloatType),
+                            StructField("userAgent", StringType),
+                            StructField("countryCode", StringType),
+                            StructField("languageCode", StringType),
+                            StructField("searchWord", StringType),
+                            StructField("duration", IntegerType))),
+                          sqlContext.sparkContext.defaultParallelism)
+
   }
 
   var eid = 0L
