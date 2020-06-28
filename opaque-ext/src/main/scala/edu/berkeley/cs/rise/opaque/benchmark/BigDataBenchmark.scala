@@ -106,11 +106,8 @@ object BigDataBenchmark {
             .filter($"visitDate" >= lit("1980-01-01") && $"visitDate" <= lit("1980-04-01"))
             .select($"destURL", $"sourceIP", $"adRevenue"),
           rankingsDF("pageURL") === uservisitsDF("destURL"))
-        .select($"sourceIP", $"pageRank", $"adRevenue")
-        .groupBy("sourceIP")
-        .agg(avg("pageRank").as("avgPageRank"), sum("adRevenue").as("totalRevenue"))
-        .select($"sourceIP", $"totalRevenue", $"avgPageRank")
-        .orderBy($"totalRevenue".asc)
+        .select($"sourceIP", $"pageRank")
+        .orderBy($"pageRank".asc)
       Utils.force(df)
       df
     }

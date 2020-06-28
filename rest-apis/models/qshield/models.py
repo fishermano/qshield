@@ -4,7 +4,7 @@
 __author__ = 'CYX'
 
 from orm import Model
-from field import StringField, IntegerField, FloatField
+from field import StringField, IntegerField, FloatField, DateField
 
 class Tables(Model):
     __table__ = '*'
@@ -24,7 +24,7 @@ class Uservisits(Model):
 
     sourceIP = StringField()
     destURL = StringField()
-    visitDate = StringField()
+    visitDate = DateField()
     adRevenue = FloatField()
     userAgent = StringField()
     countryCode = StringField()

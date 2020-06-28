@@ -13,7 +13,9 @@ void qaggregate_step1(
   uint8_t **last_row, size_t *last_row_length) {
 
   FlatbuffersAggOpEvaluator agg_op_eval(agg_op, agg_op_length);
+
   QRowReader r(BufferRefView<qix::QEncryptedBlocks>(input_rows, input_rows_length));
+
   QRowWriter first_row_writer;
   QRowWriter last_group_writer;
   QRowWriter last_row_writer;
@@ -21,31 +23,6 @@ void qaggregate_step1(
   first_row_writer.set_meta(r.meta());
   last_group_writer.set_meta(r.meta());
   last_row_writer.set_meta(r.meta());
-
-  // flatbuffers::FlatBufferBuilder meta_builder;
-  // const flatbuffers::Offset<qix::QMeta> first_row_writer_meta_new = first_row_writer.unary_update_meta(r.meta(),
-  //                                                                           false,
-  //                                                                           "qaggregate_step1",
-  //                                                                           meta_builder);
-  // meta_builder.Finish(first_row_writer_meta_new);
-  // first_row_writer.set_meta(flatbuffers::GetRoot<qix::QMeta>(meta_builder.GetBufferPointer()));
-  // meta_builder.Clear();
-  //
-  // const flatbuffers::Offset<qix::QMeta> last_group_writer_meta_new = last_group_writer.unary_update_meta(r.meta(),
-  //                                                                           false,
-  //                                                                           "qaggregate_step1",
-  //                                                                           meta_builder);
-  // meta_builder.Finish(last_group_writer_meta_new);
-  // last_group_writer.set_meta(flatbuffers::GetRoot<qix::QMeta>(meta_builder.GetBufferPointer()));
-  // meta_builder.Clear();
-  //
-  // const flatbuffers::Offset<qix::QMeta> last_row_writer_meta_new = last_row_writer.unary_update_meta(r.meta(),
-  //                                                                           false,
-  //                                                                           "qaggregate_step1",
-  //                                                                           meta_builder);
-  // meta_builder.Finish(last_row_writer_meta_new);
-  // last_row_writer.set_meta(flatbuffers::GetRoot<qix::QMeta>(meta_builder.GetBufferPointer()));
-  // meta_builder.Clear();
 
   FlatbuffersTemporaryRow prev, cur;
   while(r.has_next()){

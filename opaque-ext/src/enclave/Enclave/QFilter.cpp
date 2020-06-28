@@ -15,6 +15,7 @@ void qfilter(uint8_t *condition, size_t condition_length,
 
   BufferRefView<tuix::FilterExpr> condition_buf(condition, condition_length);
   condition_buf.verify();
+
   FlatbuffersExpressionEvaluator condition_eval(condition_buf.root()->condition());
 
   QRowReader row_r(BufferRefView<qix::QEncryptedBlocks>(input_rows, input_rows_length));
@@ -25,6 +26,7 @@ void qfilter(uint8_t *condition, size_t condition_length,
                                                                             false,
                                                                             "qfilter",
                                                                             meta_builder);
+
   meta_builder.Finish(meta_new);
   row_w.set_meta(flatbuffers::GetRoot<qix::QMeta>(meta_builder.GetBufferPointer()));
   meta_builder.Clear();
@@ -32,6 +34,7 @@ void qfilter(uint8_t *condition, size_t condition_length,
   while(row_r.has_next()){
     const tuix::Row *row = row_r.next();
     const tuix::Field *condition_result = condition_eval.eval(row);
+
     if(condition_result->value_type() != tuix::FieldUnion_BooleanField){
       throw std::runtime_error(
         std::string("QFilter expression expected to return BooleanField, instead returned ")

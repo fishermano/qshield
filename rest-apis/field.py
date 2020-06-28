@@ -14,7 +14,7 @@ class Field(object):
 		return '<%s, %s:%s>' % (self.__class__.__name__, self.column_type, self.name)
 
 class StringField(Field):
-	def __init__(self, name = None, primary_key = False, default = None, column_type = 'varchar(100)'):
+	def __init__(self, name = None, primary_key = False, default = None, column_type = 'varchar(200)'):
 		super().__init__(name, column_type, primary_key, default)
 
 class BooleanField(Field):
@@ -38,7 +38,10 @@ class DateTimeField(Field):
 	def __init__(self, name = None, default = None):
 		super().__init__(name, 'datetime', False, default)
 
+class DateField(Field):
+	def __init__(self, name = None, default = None, column_type = 'varchar(200)'):
+		super().__init__(name, column_type, False, default)
+
 class MediumBlobField(Field):
 	def __init__(self, name = None, default = None):
 		super().__init__(name, 'mediumblob', False, default)
-

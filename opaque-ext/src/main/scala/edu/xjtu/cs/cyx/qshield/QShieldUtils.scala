@@ -61,7 +61,7 @@ object QShieldUtils extends Logging{
                           StructType(Seq(
                             StructField("sourceIP", StringType),
                             StructField("destURL", StringType),
-                            StructField("visitDate", StringType),
+                            StructField("visitDate", DateType),
                             StructField("adRevenue", FloatType),
                             StructField("userAgent", StringType),
                             StructField("countryCode", StringType),

@@ -88,7 +88,7 @@ object User {
 
     val res2 = Http("http://localhost:9090/qshield/query")
       .charset("UTF-8")
-      .postForm(Seq("st" -> "select sourceIP, visitDate from USERVISITS", "p" -> "test"))
+      .postForm(Seq("st" -> "select sourceIP from USERVISITS", "p" -> "test"))
       .postMulti(MultiPart("tk", "", "", tk))
       .asString.body
 
@@ -128,7 +128,18 @@ object User {
     //println(res4)
     //println(res5)
     //println(res6)
-    println(res7)
+    //println(res7)
+
+    if(res1 != None
+        && res2 != None
+        && res3 != None
+        && res4 != None
+        && res5 != None
+        && res6 != None
+        && res7 != None){
+      println("All tests ok!!!")
+    }
+
   }
 
 }

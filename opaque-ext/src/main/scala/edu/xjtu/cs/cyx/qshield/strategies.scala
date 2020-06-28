@@ -91,6 +91,9 @@ object QShieldOperators extends Strategy {
         case _ => Nil
       }
 
+    case EncryptedBlockRDD(output, rdd) =>
+      QEncryptedBlockRDDScanExec(output, rdd) :: Nil
+
     case _ => Nil
   }
 

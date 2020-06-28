@@ -37,6 +37,7 @@ import org.apache.spark.sql.Row
 
 import org.apache.hadoop.fs.Path
 import java.io.ObjectOutputStream
+import java.text.SimpleDateFormat
 
 case class Block(bytes: Array[Byte]) extends Serializable
 
@@ -141,6 +142,14 @@ class QSP extends java.io.Serializable {
             builder,
             tuix.FieldUnion.DateField,
             tuix.DateField.createDateField(builder, 0),
+            isNull)
+        case (s: Any, DateType) =>
+          val sTime = new SimpleDateFormat("yyyy-MM-dd").parse(s.toString)
+          val sNum = sTime.getTime
+          tuix.Field.createField(
+            builder,
+            tuix.FieldUnion.DateField,
+            tuix.DateField.createDateField(builder, sNum.intValue()),
             isNull)
         case (x: Array[Byte], BinaryType) =>
           val length = x.size

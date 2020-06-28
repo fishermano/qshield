@@ -42,6 +42,8 @@ def table_schema(t_model):
             sfs.append(StructField(k, IntegerType(), True))
         elif isinstance(v, FloatField):
             sfs.append(StructField(k, FloatType(), True))
+        elif isinstance(v, DateField):
+            sfs.append(StructField(k, DateType(), True))
     return sfs
 
 async def spark_sql_exe(objs, st, p, tk):

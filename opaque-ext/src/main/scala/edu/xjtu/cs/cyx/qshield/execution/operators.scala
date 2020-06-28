@@ -334,3 +334,17 @@ case class QEncryptedUnionExec(
     unioned
   }
 }
+
+/**
+ * @annotated by cyx
+ *
+ * define QEncryptedBlockRDDScanExec opaque physical plan, which create encrypted
+ * block RDD from a Block.
+ */
+case class QEncryptedBlockRDDScanExec(
+    output: Seq[Attribute],
+    rdd: RDD[Block])
+  extends LeafExecNode with OpaqueOperatorExec {
+
+  override def executeBlocked(): RDD[Block] = rdd
+}
