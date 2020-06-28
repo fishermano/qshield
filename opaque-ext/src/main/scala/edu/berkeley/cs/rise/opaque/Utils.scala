@@ -130,7 +130,7 @@ object Utils extends Logging {
     val start = System.nanoTime
     val result = f
     if (perf) {
-      logInfo(s"$desc: ${(System.nanoTime - start) / 1000000.0} ms")
+      logWarning(s"$desc: ${(System.nanoTime - start) / 1000000.0} ms")
     }
     result
   }
@@ -139,7 +139,7 @@ object Utils extends Logging {
   // is set
   def logPerf(message: String): Unit = {
     if (perf) {
-      logInfo(message)
+      logWarning(message)
     }
   }
 
@@ -184,7 +184,7 @@ object Utils extends Logging {
     val attrs = benchmarkAttrs.toMap + (
       "time" -> timeMs,
       "sgx" -> (if (System.getenv("SGX_MODE") == "HW") "hw" else "sim"))
-    logInfo(jsonSerialize(attrs))
+    logWarning(jsonSerialize(attrs))
     result
   }
 
@@ -265,7 +265,7 @@ object Utils extends Logging {
       if (eid == 0L) {
         val enclave = new SGXEnclave()
         eid = enclave.StartEnclave(findLibraryAsResource("enclave_trusted_signed"))
-        logInfo("Starting an enclave")
+        logWarning("Starting an enclave")
         (enclave, eid)
       } else {
         val enclave = new SGXEnclave()

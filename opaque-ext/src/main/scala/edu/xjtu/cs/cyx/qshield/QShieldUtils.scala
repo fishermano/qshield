@@ -36,6 +36,7 @@ object QShieldUtils extends Logging{
   // register self-defined rules and strategies to sql context
   // perform remote attestation with sql context
   def initQShieldSQLContext(sqlContext: SQLContext): Unit = {
+
     sqlContext.experimental.extraOptimizations =
       (Seq(ACPolicyApplyEncryptedBlockRDD, ConvertToOpaqueOperators, ConvertToQShieldOperators) ++
         sqlContext.experimental.extraOptimizations)
