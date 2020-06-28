@@ -155,9 +155,27 @@ async def spark_joiner(obj1, obj2, st, mode, tk):
 
     dfjoin = dfAC1.join(dfAC2, st, mode)
 
-    #dfagg = dfsort.groupBy('pageURL').agg({'pageRank': 'mean'})
-
     qres = __spark._jvm.org.apache.spark.sql.QShieldDatasetFunctions(dfjoin._jdf)
+    qresPrep = qres.resPrepared()
+    resPrep = DataFrame(qresPrep, __sqlContext)
+    coll_fur = await asyncio.wrap_future(resPrep.collectAsync())
+    return coll_fur
+
+async def spark_aggregator(obj, g_c, a_c, func, tk):
+
+    global __spark
+    global __sqlContext
+
+    df = __spark.read.format("edu.berkeley.cs.rise.opaque.EncryptedSource") \
+                            .schema(obj.schema) \
+                            .load(obj.path)
+    qdf = __spark._jvm.org.apache.spark.sql.QShieldDatasetFunctions(df._jdf)
+    qdfAC = qdf.acPolicyApplied(tk)
+    dfAC = DataFrame(qdfAC, __sqlContext)
+
+    dfagg = dfAC.groupBy(g_c).agg({a_c: func})
+
+    qres = __spark._jvm.org.apache.spark.sql.QShieldDatasetFunctions(dfagg._jdf)
     qresPrep = qres.resPrepared()
     resPrep = DataFrame(qresPrep, __sqlContext)
     coll_fur = await asyncio.wrap_future(resPrep.collectAsync())
@@ -257,3 +275,9 @@ class Model(dict, metaclass=ModelMetaclass):
         sfs2 = table_schema(table2)
         obj2 = DataObj(table2.__table__, table2.__path__, StructType(sfs2))
         return await spark_joiner(obj1, obj2, st, mode, tk)
+
+    @classmethod
+    async def aggregator(cls, g_c = None, a_c = None, func = None, tk = None, **kw):
+        sfs = table_schema(cls)
+        obj = DataObj(cls.__table__, cls.__path__, StructType(sfs))
+        return await spark_aggregator(obj, g_c, a_c, func, tk)

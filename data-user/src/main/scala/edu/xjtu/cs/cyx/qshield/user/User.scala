@@ -116,12 +116,19 @@ object User {
       .postMulti(MultiPart("tk", "", "", tk))
       .asString.body
 
+    val res7 = Http("http://localhost:9090/qshield/aggregator")
+      .charset("UTF-8")
+      .postForm(Seq("t" -> "RANKINGS", "group_col" -> "pageURL", "agg_col" -> "pageRank", "func" -> "mean"))
+      .postMulti(MultiPart("tk", "", "", tk))
+      .asString.body
+
     //println(res1)
     //println(res2)
     //println(res3)
     //println(res4)
     //println(res5)
-    println(res6)
+    //println(res6)
+    println(res7)
   }
 
 }

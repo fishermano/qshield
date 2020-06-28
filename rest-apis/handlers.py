@@ -33,6 +33,11 @@ def all_apis():
 	test_apis.append('Hello: GET /api/hello?name=CX&age=25')
 	test_apis.append('Hello: GET /api/hello/multi-keys?name=CX&gender=male&age=25')
 	test_apis.append('QueryRequest: POST /qshield/query')
+	test_apis.append('Operator: POST /qshield/filter')
+	test_apis.append('Operator: POST /qshield/selector')
+	test_apis.append('Operator: POST /qshield/sorter')
+	test_apis.append('Operator: POST /qshield/joiner')
+	test_apis.append('Operator: POST /qshield/aggregator')
 
 	all_apis = {'Test':test_apis}
 	return {
@@ -211,4 +216,27 @@ async def qshield_joiner(*, t1, t2, st, mode, tk, **kw):
 		raise APIValueError('tk', message = 'tk is None')
 
 	res = await table1.joiner(table2=table2, st=st, mode=mode, tk=tk, **kw)
+	return data_res_format(data = res)
+
+@post('/qshield/aggregator')
+async def qshield_aggregator(*, t, group_col, agg_col, func, tk, **kw):
+	table = None
+	if t is None:
+		raise APIValueError('t', message = 't is None')
+	else:
+		table = table_model(t)
+
+	if group_col is None:
+		raise APIValueError('group_col', message = 'group collum is None')
+
+	if agg_col is None:
+		raise APIValueError('agg_col', message = 'aggregation collum is None')
+
+	if func is None:
+		raise APIValueError('func', message = 'aggregation function is None')
+
+	if tk is None:
+		raise APIValueError('tk', message = 'tk is None')
+
+	res = await table.aggregator(g_c=group_col, a_c=agg_col, func=func, tk=tk, **kw)
 	return data_res_format(data = res)

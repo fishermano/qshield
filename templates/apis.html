@@ -7,7 +7,25 @@
 <body>
 	<h1>Test APIs:</h1>
 	{% for i in all_apis['Test'] %}
-		<p>{{i}}</p>
+		<p><font size="4" color="black">{{i}}</font></p>
+		{% if i == 'QueryRequest: POST /qshield/query': %}
+			<p><font size="2" color="grey">Parameters: st (sql statement), p (parameters), tk (token)</font></p>
+		{% endif %}
+		{% if i == 'Operator: POST /qshield/filter': %}
+			<p><font size="2" color="grey">Parameters: t (table), st (filter condition), tk (token)</font></p>
+		{% endif %}
+		{% if i == 'Operator: POST /qshield/selector': %}
+			<p><font size="2" color="grey">Parameters: t (table), st (projection collums), tk (token)</font></p>
+		{% endif %}
+		{% if i == 'Operator: POST /qshield/sorter': %}
+			<p><font size="2" color="grey">Parameters: t (table), st (sort collums), asc (ascending), tk (token)</font></p>
+		{% endif %}
+		{% if i == 'Operator: POST /qshield/joiner': %}
+			<p><font size="2" color="grey">Parameters: t1 (left table), t2 (right table), st (join condition), mode (join mode), tk (token)</font></p>
+		{% endif %}
+		{% if i == 'Operator: POST /qshield/aggregator': %}
+			<p><font size="2" color="grey">Parameters: t (table), group_col (group collum), agg_col (aggregation collum), func (aggregation function), tk (token)</font></p>
+		{% endif %}
 	{% endfor %}
 	{% for (k, v) in all_apis.items() %}
 		{% if k != 'Test': %}
