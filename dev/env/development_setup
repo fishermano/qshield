@@ -1,4 +1,11 @@
 ########################################################################
+create haddoop user account
+########################################################################
+~$ sudo adduser hadoop
+~$ sudo passwd hadoop
+~$ sudo adduser hadoop sudo
+
+########################################################################
 apt repository
 ########################################################################
 
@@ -28,7 +35,7 @@ setup ssh server login and git repository without password
 
 ssh login test:
 ~$ sudo apt-get install ssh
-~$ ssh locahost
+~$ ssh localhost
 
 ########################################################################
 setup git global name and email
@@ -122,7 +129,7 @@ install requiered tools:
 build psw local Debian package repository:
 ~/Repoes/linux-sgx$ make deb_local_repo
 "PATH_TO_LOCAL_REPO = ./linux/installer/deb/sgx_debian_local_repo"
-~/Repoes/linux-sgx$ sudo nano /etc/apt/sourced.list
+~/Repoes/linux-sgx$ sudo nano /etc/apt/sources.list
 "append"
     'deb [trusted=yes arch=amd64] file:/ABSOLUTE_PATH_TO_LOCAL_REPO bionic main'
 "to /etc/apt/sources.list"
@@ -169,9 +176,9 @@ java test:
 2. hadoop
 
 ~$ cd Repoes
-~/Repoes$ "download hadoop (hadoop-3.1.0.tar.gz) here"
-~/Repoes$ sudo tar -xzvf hadoop-3.1.0.tar.gz -C /opt/
-~/Repoes/linux-sgx$ sudo chown -R hadoop.root /opt/hadoop-3.1.0
+~/Repoes$ "download hadoop (hadoop-3.1.0.tar.gz) here" or run 'git clone git@gitee.com:fishermano/hadoop-3.1.0.git'
+~/Repoes$ sudo tar -xzvf hadoop-3.1.0.tar.gz -C /opt/ or run 'sudo cp -R hadoop-3.1.0/ /opt'
+~/Repoes$ sudo chown -R hadoop.root /opt/hadoop-3.1.0
 
 cofigure haddop environment:
 ~/Repoes$ sudo nano /etc/profile
@@ -186,9 +193,6 @@ cofigure haddop environment:
     'export HADOOP_install=$HADOOP_HOME'
 "to /etc/profile"
 ~/Repoes$ source /etc/profile
-
-hadoop test:
-~/Repoes$ hadoop version
 
 3. run hadoop
 
@@ -279,8 +283,8 @@ setup sbt development environment
 ########################################################################
 
 ~$ cd Repoes
-~/Repoes$ "download sbt 0.13.17 (sbt-0.13.17.tgz) here"
-~/Repoes$ sudo tar -xzvf sbt-0.13.17.tgz -C /opt/
+~/Repoes$ "download sbt 0.13.17 (sbt-0.13.17.tgz) here" or run 'git clone git@gitee.com:fishermano/sbt-0.13.17.git'
+~/Repoes$ sudo tar -xzvf sbt-0.13.17.tgz -C /opt/ or run 'sudo cp -R sbt-0.13.17/ /opt'
 
 configure sbt environment:
 ~/Repoes$ sudo nano /etc/profile
@@ -301,6 +305,7 @@ configure sbt console to show current project module:
      shellPrompt := { state =>
        val projectId = Project.extract(state).currentProject.id
        s"$BLUE sbt ($projectId)>$RESET "
+		 }
 "to ~/.sbt/0.13/global.sbt"
 
 configure sbt domastic repository:
@@ -323,10 +328,10 @@ configure sbt domastic repository:
      sbt-plugin-repo: https://repo.scala-sbt.org/scalasbt/sbt-plugin-releases, [organization]/[module]/(scala_[scalaVersion]/)(sbt_[sbtVersion]/)[revision]/[type]s/[artifact](-[classifier]).[ext]
 "to ~/.sbt/repositories"
 
-~$ sudo nano ~$ nano ~/.sbt/repositories/sbtopts
+$ sudo nano /opt/sbt-0.13.17/conf/sbtopts
 "append"
      -Dsbt.override.build.repos=true
-"to ~$ nano ~/.sbt/repositories/sbtopts"
+"to /opt/sbt-0.13.17/conf/sbtopts"
 
 ########################################################################
 setup maven development environment
@@ -350,8 +355,8 @@ setup scala development environment
 ########################################################################
 
 ~$ cd Repoes
-~/Repoes$ "download scala 2.11.12 (scala-2.11.12.tgz) here"
-~/Repoes$ sudo tar -xzvf scala-2.11.12.tgz -C /opt/
+~/Repoes$ "download scala 2.11.12 (scala-2.11.12.tgz) here" or run 'git clone git@gitee.com:fishermano/scala-2.11.12.git'
+~/Repoes$ sudo tar -xzvf scala-2.11.12.tgz -C /opt/ or run 'sudo cp -R scala-2.11.12/ /opt'
 
 configure sbt environment:
 ~/Repoes$ sudo nano /etc/profile
@@ -390,22 +395,22 @@ configure spark-env.sh:
 /opt/spark-2.4.5-bin-custom-spark/conf$ cp spark-env.sh.template spark-env.sh
 /opt/spark-2.4.5-bin-custom-spark/conf$ nano spark-env.sh
 "append"
-     export JAVA_HOME=/opt/jdk1.8.0_151
-     export HADOOP_HOME=/opt/hadoop-3.1.0
-     export HADOOP_CONF_DIR=/opt/hadoop-3.1.0/etc/hadoop
-     export YARN_CONF_DIR=/opt/hadoop-3.1.0/etc/hadoop
-     export SPARK_MASTER_IP=spark
-     export SPARK_LOCAL_IP=127.0.1.1
-     export SPARK_WORKER_MEMORY=4g
-     export SPARK_HOME=/opt/spark-2.4.5-bin-custom-spark
-     export SPARK_LOCAL_DIRS=/opt/spark-2.4.5-bin-custom-spark/tmp
-     export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HADOOP_HOME/lib/native
+		export JAVA_HOME=/opt/jdk1.8.0_151
+		export HADOOP_HOME=/opt/hadoop-3.1.0
+		export HADOOP_CONF_DIR=/opt/hadoop-3.1.0/etc/hadoop
+		export YARN_CONF_DIR=/opt/hadoop-3.1.0/etc/hadoop
+		export SPARK_MASTER_IP={the name of your host}
+		export SPARK_LOCAL_IP=127.0.1.1
+		export SPARK_WORKER_MEMORY=4g
+		export SPARK_HOME=/opt/spark-2.4.5-bin-custom-spark
+		export SPARK_LOCAL_DIRS=/opt/spark-2.4.5-bin-custom-spark/tmp
+		export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HADOOP_HOME/lib/native
 "to spark-env.sh"
 
 configure /etc/hosts:
 ~$ sudo nano /etc/hosts
 "append"
-     127.0.1.1 spark
+     127.0.1.1 {the name of your host}
 "to /etc/hosts"
 
 configure slaves (stand-alone):
@@ -440,7 +445,7 @@ setup opaque development environment
 ~$ source /etc/profile
 
 spark test:
-~/ spark-shell --master spark://spark:7077 --executor-memory 1024m --driver-memory 1024m \
+~/ spark-shell --master spark://{the name of your host}:7077 --executor-memory 1024m --driver-memory 1024m \
                 --jars /home/hadoop/opaque/target/scala-2.11/opaque_2.11-0.1.jar
 
 ########################################################################
@@ -461,10 +466,9 @@ update pip3 source mirror:
 ~$ sudo apt install python3-pip
 ~$ pip3 install aiohttp
 ~$ pip3 install jinja2
-(~$ pip3 install pyspark)
-or "copy pysaprk py4j source code from spark protject to /home/hadoop/.local/lib/python3.6/site-packages"
+"copy pysaprk py4j source code from spark protject to /home/hadoop/.local/lib/python3.6/site-packages"
 ~$ cp -r /home/hadoop/spark-2.4.5/python/lib/pyspark/ /home/hadoop/.local/lib/python3.6/site-packages/
-~$
+~$ cp -r /home/hadoop/spark-2.4.5/python/lib/py4j/ /home/hadoop/.local/lib/python3.6/site-packages/
 ~$ sudo nano /etc/profile
 "append"
    export PYSPARK_PYTHON=/usr/bin/python3.6
@@ -472,6 +476,8 @@ or "copy pysaprk py4j source code from spark protject to /home/hadoop/.local/lib
 "to /etc/profile"
 
 ~$ pip3 install pyspark-asyncactions
+~$ pip3 install numpy
+~$ pip3 install sqlparse-0.3.1
 
 ########################################################################
 setup QShield-DP development environment
@@ -501,3 +507,9 @@ install sgx-enabled e-scheme library:
 ~/QShield-DP/tpl/e-scheme$ ./configure prefix=/opt/sgxsdk
 ~/QShield-DP/tpl/e-scheme$ make
 ~/QShield-DP/tpl/e-scheme$ make install
+
+modify QShield configuration:
+~$ nano ./QShield-DP/rest-apis/conf/config_override.py
+"modify"
+			'master': 'spark://{the name of your host}:7077'
+"in config_override.py"
