@@ -410,14 +410,14 @@ configure spark-env.sh:
 configure /etc/hosts:
 ~$ sudo nano /etc/hosts
 "append"
-     127.0.1.1 {the name of your host}
+    127.0.1.1 {the name of your host}
 "to /etc/hosts"
 
 configure slaves (stand-alone):
 /opt/spark-2.4.5-bin-custom-spark/conf$ cp slaves.template slaves
 /opt/spark-2.4.5-bin-custom-spark/conf$ nano slaves
 "append"
-     localhost
+    localhost
 "to slaves"
 
 configure log4j.properties (hide inessential information output to console):
@@ -428,8 +428,8 @@ configure log4j.properties (hide inessential information output to console):
 configure /etc/profile:
 ~$ sudo nano /etc/profile
 "append"
-     export SPARK_HOME=/opt/spark-2.4.5-bin-custom-spark
-     export PATH=$SPARK_HOME/bin:$SPARK_HOME/sbin:$PATH
+    export SPARK_HOME=/opt/spark-2.4.5-bin-custom-spark
+    export PATH=$SPARK_HOME/bin:$SPARK_HOME/sbin:$PATH
 "to /etc/profile"
 ~$ source /etc/profile
 
@@ -440,7 +440,7 @@ setup opaque development environment
 ~$ sudo nano /etc/profile
 "append"
     export OPAQUE_HOME=/home/hadoop/opaque
-    export PRIVATE_KEY_PATH=$OPAQUE_HOME/private_key.pem
+    export SPARKSGX_DATA_DIR=$OPAQUE_HOME/data
 "to /etc/profile"
 ~$ source /etc/profile
 
@@ -508,8 +508,21 @@ install sgx-enabled e-scheme library:
 ~/QShield-DP/tpl/e-scheme$ make
 ~/QShield-DP/tpl/e-scheme$ make install
 
+########################################################################
+run QShield-DP
+########################################################################
+
 modify QShield configuration:
 ~$ nano ./QShield-DP/rest-apis/conf/config_override.py
 "modify"
 			'master': 'spark://{the name of your host}:7077'
 "in config_override.py"
+
+~$ openssl ecparam -name prime256v1 -genkey -noout -out private_key.pem
+
+~$ sudo nano /etc/profile
+"append"
+	export SGX_PERF=1
+	export PRIVATE_KEY_PATH=/home/hadoop/private_key.pem
+"to /etc/profile"
+~$ source /etc/profile

@@ -9,6 +9,7 @@ rest-apis/dist
 /qshield
 
 opaque-ext/private_key.pem
+opaque-ext/outsourced/
 
 tpl/sgx-pbc/arith/.dirstamp
 tpl/sgx-pbc/ecc/.deps/
