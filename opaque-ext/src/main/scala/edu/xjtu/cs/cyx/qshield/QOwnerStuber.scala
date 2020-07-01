@@ -38,7 +38,7 @@ object QOwnerStuber extends Logging {
 
     val sc = sqlContext.sparkContext
 
-    // val rdd = sc.makeRDD(Seq.fill(sc.defaultParallelism) { () })
+    //val rdd = sc.makeRDD(Seq.fill(sc.defaultParallelism) { () })
     /**
      * modified by cyx
      * attestation is not successful when setting partitions number larger than 1 (why?)

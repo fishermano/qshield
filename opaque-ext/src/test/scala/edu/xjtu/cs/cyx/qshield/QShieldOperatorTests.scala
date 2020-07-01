@@ -79,10 +79,23 @@ trait QShieldOperatorTests extends FunSuite with BeforeAndAfterAll { self =>
 }
 
 class QShieldSinglePartitionSuite extends QShieldOperatorTests {
+
   override val spark = SparkSession.builder()
     .master("local[1]")
+    .config("spark.debug.maxToStringFields", "1000")
     .appName("QShield QEDSuite")
     .getOrCreate()
 
+/**
+  override val spark = SparkSession.builder()
+    .master("spark://SGX:7077")
+    .config("spark.jars", "/home/hadoop/QShield-DP/opaque-ext/target/scala-2.11/opaque-ext_2.11-0.1.jar,/home/hadoop/QShield-DP/data-owner/target/scala-2.11/data-owner_2.11-0.1.jar")
+    .config("spark.executor.memory", "12g")
+    .config("spark.driver.memory", "2g")
+    .config("spark.memory.fraction", 0.9)
+    .config("spark.debug.maxToStringFields", 1000)
+    .appName("QShield QEDSuite")
+    .getOrCreate()
+*/
   override def numPartitions: Int = 1
 }

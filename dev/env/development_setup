@@ -401,7 +401,7 @@ configure spark-env.sh:
 		export YARN_CONF_DIR=/opt/hadoop-3.1.0/etc/hadoop
 		export SPARK_MASTER_IP={the name of your host}
 		export SPARK_LOCAL_IP=127.0.1.1
-		export SPARK_WORKER_MEMORY=4g
+		export SPARK_WORKER_MEMORY=8g
 		export SPARK_HOME=/opt/spark-2.4.5-bin-custom-spark
 		export SPARK_LOCAL_DIRS=/opt/spark-2.4.5-bin-custom-spark/tmp
 		export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HADOOP_HOME/lib/native
@@ -526,3 +526,10 @@ modify QShield configuration:
 	export PRIVATE_KEY_PATH=/home/hadoop/private_key.pem
 "to /etc/profile"
 ~$ source /etc/profile
+
+run in hardware mode:
+~$ nano /etc/profile
+"append"
+	export SGX_MODE=HW
+	export LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu:$LD_LIBRARY_PATH
+"to /etc/profile"
