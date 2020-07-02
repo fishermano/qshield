@@ -37,7 +37,7 @@ object QBigDataBenchmark {
           StructField("pageURL", StringType),
           StructField("pageRank", IntegerType),
           StructField("avgDuration", IntegerType))))
-        .load("outsourced/RANKINGS"))
+        .load("outsourced/".concat(size).concat("/RANKINGS")))
 
   def uservisits(
       spark: SparkSession, qsecurityLevel: QSecurityLevel, size: String, numPartitions: Int)
@@ -54,7 +54,7 @@ object QBigDataBenchmark {
           StructField("languageCode", StringType),
           StructField("searchWord", StringType),
           StructField("duration", IntegerType))))
-        .load("outsourced/USERVISITS"))
+        .load("outsourced/".concat(size).concat("/USERVISITS")))
 
   def q1(spark: SparkSession, qsecurityLevel: QSecurityLevel, size: String, numPartitions: Int)
     : DataFrame = {
@@ -66,7 +66,7 @@ object QBigDataBenchmark {
       "query" -> "big data 1",
       "system" -> qsecurityLevel.name,
       "size" -> size) {
-      val df = rankingsDF.filter($"pageRank" > 1000)
+      val df = rankingsDF.filter($"pageRank" > 500)
       val dfRes = df.resPrepared
       Utils.force(dfRes)
       dfRes
@@ -107,7 +107,7 @@ object QBigDataBenchmark {
       val df = rankingsDF
         .join(
           uservisitsDF
-            .filter($"visitDate" >= lit("1980-01-01") && $"visitDate" <= lit("1980-04-01"))
+            .filter($"visitDate" >= lit("1980-01-01") && $"visitDate" <= lit("1985-01-01"))
             .select($"destURL", $"sourceIP", $"adRevenue"),
           rankingsDF("pageURL") === uservisitsDF("destURL"))
         .select($"sourceIP", $"pageRank")

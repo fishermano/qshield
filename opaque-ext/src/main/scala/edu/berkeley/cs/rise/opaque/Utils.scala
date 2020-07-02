@@ -793,7 +793,7 @@ object Utils extends Logging {
   def decryptBlockFlatbuffers(block: Block): Seq[InternalRow] = {
     // 4. Extract the serialized tuix.EncryptedBlocks from the Scala Block object
     val buf = ByteBuffer.wrap(block.bytes)
-    
+
     // 3. Deserialize the tuix.EncryptedBlocks to get the encrypted rows
     val encryptedBlocks = tuix.EncryptedBlocks.getRootAsEncryptedBlocks(buf)
     (for (i <- 0 until encryptedBlocks.blocksLength) yield {

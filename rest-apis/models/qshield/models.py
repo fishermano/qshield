@@ -12,7 +12,7 @@ class Tables(Model):
 
 class Rankings(Model):
     __table__ = 'RANKINGS'
-    __path__ = 'outsourced/RANKINGS'
+    __path__ = 'outsourced/tiny/RANKINGS'
 
     pageURL = StringField()
     pageRank = IntegerField()
@@ -20,7 +20,7 @@ class Rankings(Model):
 
 class Uservisits(Model):
     __table__ = 'USERVISITS'
-    __path__ = 'outsourced/USERVISITS'
+    __path__ = 'outsourced/tiny/USERVISITS'
 
     sourceIP = StringField()
     destURL = StringField()

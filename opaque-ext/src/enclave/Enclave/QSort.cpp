@@ -29,7 +29,7 @@ void qexternal_merge(
 
   // Initialize the priority queue with the first row from each run
   for (uint32_t i = run_start; i < run_start + num_runs; i++) {
-    debug("external_merge: Read first row from run %d\n", i);
+    // debug("external_merge: Read first row from run %d\n", i);
     MergeItem item;
     item.v = r.next_from_run(i);
     item.run_idx = i;
@@ -87,7 +87,7 @@ void qexternal_sort(uint8_t *sort_order, size_t sort_order_length,
   {
     uint32_t i = 0;
     for (auto it = br.begin(); it != br.end(); ++it, ++i) {
-      debug("Sorting buffer %d with %d rows\n", i, it->num_rows());
+      // debug("Sorting buffer %d with %d rows\n", i, it->num_rows());
       w.set_meta(meta);
       qsort_single_block(w, *it, sort_eval);
     }
@@ -105,14 +105,14 @@ void qexternal_sort(uint8_t *sort_order, size_t sort_order_length,
   auto runs_buf = w.output_buffer();
   QSortedRunsReader r(runs_buf.view());
   while (r.num_runs() > 1) {
-    debug("external_sort: Merging %d runs, up to %d at a time\n",
-         r.num_runs(), MAX_NUM_STREAMS);
+    // debug("external_sort: Merging %d runs, up to %d at a time\n",
+         // r.num_runs(), MAX_NUM_STREAMS);
 
     w.clear();
     for (uint32_t run_start = 0; run_start < r.num_runs(); run_start += MAX_NUM_STREAMS) {
       uint32_t num_runs =
         std::min(MAX_NUM_STREAMS, static_cast<uint32_t>(r.num_runs()) - run_start);
-      debug("external_sort: Merging buffers %d-%d\n", run_start, run_start + num_runs - 1);
+      // debug("external_sort: Merging buffers %d-%d\n", run_start, run_start + num_runs - 1);
       w.set_meta(meta);
       qexternal_merge(r, run_start, num_runs, w, sort_eval);
     }

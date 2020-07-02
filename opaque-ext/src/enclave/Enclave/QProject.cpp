@@ -25,6 +25,7 @@ void qproject(uint8_t *project_list, size_t project_list_length,
     }
 
     QRowReader row_r(BufferRefView<qix::QEncryptedBlocks>(input_rows, input_rows_length));
+
     QRowWriter row_w;
 
     flatbuffers::FlatBufferBuilder meta_builder;

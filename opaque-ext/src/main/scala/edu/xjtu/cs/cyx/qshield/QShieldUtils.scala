@@ -48,7 +48,25 @@ object QShieldUtils extends Logging{
 
     QOwnerStuber.dataOut(sqlContext,
                           "file:///home/hadoop/QShield-DP/data/bdb/rankings/tiny",
-                          "RANKINGS",
+                          "tiny/RANKINGS",
+                          StructType(Seq(
+                            StructField("pageURL", StringType),
+                            StructField("pageRank", IntegerType),
+                            StructField("avgDuration", IntegerType))),
+                          sqlContext.sparkContext.defaultParallelism)
+
+    QOwnerStuber.dataOut(sqlContext,
+                          "file:///home/hadoop/QShield-DP/data/bdb/rankings/medium",
+                          "medium/RANKINGS",
+                          StructType(Seq(
+                            StructField("pageURL", StringType),
+                            StructField("pageRank", IntegerType),
+                            StructField("avgDuration", IntegerType))),
+                          sqlContext.sparkContext.defaultParallelism)
+
+    QOwnerStuber.dataOut(sqlContext,
+                          "file:///home/hadoop/QShield-DP/data/bdb/rankings/medium",
+                          "big/RANKINGS",
                           StructType(Seq(
                             StructField("pageURL", StringType),
                             StructField("pageRank", IntegerType),
@@ -57,7 +75,7 @@ object QShieldUtils extends Logging{
 
     QOwnerStuber.dataOut(sqlContext,
                           "file:///home/hadoop/QShield-DP/data/bdb/uservisits/tiny",
-                          "USERVISITS",
+                          "tiny/USERVISITS",
                           StructType(Seq(
                             StructField("sourceIP", StringType),
                             StructField("destURL", StringType),
@@ -70,6 +88,35 @@ object QShieldUtils extends Logging{
                             StructField("duration", IntegerType))),
                           sqlContext.sparkContext.defaultParallelism)
 
+    QOwnerStuber.dataOut(sqlContext,
+                          "file:///home/hadoop/QShield-DP/data/bdb/uservisits/medium",
+                          "medium/USERVISITS",
+                          StructType(Seq(
+                            StructField("sourceIP", StringType),
+                            StructField("destURL", StringType),
+                            StructField("visitDate", DateType),
+                            StructField("adRevenue", FloatType),
+                            StructField("userAgent", StringType),
+                            StructField("countryCode", StringType),
+                            StructField("languageCode", StringType),
+                            StructField("searchWord", StringType),
+                            StructField("duration", IntegerType))),
+                          sqlContext.sparkContext.defaultParallelism)
+
+    QOwnerStuber.dataOut(sqlContext,
+                          "file:///home/hadoop/QShield-DP/data/bdb/uservisits/big",
+                          "big/USERVISITS",
+                          StructType(Seq(
+                            StructField("sourceIP", StringType),
+                            StructField("destURL", StringType),
+                            StructField("visitDate", DateType),
+                            StructField("adRevenue", FloatType),
+                            StructField("userAgent", StringType),
+                            StructField("countryCode", StringType),
+                            StructField("languageCode", StringType),
+                            StructField("searchWord", StringType),
+                            StructField("duration", IntegerType))),
+                          sqlContext.sparkContext.defaultParallelism)
   }
 
   var eid = 0L
