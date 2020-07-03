@@ -60,11 +60,19 @@ static std::string embeddedDir="/t/cryt/shadow";
 extern "C" {
 #endif
 
+/*
+ * for rankings: tiny-10 medium-50 big-100
+ * for uservisits: tiny-10 medium-20 big-40
+ */
+#define RANKINGS_FILE_NUM 50
+#define USERVISITS_FILE_NUM 20
+
 // #define FILE_NAME "rankings_insert.txt"
-// #define FILE_NAME "uservisits_insert.txt"
+#define FILE_NAME "uservisits_insert.txt"
+
 // #define FILE_NAME "q1.txt"
 // #define FILE_NAME "q2.txt"
-#define FILE_NAME "q3.txt"
+// #define FILE_NAME "q3.txt"
 
 static
 void write_result(std::string res_file, double exe_time){
@@ -350,7 +358,8 @@ void myNext(std::string client,bool isFirst,ResType inRes) {
         //return the results to the client directly
         case AbstractQueryExecutor::ResultType::RESULTS:{
         //    std::cout<<RED_BEGIN<<"case three"<<COLOR_END<<std::endl;
-            // const auto &res = new_results.second->extract<ResType>();
+            const auto &res = new_results.second->extract<ResType>();
+            (void) res;
             // parseResType(res);
             break;
         }
@@ -367,7 +376,7 @@ void myNext(std::string client,bool isFirst,ResType inRes) {
 static
 void batchTogether(std::string client, std::string curQuery,unsigned long long _thread_id) {
 
-    std::cout<<"********************"<<std::endl;
+    std::cout<<"Running: "<<curQuery<<std::endl;
     clock_t start, end;
     double exe_time;
     start = clock();
@@ -384,11 +393,24 @@ void batchTogether(std::string client, std::string curQuery,unsigned long long _
     exe_time = (double) (end - start)/CLOCKS_PER_SEC;
 
     if(std::string("use benchmark;").compare(curQuery) != 0
-        && std::string("source data/eval/schema/uservisits.sql;").compare(curQuery) != 0
-        && std::string("source data/eval/schema/rankings.sql;").compare(curQuery) != 0){
+        && std::string("source eval/schema/uservisits.sql;").compare(curQuery) != 0
+        && std::string("source eval/schema/rankings.sql;").compare(curQuery) != 0
+        && std::string("rankings_insert.txt").compare(FILE_NAME) != 0
+        && std::string("uservisits_insert.txt").compare(FILE_NAME) != 0){
 
       std::cout<<"Writing result to file!!!"<<std::endl;
-      write_result(std::string("eval/res/") + std::string(FILE_NAME), exe_time);
+
+      std::string scale;
+      if(10 == RANKINGS_FILE_NUM){
+        scale = "tiny";
+      }else if (50 == RANKINGS_FILE_NUM){
+        scale = "medium";
+      }else if (100 == RANKINGS_FILE_NUM){
+        scale = "big";
+      }
+
+      write_result(std::string("eval/res/") + std::string(scale) + std::string("/") + std::string(FILE_NAME), exe_time);
+
     }
 }
 
@@ -398,9 +420,9 @@ void batchTogether(std::string client, std::string curQuery,unsigned long long _
 //     //std::cout<<enc.serialize(enc)<<std::endl;
 //     std::cout<<enc.name()<<std::endl;
 // }
-
-
-
+//
+//
+//
 // static void processOnionMeta(const OnionMeta &onion){
 //     std::cout<<GREEN_BEGIN<<"PRINT OnionMeta"<<COLOR_END<<std::endl;
 //     std::cout<<"onionmeta->getAnonOnionName(): "<<onion.getAnonOnionName()<<std::endl;
@@ -409,9 +431,9 @@ void batchTogether(std::string client, std::string curQuery,unsigned long long _
 //         processLayers(*(slayer.get()));
 //     }
 // }
-
-
-
+//
+//
+//
 // static void processFieldMeta(const FieldMeta &field){
 // //Process general info
 //     if(field.getHasSalt()){
@@ -440,24 +462,24 @@ void batchTogether(std::string client, std::string curQuery,unsigned long long _
 //         std::cout<<onion.second->getDatabaseID()<<":"<<onion.first.getValue()<<std::endl;
 //     }
 // }
-
-
+//
+//
 // static void processTableMeta(const TableMeta &table){
 //     std::cout<<GREEN_BEGIN<<"PRINT TableMeta"<<COLOR_END<<std::endl;
 //     for(FieldMeta *cfm:table.orderedFieldMetas()){
 // 	processFieldMeta(*cfm);
 //     }
 // }
-
-
-// static void processDatabaseMeta(const DatabaseMeta & dbm,std::string table="student1") {
+//
+//
+// static void processDatabaseMeta(const DatabaseMeta & dbm,std::string table="rankings") {
 //     TableMeta & tbm = *dbm.getChild(IdentityMetaKey(table));
 //     processTableMeta(tbm);
 //     return;
 //
 // }
-
-// static void processSchemaInfo(SchemaInfo &schema,std::string db="tdb"){
+//
+// static void processSchemaInfo(SchemaInfo &schema,std::string db="benchmark"){
 //      const std::unique_ptr<AES_KEY> &TK = std::unique_ptr<AES_KEY>(getKey(std::string("113341234")));
 //      Analysis analysis(db,schema,TK,
 //                         SECURITY_RATING::SENSITIVE);
@@ -467,7 +489,7 @@ void batchTogether(std::string client, std::string curQuery,unsigned long long _
 // 	 std::cout<<"data base not exists"<<std::endl;
 //      }
 // }
-
+//
 // static std::unique_ptr<SchemaInfo> myLoadSchemaInfo() {
 //     std::unique_ptr<Connect> e_conn(Connect::getEmbedded(embeddedDir));
 //     std::unique_ptr<SchemaInfo> schema(new SchemaInfo());
@@ -481,7 +503,7 @@ void batchTogether(std::string client, std::string curQuery,unsigned long long _
 //             return parent;
 //         };
 //     //load all metadata and then store it in schema
-//     loadChildren(schelineStrma.get());
+//     loadChildren(schema.get());
 //
 //     Analysis analysis(std::string("student"),*schema,std::unique_ptr<AES_KEY>(getKey(std::string("113341234"))),
 //                         SECURITY_RATING::SENSITIVE);
@@ -516,8 +538,8 @@ main(int argc,char ** argv) {
     clients[client] = new WrapperState();
     //Connect phase
     ConnectionInfo ci("localhost", "root", "letmein",3306);
-    //const std::string master_key = "113341234";
-    const std::string master_key = "113341234HEHE";
+    const std::string master_key = "113341234";
+    // const std::string master_key = "113341234HEHE";
 
     char *buffer;
     if((buffer = getcwd(NULL, 0)) == NULL){
@@ -534,20 +556,37 @@ main(int argc,char ** argv) {
     globalConn = new Connect(ci.server, ci.user, ci.passwd, ci.port);
     unsigned long long _thread_id = globalConn->get_thread_id();
 
-    std::cout<<"use database benchmark......"<<std::endl;
+    std::string scale;
+    if(10 == RANKINGS_FILE_NUM){
+      scale = "tiny";
+    }else if (50 == RANKINGS_FILE_NUM){
+      scale = "medium";
+    }else if (100 == RANKINGS_FILE_NUM){
+      scale = "big";
+    }
+
     std::string curQuery = "use benchmark;";
+
     batchTogether(client,curQuery,_thread_id);
 
     if(std::string("rankings_insert.txt").compare(FILE_NAME) == 0){
-      std::cout<<"source data/eval/schema/rankings.sql......"<<std::endl;
-      curQuery = "source data/eval/schema/rankings.sql;";
-      batchTogether(client,curQuery,_thread_id);
+      // curQuery = "source eval/schema/rankings.sql;";
+      // batchTogether(client,curQuery,_thread_id);
 
-      for (int i = 0; i < 10; i++){
-        std::string filePath = std::string("eval/bdb/rankings/tiny/00000") + std::to_string(i) + std::string("_0.csv");
+      for (int i = 0; i < RANKINGS_FILE_NUM; i++){
+        std::string filePath;
+        if(i >= 0 && i <= 9){
+          filePath= std::string("eval/bdb/rankings/") + std::string(scale) + std::string("/00000") + std::to_string(i) + std::string("_0.csv");
+        }else{
+          filePath= std::string("eval/bdb/rankings/") + std::string(scale) + std::string("/0000") + std::to_string(i) + std::string("_0.csv");
+        }
         ifstream inFile(filePath, ios::in);
         std::string lineStr;
         while(getline(inFile, lineStr)){
+          if (std::string("").compare(std::string(lineStr)) == 0){
+            continue;
+          }
+
           stringstream ss(lineStr);
           std::string str;
           int j = 1;
@@ -563,22 +602,29 @@ main(int argc,char ** argv) {
             j++;
           }
           curQuery = std::string("insert into rankings values (") + valueStr + std::string(");");
-          std::cout<<curQuery<<std::endl;
           batchTogether(client,curQuery,_thread_id);
         }
       }
     }
 
     if(std::string("uservisits_insert.txt").compare(FILE_NAME) == 0){
-      std::cout<<"source data/eval/schema/uservisits.sql......"<<std::endl;
-      curQuery = "source data/eval/schema/uservisits.sql;";
-      batchTogether(client,curQuery,_thread_id);
+      // curQuery = "source eval/schema/uservisits.sql;";
+      // batchTogether(client,curQuery,_thread_id);
 
-      for (int i = 0; i < 10; i++){
-        std::string filePath = std::string("eval/bdb/uservisits/tiny/00000") + std::to_string(i) + std::string("_0.csv");
+      for (int i = 0; i < USERVISITS_FILE_NUM; i++){
+        std::string filePath;
+        if(i >= 0 && i <= 9){
+          filePath= std::string("eval/bdb/uservisits/") + std::string(scale) + std::string("/00000") + std::to_string(i) + std::string("_0.csv");
+        }else{
+          filePath= std::string("eval/bdb/uservisits/") + std::string(scale) + std::string("/0000") + std::to_string(i) + std::string("_0.csv");
+        }
+
         ifstream inFile(filePath, ios::in);
         std::string lineStr;
         while(getline(inFile, lineStr)){
+          if (std::string("").compare(std::string(lineStr)) == 0){
+            continue;
+          }
           stringstream ss(lineStr);
           std::string str;
           int j = 1;
@@ -594,29 +640,26 @@ main(int argc,char ** argv) {
             j++;
           }
           curQuery = std::string("insert into uservisits values (") + valueStr + std::string(");");
-          std::cout<<curQuery<<std::endl;
           batchTogether(client,curQuery,_thread_id);
         }
       }
     }
 
     if(std::string("q1.txt").compare(FILE_NAME) == 0){
-      curQuery = std::string("select * from rankings where page_rank > 1000;");
-      std::cout<<curQuery<<std::endl;
+      curQuery = std::string("select * from rankings where page_rank > 100;");
       batchTogether(client,curQuery,_thread_id);
     }
 
     if(std::string("q2.txt").compare(FILE_NAME) == 0){
       curQuery = std::string("select source_ip, sum(ad_revenue) from uservisits group by source_ip;");
-      std::cout<<curQuery<<std::endl;
       batchTogether(client,curQuery,_thread_id);
     }
 
     if(std::string("q3.txt").compare(FILE_NAME) == 0){
-      curQuery = std::string("SELECT b.source_ip AS s_i, SUM(b.ad_revenue) AS s_a_r, AVG(a.page_rank) AS a_p_r FROM rankings AS a INNER JOIN uservisits AS b ON a.page_url = b.dest_url WHERE b.visit_date BETWEEN '1980-01-01' AND '1980-04-01' GROUP BY s_i ORDER BY s_a_r ASC;");
-      std::cout<<curQuery<<std::endl;
+      curQuery = std::string("SELECT b.source_ip AS s_i, SUM(b.ad_revenue) AS s_a_r, AVG(a.page_rank) AS a_p_r FROM rankings AS a INNER JOIN uservisits AS b ON a.page_url = b.dest_url WHERE b.visit_date BETWEEN '1980-01-01' AND '1990-01-01' GROUP BY s_i ORDER BY s_a_r ASC;");
       batchTogether(client,curQuery,_thread_id);
     }
+
 
     return 0;
 }
