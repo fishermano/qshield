@@ -1,0 +1,2 @@
+#define QSHIELD_AC @QSHIELD_AC@
+#define QSHIELD_TP @QSHIELD_TP@
