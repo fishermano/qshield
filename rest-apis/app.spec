@@ -2,7 +2,7 @@
 
 block_cipher = None
 
-SETUP_DIR = '/home/hadoop/QShield-DP/rest-apis/'
+SETUP_DIR = '/home/hadoop/qshield/rest-apis/'
 
 a = Analysis(['app.py',
               'apis.py',

@@ -480,40 +480,44 @@ update pip3 source mirror:
 ~$ pip3 install sqlparse-0.3.1
 
 ########################################################################
-setup QShield-DP development environment
+setup QShield development environment
 ########################################################################
 
 install pyinstaller:
 ~ pip3 install pyinstaller
 
 ########################################################################
-dependencies for compiling QShield-DP
+dependencies for compiling QShield
 ########################################################################
 
 install sgx-enabled GMP library:
-~$ cp ./QShield-DP/tpl/sgx-gmp/sgx_tgmp.h /opt/sgxsdk/include
-~$ cp ./QShield-DP/tpl/sgx-gmp/libsgx_tgmp.a /opt/sgxsdk/lib64
+~$ cp ./qshield/tpl/sgx-gmp/sgx_tgmp.h /opt/sgxsdk/include
+~$ cp ./qshield/tpl/sgx-gmp/libsgx_tgmp.a /opt/sgxsdk/lib64
 
 install sgx-enabled PBC library:
-~$ cd ./QShield-DP/tpl/sgx-pbc
-~/QShield-DP/tpl/sgx-pbc$ ./bootstrap
-~/QShield-DP/tpl/sgx-pbc$ ./configure prefix=/opt/sgxsdk
-~/QShield-DP/tpl/sgx-pbc$ make
-~/QShield-DP/tpl/sgx-pbc$ make install
+~$ cd ./qshield/tpl/sgx-pbc
+~/qshield/tpl/sgx-pbc$ ./bootstrap
+~/qshield/tpl/sgx-pbc$ ./configure prefix=/opt/sgxsdk
+~/qshield/tpl/sgx-pbc$ make
+~/qshield/tpl/sgx-pbc$ make install
 
 install sgx-enabled e-scheme library:
-~$ cd ./QShield-DP/tpl/e-scheme
-~/QShield-DP/tpl/e-scheme$ ./bootstrap
-~/QShield-DP/tpl/e-scheme$ ./configure prefix=/opt/sgxsdk
-~/QShield-DP/tpl/e-scheme$ make
-~/QShield-DP/tpl/e-scheme$ make install
+~$ cd ./qshield/tpl/e-scheme
+~/qshield/tpl/e-scheme$ ./bootstrap
+~/qshield/tpl/e-scheme$ ./configure prefix=/opt/sgxsdk
+~/qshield/tpl/e-scheme$ make
+~/qshield/tpl/e-scheme$ make install
 
 ########################################################################
-run QShield-DP
+compile QShield
 ########################################################################
+
+check specification of pyinstaller:
+~$ nano ./qshield/rest-apis/app.spec
+"check whether SETUP_DIR is the correct absolute path of rest-apis"
 
 modify QShield configuration:
-~$ nano ./QShield-DP/rest-apis/conf/config_override.py
+~$ nano ./qshield/rest-apis/conf/config_override.py
 "modify"
 			'master': 'spark://{the name of your host}:7077'
 "in config_override.py"
@@ -533,3 +537,7 @@ run in hardware mode:
 	export SGX_MODE=HW
 	export LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu:$LD_LIBRARY_PATH
 "to /etc/profile"
+
+compile qshield:
+~$./build/sbt
+sbt (root)> package 
