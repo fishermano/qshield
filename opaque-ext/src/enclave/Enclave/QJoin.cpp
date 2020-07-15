@@ -5,6 +5,8 @@
 #include "QFlatbuffersWriters.h"
 #include "common.h"
 
+#include "qdebug.h"
+
 void qscan_collect_last_primary(
   uint8_t *join_expr, size_t join_expr_length,
   uint8_t *input_rows, size_t input_rows_length,
@@ -30,7 +32,11 @@ void qscan_collect_last_primary(
       last_primary.set(nullptr);
     }
   }
-  w.set_meta(r.meta());
+
+  #if QSHIELD_TP
+    w.set_meta(r.meta());
+  #endif
+
   w.output_buffer(output_rows, output_rows_length);
 
 }
@@ -68,7 +74,11 @@ void qsort_merge_join(
         }
       }else{
         if(last_primary_of_group.get() && join_expr_eval.is_same_group(last_primary_of_group.get(), current)){
-          primary_group.set_meta(r.meta());
+
+          #if QSHIELD_TP
+            primary_group.set_meta(r.meta());
+          #endif
+
           auto primary_group_buffer = primary_group.output_buffer();
           QRowReader primary_group_reader(primary_group_buffer.view());
           while(primary_group_reader.has_next()){
@@ -89,14 +99,16 @@ void qsort_merge_join(
       }
     }
 
-    flatbuffers::FlatBufferBuilder meta_builder;
-    const flatbuffers::Offset<qix::QMeta> meta_new = w.unary_update_meta(r.meta(),
-                                                                            false,
-                                                                            "qjoin",
-                                                                            meta_builder);
-    meta_builder.Finish(meta_new);
-    w.set_meta(flatbuffers::GetRoot<qix::QMeta>(meta_builder.GetBufferPointer()));
-    meta_builder.Clear();
+    #if QSHIELD_TP
+      flatbuffers::FlatBufferBuilder meta_builder;
+      const flatbuffers::Offset<qix::QMeta> meta_new = w.unary_update_meta(r.meta(),
+                                                                              false,
+                                                                              "qjoin",
+                                                                              meta_builder);
+      meta_builder.Finish(meta_new);
+      w.set_meta(flatbuffers::GetRoot<qix::QMeta>(meta_builder.GetBufferPointer()));
+      meta_builder.Clear();
+    #endif
 
     w.output_buffer(output_rows, output_rows_length);
 }

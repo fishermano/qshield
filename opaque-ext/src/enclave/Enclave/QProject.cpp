@@ -6,6 +6,8 @@
 
 #include <string.h>
 
+#include "qdebug.h"
+
 using namespace edu::berkeley::cs::rise::opaque;
 using namespace edu::xjtu::cs::cyx::qshield;
 
@@ -25,17 +27,7 @@ void qproject(uint8_t *project_list, size_t project_list_length,
     }
 
     QRowReader row_r(BufferRefView<qix::QEncryptedBlocks>(input_rows, input_rows_length));
-
     QRowWriter row_w;
-
-    flatbuffers::FlatBufferBuilder meta_builder;
-    const flatbuffers::Offset<qix::QMeta> meta_new = row_w.unary_update_meta(row_r.meta(),
-                                                                              false,
-                                                                              "qproject",
-                                                                              meta_builder);
-    meta_builder.Finish(meta_new);
-    row_w.set_meta(flatbuffers::GetRoot<qix::QMeta>(meta_builder.GetBufferPointer()));
-    meta_builder.Clear();
 
     std::vector<const tuix::Field *> out_fields(project_eval_list.size());
     while(row_r.has_next()){
@@ -45,6 +37,17 @@ void qproject(uint8_t *project_list, size_t project_list_length,
       }
       row_w.append(out_fields);
     }
+
+    #if QSHIELD_TP
+      flatbuffers::FlatBufferBuilder meta_builder;
+      const flatbuffers::Offset<qix::QMeta> meta_new = row_w.unary_update_meta(row_r.meta(),
+                                                                                false,
+                                                                                "qproject",
+                                                                                meta_builder);
+      meta_builder.Finish(meta_new);
+      row_w.set_meta(flatbuffers::GetRoot<qix::QMeta>(meta_builder.GetBufferPointer()));
+      meta_builder.Clear();
+    #endif
 
     row_w.output_buffer(output_rows, output_rows_length);
 

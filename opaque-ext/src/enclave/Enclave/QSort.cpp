@@ -7,6 +7,8 @@
 #include "QFlatbuffersReaders.h"
 #include "QFlatbuffersWriters.h"
 
+#include "qdebug.h"
+
 class MergeItem {
  public:
   const tuix::Row *v;
@@ -81,14 +83,19 @@ void qexternal_sort(uint8_t *sort_order, size_t sort_order_length,
   // re-encrypting to a different buffer.
   QEncryptedBlocksToQBlockReader br(
     BufferRefView<qix::QEncryptedBlocks>(input_rows, input_rows_length));
-  const qix::QMeta *meta = br.meta();
+
+  #if QSHIELD_TP
+    const qix::QMeta *meta = br.meta();
+  #endif
 
   QSortedRunsWriter w;
   {
     uint32_t i = 0;
     for (auto it = br.begin(); it != br.end(); ++it, ++i) {
       // debug("Sorting buffer %d with %d rows\n", i, it->num_rows());
-      w.set_meta(meta);
+      #if QSHIELD_TP
+        w.set_meta(meta);
+      #endif
       qsort_single_block(w, *it, sort_eval);
     }
 
@@ -113,7 +120,10 @@ void qexternal_sort(uint8_t *sort_order, size_t sort_order_length,
       uint32_t num_runs =
         std::min(MAX_NUM_STREAMS, static_cast<uint32_t>(r.num_runs()) - run_start);
       // debug("external_sort: Merging buffers %d-%d\n", run_start, run_start + num_runs - 1);
-      w.set_meta(meta);
+      #if QSHIELD_TP
+        w.set_meta(meta);
+      #endif
+
       qexternal_merge(r, run_start, num_runs, w, sort_eval);
     }
 
@@ -133,7 +143,9 @@ void qsample(uint8_t *input_rows, size_t input_rows_length,
   QRowReader r(BufferRefView<qix::QEncryptedBlocks>(input_rows, input_rows_length));
   QRowWriter w;
 
-  w.set_meta(r.meta());
+  #if QSHIELD_TP
+    w.set_meta(r.meta());
+  #endif
 
   // Sample ~5% of the rows or 1000 rows, whichever is greater
   uint16_t sampling_ratio;
@@ -177,7 +189,9 @@ void qfind_range_bounds(uint8_t *sort_order, size_t sort_order_length,
   // Split them into one range per partition
   QRowReader r(BufferRefView<qix::QEncryptedBlocks>(sorted_rows, sorted_rows_length));
   QRowWriter w;
-  w.set_meta(r.meta());
+  #if QSHIELD_TP
+    w.set_meta(r.meta());
+  #endif
 
   uint32_t num_rows_per_part = r.num_rows() / num_partitions;
   uint32_t current_rows_in_part = 0;
@@ -231,7 +245,9 @@ void qpartition_for_sort(uint8_t *sort_order, size_t sort_order_length,
     while (b_upper.get() != nullptr && !sort_eval.less_than(row, b_upper.get())) {
       b_upper.set(b.has_next() ? b.next() : nullptr);
 
-      w.set_meta(r.meta());
+      #if QSHIELD_TP
+        w.set_meta(r.meta());
+      #endif
 
       // Write out the newly-finished partition
       w.output_buffer(
@@ -248,7 +264,10 @@ void qpartition_for_sort(uint8_t *sort_order, size_t sort_order_length,
   // partitions, write out enough empty partitions to ensure the expected number of output
   // partitions.
   while (output_partition_idx < num_partitions) {
-    w.set_meta(r.meta());
+
+    #if QSHIELD_TP
+      w.set_meta(r.meta());
+    #endif
     w.output_buffer(
       &output_partition_ptrs[output_partition_idx],
       &output_partition_lengths[output_partition_idx]);
@@ -265,7 +284,9 @@ void qconcat_blocks(uint8_t *input, size_t input_length,
   QSortedRunsReader runs_r(BufferRefView<qix::QSortedRuns>(input, input_length));
   QRowWriter ass_w;
 
-  ass_w.set_meta(runs_r.meta());
+  #if QSHIELD_TP
+    ass_w.set_meta(runs_r.meta());
+  #endif
 
   uint32_t run_idx;
   for(run_idx = 0; run_idx < runs_r.num_runs(); run_idx++){

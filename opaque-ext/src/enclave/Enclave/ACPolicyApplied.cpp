@@ -22,14 +22,12 @@ void ac_policy_applied(uint8_t *input_rows, size_t input_rows_length,
                         uint8_t *tk, size_t tk_length,
                         uint8_t **output_rows, size_t *output_rows_length) {
 
-  uint32_t w = 0;
-  uint32_t c = 0;
-  std::string u_id_str = "cyx";
-  uint8_t *u_id = (uint8_t *)u_id_str.c_str();
   #if QSHIELD_TP
+    std::string u_id_str = "cyx";
+    uint8_t *u_id = (uint8_t *)u_id_str.c_str();
     QTokenReader tk_r(BufferRefView<qix::QEncryptedToken>(tk, tk_length));
-    w = tk_r.w();
-    c = tk_r.c();
+    uint32_t w = tk_r.w();
+    uint32_t c = tk_r.c();
     uint8_t *sk_b_data = nullptr;
     uint32_t sk_b_length = 0;
     tk_r.sk_b(&sk_b_data, &sk_b_length);
@@ -42,6 +40,9 @@ void ac_policy_applied(uint8_t *input_rows, size_t input_rows_length,
     // if(cmp(sk_b_data, sk_b, sk_b_length) == -1){
     //   ocall_throw("sk_b transfers failed!!!");
     // }
+  #else
+    (void)tk;
+    (void)tk_length;
   #endif
 
   #if QSHIELD_AC

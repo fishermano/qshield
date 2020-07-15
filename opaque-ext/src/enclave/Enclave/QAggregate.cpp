@@ -5,6 +5,8 @@
 #include "QFlatbuffersReaders.h"
 #include "QFlatbuffersWriters.h"
 
+#include "qdebug.h"
+
 void qaggregate_step1(
   uint8_t *agg_op, size_t agg_op_length,
   uint8_t *input_rows, size_t input_rows_length,
@@ -20,9 +22,11 @@ void qaggregate_step1(
   QRowWriter last_group_writer;
   QRowWriter last_row_writer;
 
-  first_row_writer.set_meta(r.meta());
-  last_group_writer.set_meta(r.meta());
-  last_row_writer.set_meta(r.meta());
+  #if QSHIELD_TP
+    first_row_writer.set_meta(r.meta());
+    last_group_writer.set_meta(r.meta());
+    last_row_writer.set_meta(r.meta());
+  #endif
 
   FlatbuffersTemporaryRow prev, cur;
   while(r.has_next()){
@@ -76,15 +80,6 @@ void qaggregate_step2(
 
   QRowWriter w;
 
-  flatbuffers::FlatBufferBuilder meta_builder;
-  const flatbuffers::Offset<qix::QMeta> meta_new = w.unary_update_meta(r.meta(),
-                                                            false,
-                                                            "qaggregate",
-                                                            meta_builder);
-  meta_builder.Finish(meta_new);
-  w.set_meta(flatbuffers::GetRoot<qix::QMeta>(meta_builder.GetBufferPointer()));
-  meta_builder.Clear();
-
   if (next_partition_first_row_reader.num_rows() > 1) {
       throw std::runtime_error(
           std::string("Incorrect number of starting rows from next partition passed: expected 0 or 1, got ")
@@ -136,6 +131,17 @@ void qaggregate_step2(
       w.append(agg_op_eval.evaluate());
     }
   }
+
+  #if QSHIELD_TP
+    flatbuffers::FlatBufferBuilder meta_builder;
+    const flatbuffers::Offset<qix::QMeta> meta_new = w.unary_update_meta(r.meta(),
+                                                              false,
+                                                              "qaggregate",
+                                                              meta_builder);
+    meta_builder.Finish(meta_new);
+    w.set_meta(flatbuffers::GetRoot<qix::QMeta>(meta_builder.GetBufferPointer()));
+    meta_builder.Clear();
+  #endif
 
   w.output_buffer(output_rows, output_rows_length);
 }

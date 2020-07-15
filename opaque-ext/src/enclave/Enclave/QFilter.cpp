@@ -6,6 +6,8 @@
 
 #include <string.h>
 
+#include "qdebug.h"
+
 using namespace edu::berkeley::cs::rise::opaque;
 using namespace edu::xjtu::cs::cyx::qshield;
 
@@ -20,16 +22,6 @@ void qfilter(uint8_t *condition, size_t condition_length,
 
   QRowReader row_r(BufferRefView<qix::QEncryptedBlocks>(input_rows, input_rows_length));
   QRowWriter row_w;
-
-  flatbuffers::FlatBufferBuilder meta_builder;
-  const flatbuffers::Offset<qix::QMeta> meta_new = row_w.unary_update_meta(row_r.meta(),
-                                                                            false,
-                                                                            "qfilter",
-                                                                            meta_builder);
-
-  meta_builder.Finish(meta_new);
-  row_w.set_meta(flatbuffers::GetRoot<qix::QMeta>(meta_builder.GetBufferPointer()));
-  meta_builder.Clear();
 
   while(row_r.has_next()){
     const tuix::Row *row = row_r.next();
@@ -49,6 +41,18 @@ void qfilter(uint8_t *condition, size_t condition_length,
       row_w.append(row);
     }
   }
+
+  #if QSHIELD_TP
+    flatbuffers::FlatBufferBuilder meta_builder;
+    const flatbuffers::Offset<qix::QMeta> meta_new = row_w.unary_update_meta(row_r.meta(),
+                                                                              false,
+                                                                              "qfilter",
+                                                                              meta_builder);
+
+    meta_builder.Finish(meta_new);
+    row_w.set_meta(flatbuffers::GetRoot<qix::QMeta>(meta_builder.GetBufferPointer()));
+    meta_builder.Clear();
+  #endif
 
   row_w.output_buffer(output_rows, output_rows_length);
 
