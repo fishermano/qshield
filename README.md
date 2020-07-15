@@ -1,7 +1,7 @@
-# QShield-DP
+# QShield
 
 #### 介绍
-A SGX-enabled Secure Query Framework for Large-scale Outsourced Data with differentially-private padding
+QShield: Protecting Outsourced Cloud Data Queries with Multi-user Access Control Based on SGX
 
 #### 软件架构
 软件架构说明
