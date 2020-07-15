@@ -32,6 +32,8 @@ import org.apache.spark.sql.types._
 
 object QShieldUtils extends Logging{
 
+  val qshieldHome = System.getenv("QSHIELD_HOME")
+
   // initialize spark sql context
   // register self-defined rules and strategies to sql context
   // perform remote attestation with sql context
@@ -47,7 +49,7 @@ object QShieldUtils extends Logging{
     QOwnerStuber.initRA(sqlContext)
 
     QOwnerStuber.dataOut(sqlContext,
-                          "file:///home/hadoop/QShield-DP/data/bdb/rankings/tiny",
+                          "file://".concat(qshieldHome).concat("/data/bdb/rankings/tiny"),
                           "tiny/RANKINGS",
                           StructType(Seq(
                             StructField("pageURL", StringType),
@@ -56,7 +58,7 @@ object QShieldUtils extends Logging{
                           sqlContext.sparkContext.defaultParallelism)
 
     QOwnerStuber.dataOut(sqlContext,
-                          "file:///home/hadoop/QShield-DP/data/bdb/rankings/medium",
+                          "file://".concat(qshieldHome).concat("/data/bdb/rankings/medium"),
                           "medium/RANKINGS",
                           StructType(Seq(
                             StructField("pageURL", StringType),
@@ -65,7 +67,7 @@ object QShieldUtils extends Logging{
                           sqlContext.sparkContext.defaultParallelism)
 
     QOwnerStuber.dataOut(sqlContext,
-                          "file:///home/hadoop/QShield-DP/data/bdb/rankings/medium",
+                          "file://".concat(qshieldHome).concat("/data/bdb/rankings/medium"),
                           "big/RANKINGS",
                           StructType(Seq(
                             StructField("pageURL", StringType),
@@ -74,7 +76,7 @@ object QShieldUtils extends Logging{
                           sqlContext.sparkContext.defaultParallelism)
 
     QOwnerStuber.dataOut(sqlContext,
-                          "file:///home/hadoop/QShield-DP/data/bdb/uservisits/tiny",
+                          "file://".concat(qshieldHome).concat("/data/bdb/uservisits/tiny"),
                           "tiny/USERVISITS",
                           StructType(Seq(
                             StructField("sourceIP", StringType),
@@ -89,7 +91,7 @@ object QShieldUtils extends Logging{
                           sqlContext.sparkContext.defaultParallelism)
 
     QOwnerStuber.dataOut(sqlContext,
-                          "file:///home/hadoop/QShield-DP/data/bdb/uservisits/medium",
+                          "file://".concat(qshieldHome).concat("/data/bdb/uservisits/medium"),
                           "medium/USERVISITS",
                           StructType(Seq(
                             StructField("sourceIP", StringType),
@@ -104,7 +106,7 @@ object QShieldUtils extends Logging{
                           sqlContext.sparkContext.defaultParallelism)
 
     QOwnerStuber.dataOut(sqlContext,
-                          "file:///home/hadoop/QShield-DP/data/bdb/uservisits/big",
+                          "file://".concat(qshieldHome).concat("/data/bdb/uservisits/big"),
                           "big/USERVISITS",
                           StructType(Seq(
                             StructField("sourceIP", StringType),

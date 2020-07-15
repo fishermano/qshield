@@ -520,12 +520,14 @@ modify QShield configuration:
 ~$ nano ./qshield/rest-apis/conf/config_override.py
 "modify"
 			'master': 'spark://{the name of your host}:7077'
+			'jars': '/home/hadoop/qshield/opaque-ext/target/scala-2.11/opaque-ext_2.11-0.1.jar,/home/hadoop/qshield/data-owner/target/scala-2.11/data-owner_2.11-0.1.jar'
 "in config_override.py"
 
 ~$ openssl ecparam -name prime256v1 -genkey -noout -out private_key.pem
 
 ~$ sudo nano /etc/profile
 "append"
+	export QSHIELD_HOME=/home/hadoop/qshield
 	export SGX_PERF=1
 	export PRIVATE_KEY_PATH=/home/hadoop/private_key.pem
 "to /etc/profile"
@@ -540,4 +542,4 @@ run in hardware mode:
 
 compile qshield:
 ~$./build/sbt
-sbt (root)> package 
+sbt (root)> package

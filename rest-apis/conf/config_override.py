@@ -9,7 +9,7 @@ configs = {
 		'port': 9090
 	},
 	'qshield': {
-		'jars': '/home/hadoop/QShield-DP/opaque-ext/target/scala-2.11/opaque-ext_2.11-0.1.jar,/home/hadoop/QShield-DP/data-owner/target/scala-2.11/data-owner_2.11-0.1.jar',
+		'jars': '/home/hadoop/qshield/opaque-ext/target/scala-2.11/opaque-ext_2.11-0.1.jar,/home/hadoop/qshield/data-owner/target/scala-2.11/data-owner_2.11-0.1.jar',
 		'master': 'spark://SGX:7077'
 	}
 }

@@ -82,7 +82,7 @@ object QOwnerStuber extends Logging {
       import java.io.BufferedInputStream
       import java.io.FileInputStream
       import scala.language.postfixOps
-      val bis = new BufferedInputStream(new FileInputStream("/home/hadoop/QShield-DP/data-owner/src/main/resources/param/a.param"))
+      val bis = new BufferedInputStream(new FileInputStream(QShieldUtils.qshieldHome.concat("/data-owner/src/main/resources/param/a.param")))
       val bArray = Stream.continually(bis.read).takeWhile(-1 !=).map(_.toByte).toArray
 
       val statuses = rdd.mapPartitionsWithIndex { (i, _) =>
