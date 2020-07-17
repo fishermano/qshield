@@ -17,6 +17,9 @@ tpl/sgx-pbc/ecc/.dirstamp
 tpl/sgx-pbc/misc/.deps/
 tpl/sgx-pbc/misc/.dirstamp
 
+exp/dag/build
+exp/dag/install
+
 *.o
 autom4te.cache/
 .deps/
