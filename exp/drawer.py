@@ -7,22 +7,22 @@ import math
 
 title_font = {'family' : 'Times New Roman',
 'weight' : 'bold',
-'size' : 11.5,
+'size' : 13,
 }
 
 legend_font = {'family' : 'Times New Roman',
 'weight' : 'bold',
-'size' : 6,
+'size' : 8,
 }
 
 label_font = {'family' : 'Times New Roman',
 'weight' : 'bold',
-'size' : 10,
+'size' : 12.5,
 }
 
 text_font = {'family' : 'Times New Roman',
 'weight' : 'bold',
-'size' : 6,
+'size' : 7.5,
 }
 
 def to_ms(x):
@@ -101,7 +101,7 @@ cryptdb_tiny_q3 = to_ms(load_data('./exp_res/cryptdb/res/tiny/q3_mean.txt'))
 cryptdb_tiny = [cryptdb_tiny_q1, cryptdb_tiny_q2, cryptdb_tiny_q3]
 cryptdb_tiny_log = list(map(to_log, cryptdb_tiny))
 
-fig = plt.figure(figsize=(15.5, 2.9))
+fig = plt.figure(figsize=(15, 2.8))
 gs = gridspec.GridSpec(nrows=1, ncols=3)
 ax1 = fig.add_subplot(gs[0,0])
 ax2 = fig.add_subplot(gs[0,1])
@@ -125,8 +125,8 @@ for i in a11 + a12 + a13 +a14:
     j = j + 1
 ax1.set_xticks(x+1.5*bar_width)
 ax1.set_xticklabels(x_l)
-ax1.set(ylim=[0,5])
-ax1.tick_params(labelsize=8.5)
+ax1.set(ylim=[0,6])
+ax1.tick_params(labelsize=10)
 labels = ax1.get_xticklabels() + ax1.get_yticklabels()
 [label.set_fontname('Times New Roman') for label in labels]
 ax1.legend(loc='upper left', frameon=True, prop=legend_font)
@@ -146,8 +146,8 @@ for i in a21 + a22 + a23 +a24:
     j = j + 1
 ax2.set_xticks(x+1.5*bar_width)
 ax2.set_xticklabels(x_l)
-ax2.set(ylim=[0,5])
-ax2.tick_params(labelsize=8.5)
+ax2.set(ylim=[0,6])
+ax2.tick_params(labelsize=10)
 labels = ax2.get_xticklabels() + ax2.get_yticklabels()
 [label.set_fontname('Times New Roman') for label in labels]
 ax2.legend(loc='upper left', frameon=True, prop=legend_font)
@@ -167,8 +167,8 @@ for i in a31 + a32 + a33 +a34:
     j = j + 1
 ax3.set_xticks(x+1.5*bar_width)
 ax3.set_xticklabels(x_l)
-ax3.set(ylim=[0,5])
-ax3.tick_params(labelsize=8.5)
+ax3.set(ylim=[0,6])
+ax3.tick_params(labelsize=10)
 labels = ax3.get_xticklabels() + ax3.get_yticklabels()
 [label.set_fontname('Times New Roman') for label in labels]
 ax3.legend(loc='upper left', frameon=True, prop=legend_font)
