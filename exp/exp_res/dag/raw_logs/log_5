@@ -1,0 +1,6 @@
+DAG updating for Q1 totally spends: 11 clocks
+DAG matching for Q1 totally spends: 18 clocks
+DAG updating for Q2 totally spends: 16 clocks
+DAG matching for Q2 totally spends: 62 clocks
+DAG updating for Q3 totally spends: 32 clocks
+DAG matching for Q3 totally spends: 232 clocks

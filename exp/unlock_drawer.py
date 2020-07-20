@@ -49,14 +49,14 @@ def load_data(file_name):
 
 	return (file_num, exe_time)
 
-(e_size_h, e_exe_time_h) = load_data('./e_sgx_dec.txt')
+(e_size_h, e_exe_time_h) = load_data('./exp_res/qshield/ac/e_sgx_dec.txt')
 e_exe_time_h_ms = list(map(ms_data, e_exe_time_h))
 e_exe_time_h_ms_log = list(map(log_data, e_exe_time_h_ms))
 e_exe_time_h_ms_log_half = list(map(log_data_half, e_exe_time_h_ms))
 e_throught_put_h = list(map(throughput_data, e_exe_time_h))
 e_throught_put_h_log = list(map(log_data, e_throught_put_h))
 
-(sgx_size_h, sgx_exe_time_h) = load_data('./sgx_dec.txt')
+(sgx_size_h, sgx_exe_time_h) = load_data('./exp_res/qshield/ac/sgx_dec.txt')
 sgx_exe_time_h_ms = list(map(ms_data, sgx_exe_time_h))
 sgx_exe_time_h_ms_log = list(map(log_data, sgx_exe_time_h_ms))
 sgx_exe_time_h_ms_log_half = list(map(log_data_half, sgx_exe_time_h_ms))
