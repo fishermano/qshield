@@ -38,12 +38,22 @@ void QTokenReader::sk_b(uint8_t **data, uint32_t *size){
   *size = enc_tk_reader.get_token()->sk_b()->size();
 }
 
-void QBlockToQRowReader::reset(const qix::QBlock *block){
-  uint32_t num_rows = block->num_rows();
+void QEncryptedBlockToQRowReader::reset(const qix::QEncryptedBlock *enc_block){
+  uint32_t num_rows = enc_block->num_rows();
+
+  const size_t rows_len = dec_size(enc_block->enc_rows()->size());
+  rows_buf.reset(new uint8_t[rows_len]);
+  rdd_decrypt(enc_block->enc_rows()->data(),
+            enc_block->enc_rows()->size(),
+            rows_buf.get());
+  BufferRefView<qix::QBlock> buf(rows_buf.get(), rows_len);
+  buf.verify();
+
+  block = buf.root();
   rows = block->rows();
   if(rows->rows()->size() != num_rows) {
     throw std::runtime_error(
-      std::string("QBlock claimed to contain ")
+      std::string("QEncryptedBlock claimed to contain ")
       + std::to_string(num_rows)
       + std::string("rows but actually contains ")
       + std::to_string(rows->rows()->size())
@@ -53,6 +63,11 @@ void QBlockToQRowReader::reset(const qix::QBlock *block){
   row_idx = 0;
   initialized = true;
 }
+
+const qix::QMeta *QEncryptedBlockToQRowReader::meta(){
+  return block->meta();
+}
+
 
 QRowReader::QRowReader(BufferRefView<qix::QEncryptedBlocks> buf){
   reset(buf);
@@ -68,56 +83,34 @@ void QRowReader::reset(BufferRefView<qix::QEncryptedBlocks> buf){
 }
 
 void QRowReader::reset(const qix::QEncryptedBlocks *encrypted_blocks){
-  if(encrypted_blocks->enc_blocks()->size() != 0){
-    const size_t blocks_len = dec_size(encrypted_blocks->enc_blocks()->size());
-    blocks_buf.reset(new uint8_t[blocks_len]);
-
-    rdd_decrypt(encrypted_blocks->enc_blocks()->data(),
-              encrypted_blocks->enc_blocks()->size(),
-              blocks_buf.get());
-    // when data size is big, it throws exception
-    // debug("**********************************\n");
-    BufferRefView<qix::QBlocks> buf(blocks_buf.get(), blocks_len);
-    // debug("++++++++++++++++++++++++++++++++++ %ld\n", blocks_len);
-    buf.verify();
-
-    blocks = buf.root();
-    block_idx = 0;
-    init_block_reader();
-
-  }else{
-    blocks_buf = nullptr;
-    blocks = nullptr;
-    block_idx = 0;
-  }
+  enc_blocks = encrypted_blocks;
+  block_idx = 0;
+  init_block_reader();
 }
 
 void QRowReader::init_block_reader(){
-  if (block_idx < blocks->blocks()->size()) {
-    block_reader.reset(blocks->blocks()->Get(block_idx));
+  if (block_idx < enc_blocks->blocks()->size()) {
+    block_reader.reset(enc_blocks->blocks()->Get(block_idx));
   }
 }
 
 uint32_t QRowReader::num_rows() {
   uint32_t result = 0;
-  if(blocks == nullptr){
-    return result;
-  }
 
-  for (auto it = blocks->blocks()->begin();
-        it != blocks->blocks()->end(); ++it) {
+  for (auto it = enc_blocks->blocks()->begin();
+        it != enc_blocks->blocks()->end(); ++it) {
       result += it->num_rows();
   }
   return result;
 }
 
 bool QRowReader::has_next() {
-    return block_reader.has_next() || (blocks != nullptr && block_idx + 1 < blocks->blocks()->size());
+    return block_reader.has_next() || block_idx + 1 < enc_blocks->blocks()->size();
 }
 
 const tuix::Row *QRowReader::next() {
   if (!block_reader.has_next()) {
-    assert((block_idx+1) < blocks->blocks()->size());
+    assert((block_idx+1) < enc_blocks->blocks()->size());
     block_idx++;
     init_block_reader();
   }
@@ -126,7 +119,7 @@ const tuix::Row *QRowReader::next() {
 }
 
 const qix::QMeta *QRowReader::meta(){
-  return blocks->meta();
+  return block_reader.meta();
 }
 
 QSortedRunsReader::QSortedRunsReader(BufferRefView<qix::QSortedRuns> buf){
@@ -156,18 +149,4 @@ const tuix::Row *QSortedRunsReader::next_from_run(uint32_t run_idx){
 
 const qix::QMeta *QSortedRunsReader::meta(){
   return run_readers[0].meta();
-}
-
-
-QEncryptedBlocksToQBlockReader::QEncryptedBlocksToQBlockReader(BufferRefView<qix::QEncryptedBlocks> buf){
-  buf.verify();
-  const qix::QEncryptedBlocks *encrypted_blocks = buf.root();
-  const size_t blocks_len = dec_size(encrypted_blocks->enc_blocks()->size());
-  blocks_buf.reset(new uint8_t[blocks_len]);
-  rdd_decrypt(encrypted_blocks->enc_blocks()->data(),
-            encrypted_blocks->enc_blocks()->size(),
-            blocks_buf.get());
-  BufferRefView<qix::QBlocks> buf2(blocks_buf.get(), blocks_len);
-  buf2.verify();
-  blocks = buf2.root();
 }

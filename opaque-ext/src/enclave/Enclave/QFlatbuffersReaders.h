@@ -38,11 +38,11 @@ private:
   QEncryptedTokenToQTokenReader enc_tk_reader;
 };
 
-class QBlockToQRowReader {
+class QEncryptedBlockToQRowReader {
 public:
-  QBlockToQRowReader() : rows(nullptr), initialized(false) {}
+  QEncryptedBlockToQRowReader() : rows(nullptr), initialized(false) {}
 
-  void reset(const qix::QBlock *block);
+  void reset(const qix::QEncryptedBlock *enc_block);
 
   bool has_next() {
     return initialized && row_idx < rows->rows()->size();
@@ -60,7 +60,11 @@ public:
     return rows->rows()->end();
   }
 
+  const qix::QMeta *meta();
+
 private:
+  const qix::QBlock *block;
+  std::unique_ptr<uint8_t> rows_buf;
   const tuix::Rows *rows;
   uint32_t row_idx;
   bool initialized;
@@ -86,10 +90,9 @@ public:
 private:
   void init_block_reader();
 
-  std::unique_ptr<uint8_t> blocks_buf;
-  const qix::QBlocks *blocks;
+  const qix::QEncryptedBlocks *enc_blocks;
   uint32_t block_idx;
-  QBlockToQRowReader block_reader;
+  QEncryptedBlockToQRowReader block_reader;
 };
 
 /**
@@ -120,24 +123,21 @@ private:
 };
 
 /** A range-style reader for QBlock objects within an QEncryptedBlocks object. */
-class QEncryptedBlocksToQBlockReader {
+class QEncryptedBlocksToQEncryptedBlockReader {
 public:
-  QEncryptedBlocksToQBlockReader(BufferRefView<qix::QEncryptedBlocks> buf);
-
-  flatbuffers::Vector<flatbuffers::Offset<qix::QBlock>>::const_iterator begin() {
-    return blocks->blocks()->begin();
+  QEncryptedBlocksToQEncryptedBlockReader(BufferRefView<qix::QEncryptedBlocks> buf){
+    buf.verify();
+    enc_blocks = buf.root();
   }
-  flatbuffers::Vector<flatbuffers::Offset<qix::QBlock>>::const_iterator end() {
-    return blocks->blocks()->end();
+  flatbuffers::Vector<flatbuffers::Offset<qix::QEncryptedBlock>>::const_iterator begin() {
+    return enc_blocks->blocks()->begin();
   }
-
-  const qix::QMeta *meta() {
-    return blocks->meta();
+  flatbuffers::Vector<flatbuffers::Offset<qix::QEncryptedBlock>>::const_iterator end() {
+    return enc_blocks->blocks()->end();
   }
 
 private:
-  std::unique_ptr<uint8_t> blocks_buf;
-  const qix::QBlocks *blocks;
+  const qix::QEncryptedBlocks *enc_blocks;
 };
 
 #endif//QFLATBUFFERS_READERS_H
