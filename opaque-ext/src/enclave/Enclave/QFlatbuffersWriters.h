@@ -24,7 +24,7 @@ class QRowWriter {
 public:
   QRowWriter()
     : builder(), rows_vector(), total_num_rows(0), untrusted_alloc(),
-      enc_blocks_builder(2048, &untrusted_alloc), finished(false), meta() {}
+      enc_block_builder(2048, &untrusted_alloc), finished(false), meta() {}
 
   void clear();
 
@@ -61,7 +61,7 @@ private:
   std::vector<flatbuffers::Offset<qix::QEncryptedBlock>> enc_block_vector;
 
   bool finished;
-  qix::QMeta *meta;
+  const qix::QMeta *meta;
 
   friend class QSortedRunsWriter;
 };

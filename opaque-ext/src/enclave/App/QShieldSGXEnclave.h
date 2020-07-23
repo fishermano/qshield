@@ -38,9 +38,6 @@ JNIEXPORT jobjectArray JNICALL Java_edu_xjtu_cs_cyx_qshield_execution_QShieldSGX
 JNIEXPORT jbyteArray JNICALL Java_edu_xjtu_cs_cyx_qshield_execution_QShieldSGXEnclave_QExternalSort
   (JNIEnv *, jobject, jlong, jbyteArray, jbyteArray);
 
-JNIEXPORT jbyteArray JNICALL Java_edu_xjtu_cs_cyx_qshield_execution_QShieldSGXEnclave_QConcatBlocks
-  (JNIEnv *, jobject, jlong, jbyteArray);
-
 JNIEXPORT jbyteArray JNICALL Java_edu_xjtu_cs_cyx_qshield_execution_QShieldSGXEnclave_QScanCollectLastPrimary
   (JNIEnv *, jobject, jlong, jbyteArray, jbyteArray);
 

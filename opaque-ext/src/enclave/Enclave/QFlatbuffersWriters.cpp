@@ -78,7 +78,7 @@ void QRowWriter::maybe_finish_block(){
 
 void QRowWriter::finish_block(){
 
-  auto meta_tmp = flatbuffers_copy_meta(mt, builder);
+  auto meta_tmp = flatbuffers_copy_meta(meta, builder);
 
   builder.Finish(qix::CreateQBlock(
                   builder,

@@ -141,26 +141,29 @@ object QShieldUtils extends Logging{
     val builder = new FlatBufferBuilder
     builder.finish(
       qix.QEncryptedBlocks.createQEncryptedBlocks(
-        builder, qix.QEncryptedBlocks.createEncBlocksVector(builder, Array.empty)))
+        builder, qix.QEncryptedBlocks.createBlocksVector(builder, Array.empty)))
     Block(builder.sizedByteArray())
   }
 
   def concatQEncryptedBlocks(blocks: Seq[Block]): Block = {
-    val runs = ArrayBuilder.make[qix.QEncryptedBlocks]
-    for (block <- blocks) {
-      val qEncryptedBlocks = qix.QEncryptedBlocks.getRootAsQEncryptedBlocks(ByteBuffer.wrap(block.bytes))
-      runs += qEncryptedBlocks
-    }
+    val allBlocks = for {
+      block <- blocks
+      encryptedBlocks = qix.QEncryptedBlocks.getRootAsQEncryptedBlocks(ByteBuffer.wrap(block.bytes))
+      i <- 0 until encryptedBlocks.blocksLength
+    } yield encryptedBlocks.blocks(i)
 
     val builder = new FlatBufferBuilder
     builder.finish(
-      qix.QSortedRuns.createQSortedRuns(
-        builder, qix.QSortedRuns.createRunsVector(builder, runs.result.map { run =>
-          val runBytes = new Array[Byte](run.encBlocksLength)
-          run.encBlocksAsByteBuffer.get(runBytes)
-          qix.QEncryptedBlocks.createQEncryptedBlocks(
-            builder, qix.QEncryptedBlocks.createEncBlocksVector(builder, runBytes))
-        })))
+      qix.QEncryptedBlocks.createQEncryptedBlocks(
+        builder, qix.QEncryptedBlocks.createBlocksVector(builder, allBlocks.map { encryptedBlock =>
+          val encRows = new Array[Byte](encryptedBlock.encRowsLength)
+          encryptedBlock.encRowsAsByteBuffer.get(encRows)
+          qix.QEncryptedBlock.createQEncryptedBlock(
+            builder,
+            encryptedBlock.numRows,
+            qix.QEncryptedBlock.createEncRowsVector(builder, encRows))
+        }.toArray)))
     Block(builder.sizedByteArray())
   }
+  
 }

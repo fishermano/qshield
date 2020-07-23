@@ -461,20 +461,6 @@ void ecall_qexternal_sort(uint8_t *sort_order, size_t sort_order_length,
   }
 }
 
-void ecall_qconcat_blocks(uint8_t *input, size_t input_length,
-                          uint8_t **output, size_t *output_length){
-    // Guard against operating on arbitrary enclave memory
-    assert(sgx_is_outside_enclave(input, input_length) == 1);
-    sgx_lfence();
-
-    try{
-      qconcat_blocks(input, input_length,
-                    output, output_length);
-    } catch (const std::runtime_error &e){
-      ocall_throw(e.what());
-    }
-}
-
 void ecall_qscan_collect_last_primary(uint8_t *join_expr, size_t join_expr_length,
                                      uint8_t *input_rows, size_t input_rows_length,
                                      uint8_t **output_rows, size_t *output_rows_length) {

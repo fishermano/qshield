@@ -45,7 +45,5 @@ void qpartition_for_sort(uint8_t *sort_order, size_t sort_order_length,
                         uint8_t *boundary_rows, size_t boundary_rows_length,
                         uint8_t **output_partition_ptrs, size_t *output_partition_lengths);
 
-void qconcat_blocks(uint8_t *input, size_t input_length,
-                    uint8_t **output, size_t *output_length);
 
 #endif /* _QSORT_H_ */

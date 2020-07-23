@@ -55,10 +55,10 @@ void qexternal_merge(
 
 void qsort_single_block(
   QSortedRunsWriter &w,
-  const qix::QBlock *block,
+  const qix::QEncryptedBlock *block,
   FlatbuffersSortOrderEvaluator &sort_eval) {
 
-  QBlockToQRowReader r;
+  QEncryptedBlockToQRowReader r;
   r.reset(block);
   std::vector<const tuix::Row *> sort_ptrs(r.begin(), r.end());
 
@@ -81,7 +81,7 @@ void qexternal_sort(uint8_t *sort_order, size_t sort_order_length,
 
   // 1. Sort each QEncryptedBlock individually by decrypting it, sorting within the enclave, and
   // re-encrypting to a different buffer.
-  QEncryptedBlocksToQBlockReader br(
+  QEncryptedBlocksToQEncryptedBlockReader br(
     BufferRefView<qix::QEncryptedBlocks>(input_rows, input_rows_length));
 
   #if QSHIELD_TP
@@ -173,17 +173,11 @@ void qfind_range_bounds(uint8_t *sort_order, size_t sort_order_length,
                        uint8_t *input_rows, size_t input_rows_length,
                        uint8_t **output_rows, size_t *output_rows_length) {
 
-  // assemble QSortedRuns from input_rows into one QEncryptedBlocks
-  uint8_t *ass_rows = nullptr;
-  size_t ass_rows_length = 0;
-  qconcat_blocks(input_rows, input_rows_length,
-                  &ass_rows, &ass_rows_length);
-
   // Sort the input rows
   uint8_t *sorted_rows;
   size_t sorted_rows_length;
   qexternal_sort(sort_order, sort_order_length,
-                ass_rows, ass_rows_length,
+                input_rows, input_rows_length,
                 &sorted_rows, &sorted_rows_length);
 
   // Split them into one range per partition
@@ -276,24 +270,4 @@ void qpartition_for_sort(uint8_t *sort_order, size_t sort_order_length,
   }
 
   ocall_free(sorted_rows);
-}
-
-void qconcat_blocks(uint8_t *input, size_t input_length,
-                    uint8_t **output, size_t *output_length){
-
-  QSortedRunsReader runs_r(BufferRefView<qix::QSortedRuns>(input, input_length));
-  QRowWriter ass_w;
-
-  #if QSHIELD_TP
-    ass_w.set_meta(runs_r.meta());
-  #endif
-
-  uint32_t run_idx;
-  for(run_idx = 0; run_idx < runs_r.num_runs(); run_idx++){
-    while(runs_r.run_has_next(run_idx)){
-      ass_w.append(runs_r.next_from_run(run_idx));
-    }
-  }
-
-  ass_w.output_buffer(output, output_length);
 }

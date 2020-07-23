@@ -228,10 +228,8 @@ object QEncryptedSortExec {
           //Shuffle the input to achieve range partitioning and sort locally
             .groupByKey(numPartitions).map{
               case (i, blocks) =>
-                val blockRuns = QShieldUtils.concatQEncryptedBlocks(blocks.toSeq)
                 val (enclave, eid) = QShieldUtils.initEnclave()
-                val concatedBlock = enclave.QConcatBlocks(eid, blockRuns.bytes)
-                Block(enclave.QExternalSort(eid, orderSer, concatedBlock))
+                Block(enclave.QExternalSort(eid, orderSer, QShieldUtils.concatQEncryptedBlocks(blocks.toSeq).bytes))
             }
         }
       Utils.ensureCached(result)
@@ -323,11 +321,7 @@ case class QEncryptedUnionExec(
     }
     val unioned = leftRDD.zipPartitions(rightRDD) {
       (leftBlockIter, rightBlockIter) =>
-        val blockRuns = QShieldUtils.concatQEncryptedBlocks(leftBlockIter.toSeq ++
-                                                            rightBlockIter.toSeq)
-        val (enclave, eid) = QShieldUtils.initEnclave()
-        val concatedBlock = enclave.QConcatBlocks(eid, blockRuns.bytes)
-        Iterator(Block(concatedBlock))
+        Iterator(QShieldUtils.concatQEncryptedBlocks(leftBlockIter.toSeq ++ rightBlockIter.toSeq))
     }
     Utils.ensureCached(unioned)
     time("QEncryptedUnionExec") {unioned.count}

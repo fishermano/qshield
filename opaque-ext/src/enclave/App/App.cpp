@@ -1290,38 +1290,6 @@ JNIEXPORT jbyteArray JNICALL Java_edu_xjtu_cs_cyx_qshield_execution_QShieldSGXEn
   return ret;
 }
 
-JNIEXPORT jbyteArray JNICALL Java_edu_xjtu_cs_cyx_qshield_execution_QShieldSGXEnclave_QConcatBlocks
-  (JNIEnv *env, jobject obj, jlong eid, jbyteArray input){
-
-  (void)obj;
-
-  jboolean if_copy;
-
-  size_t input_length = static_cast<size_t>(env->GetArrayLength(input));
-  uint8_t *input_ptr = reinterpret_cast<uint8_t *>(
-    env->GetByteArrayElements(input, &if_copy));
-
-  uint8_t *output = nullptr;
-  size_t output_length = 0;
-
-  if (input_ptr == nullptr) {
-    ocall_throw("QConcatBlocks: JNI failed to get input byte array.");
-  } else {
-    sgx_check_and_time("Q Concat Blocks",
-                       ecall_qconcat_blocks(eid,
-                                           input_ptr, input_length,
-                                           &output, &output_length));
-  }
-
-  jbyteArray ret = env->NewByteArray(output_length);
-  env->SetByteArrayRegion(ret, 0, output_length, reinterpret_cast<jbyte *>(output));
-  free(output);
-
-  env->ReleaseByteArrayElements(input, reinterpret_cast<jbyte *>(input_ptr), 0);
-
-  return ret;
-}
-
 JNIEXPORT jbyteArray JNICALL Java_edu_xjtu_cs_cyx_qshield_execution_QShieldSGXEnclave_QScanCollectLastPrimary
   (JNIEnv *env, jobject obj, jlong eid, jbyteArray join_expr, jbyteArray input_rows){
   (void)obj;
