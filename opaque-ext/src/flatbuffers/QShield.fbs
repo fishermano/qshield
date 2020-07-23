@@ -29,17 +29,18 @@ table QMeta {
 }
 
 table QBlock{
-  num_rows:uint;
+  meta:QMeta;
   rows:edu.berkeley.cs.rise.opaque.tuix.Rows;
 }
 
-table QBlocks{
-  meta:QMeta;
-  blocks:[QBlock];
+table QEncryptedBlock{
+  num_rows:uint;
+  // when decrypted, this should contain a QBlock object at its root
+  enc_rows:[ubyte];
 }
 
 table QEncryptedBlocks{
-  enc_blocks:[ubyte];
+  blocks:[QEncryptedBlock];
 }
 
 table QSortedRuns{
