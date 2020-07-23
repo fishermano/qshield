@@ -57,14 +57,11 @@ private:
   uint32_t total_num_rows;
 
   UntrustedMemoryAllocator untrusted_alloc;
-
-  std::vector<flatbuffers::Offset<qix::QBlock>> blocks_vector;
-
-  flatbuffers::FlatBufferBuilder enc_blocks_builder;
+  flatbuffers::FlatBufferBuilder enc_block_builder;
+  std::vector<flatbuffers::Offset<qix::QEncryptedBlock>> enc_block_vector;
 
   bool finished;
-
-  flatbuffers::Offset<qix::QMeta> meta;
+  qix::QMeta *meta;
 
   friend class QSortedRunsWriter;
 };
