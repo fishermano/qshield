@@ -1,6 +1,6 @@
-DAG updating for Q1 totally spends: 12 clocks
-DAG matching for Q1 totally spends: 18 clocks
-DAG updating for Q2 totally spends: 16 clocks
-DAG matching for Q2 totally spends: 63 clocks
-DAG updating for Q3 totally spends: 33 clocks
-DAG matching for Q3 totally spends: 225 clocks
+DAG updating for Q1 totally spends: 0.016 milliseconds
+DAG matching for Q1 totally spends: 0.028 milliseconds
+DAG updating for Q2 totally spends: 0.024 milliseconds
+DAG matching for Q2 totally spends: 0.019 milliseconds
+DAG updating for Q3 totally spends: 0.01 milliseconds
+DAG matching for Q3 totally spends: 0.07 milliseconds

@@ -80,7 +80,7 @@ TEST_CASE("DAG Exp 1: Q1"){
   n1.addChild(n2);
   n3.addChild(n4);
   end = clock();
-  std::cout<<"DAG updating for Q1 totally spends: "<< end -start << " clocks" << std::endl;
+  std::cout<<"DAG updating for Q1 totally spends: "<< ((double)(end -start)/CLOCKS_PER_SEC)*1000 << " milliseconds" << std::endl;
 
   DAG::Nodeset<INode> root = {&n0};
 
@@ -104,7 +104,7 @@ TEST_CASE("DAG Exp 1: Q1"){
   bool hasMatch_2 = mv_2.hasMatch(root, t_edge_2);
   bool hasMatch_3 = mv_3.hasMatch(root, t_edge_3);
   end = clock();
-  std::cout<<"DAG matching for Q1 totally spends: "<< end -start << " clocks" << std::endl;
+  std::cout<<"DAG matching for Q1 totally spends: "<< ((double)(end -start)/CLOCKS_PER_SEC)*1000 << " milliseconds" << std::endl;
   REQUIRE(hasMatch_1 == true);
   REQUIRE(hasMatch_2 == true);
   REQUIRE(hasMatch_3 == true);
@@ -153,7 +153,7 @@ TEST_CASE("DAG Exp 2: Q2"){
   n6.addChild(n7);
   n7.addChild(n8);
   end = clock();
-  std::cout<<"DAG updating for Q2 totally spends: "<< end -start << " clocks" << std::endl;
+  std::cout<<"DAG updating for Q2 totally spends: "<< ((double)(end -start)/CLOCKS_PER_SEC)*1000 << " milliseconds" << std::endl;
 
   DAG::Nodeset<INode> root = {&n0};
 
@@ -197,7 +197,7 @@ TEST_CASE("DAG Exp 2: Q2"){
   bool hasMatch_6 = mv_6.hasMatch(root, t_edge_6);
   bool hasMatch_7 = mv_7.hasMatch(root, t_edge_7);
   end = clock();
-  std::cout<<"DAG matching for Q2 totally spends: "<< end -start << " clocks" << std::endl;
+  std::cout<<"DAG matching for Q2 totally spends: "<< ((double)(end -start)/CLOCKS_PER_SEC)*1000 << " milliseconds" << std::endl;
   REQUIRE(hasMatch_7 == true);
   REQUIRE(hasMatch_6 == true);
   REQUIRE(hasMatch_5 == true);
@@ -282,7 +282,7 @@ TEST_CASE("DAG Exp 3: Q3"){
   n16.addChild(n17);
   n17.addChild(n18);
   end = clock();
-  std::cout<<"DAG updating for Q3 totally spends: "<< end -start << " clocks" << std::endl;
+  std::cout<<"DAG updating for Q3 totally spends: "<< ((double)(end -start)/CLOCKS_PER_SEC)*1000 << " milliseconds" << std::endl;
 
   DAG::Nodeset<INode> root = {&n0};
 
@@ -368,7 +368,7 @@ TEST_CASE("DAG Exp 3: Q3"){
   bool hasMatch_14 = mv_14.hasMatch(root, t_edge_14);
   bool hasMatch_15 = mv_15.hasMatch(root, t_edge_15);
   end = clock();
-  std::cout<<"DAG matching for Q3 totally spends: "<< end -start << " clocks" << std::endl;
+  std::cout<<"DAG matching for Q3 totally spends: "<< ((double)(end -start)/CLOCKS_PER_SEC)*1000 << " milliseconds" << std::endl;
   REQUIRE(hasMatch_15 == true);
   REQUIRE(hasMatch_14 == true);
   REQUIRE(hasMatch_13 == true);

@@ -1,6 +1,6 @@
 DAG updating for Q1 totally spends: 0.014 milliseconds
-DAG matching for Q1 totally spends: 0.025 milliseconds
-DAG updating for Q2 totally spends: 0.023 milliseconds
+DAG matching for Q1 totally spends: 0.024 milliseconds
+DAG updating for Q2 totally spends: 0.022 milliseconds
 DAG matching for Q2 totally spends: 0.087 milliseconds
 DAG updating for Q3 totally spends: 0.053 milliseconds
-DAG matching for Q3 totally spends: 0.317 milliseconds
+DAG matching for Q3 totally spends: 0.316 milliseconds
