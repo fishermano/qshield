@@ -66,7 +66,7 @@ object QBigDataBenchmark {
       "query" -> "big data 1",
       "system" -> qsecurityLevel.name,
       "size" -> size) {
-      val df = rankingsDF.filter($"pageRank" > 500)
+      val df = rankingsDF.filter($"pageRank" > 100)
       val dfRes = df.resPrepared
       Utils.force(dfRes)
       dfRes
