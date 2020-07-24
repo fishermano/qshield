@@ -119,6 +119,7 @@ object QBigDataBenchmark {
   }
 
   def q(spark: SparkSession, qsecurityLevel: QSecurityLevel, size: String, numPartitions: Int) : DataFrame = {
+    import spark.implicits._
     val uservisitsDF = Utils.ensureCached(uservisits(spark, qsecurityLevel, size, numPartitions))
     Utils.time("load uservisits") { Utils.force(uservisitsDF) }
     val rankingsDF = Utils.ensureCached(rankings(spark, qsecurityLevel, size, numPartitions))
@@ -126,13 +127,14 @@ object QBigDataBenchmark {
 
     Utils.timeBenchmark(
       "distributed" -> (numPartitions > 1),
-      "query" -> "big data 3",
+      "query" -> "big data",
       "system" -> qsecurityLevel.name,
       "size" -> size) {
-      val df = rankingsDF
-        .join(
-          uservisitsDF,
-          rankingsDF("pageURL") === uservisitsDF("destURL"))
+      val df1 = uservisitsDF.select($"adRevenue", $"destURL", $"sourceIP")
+      val df = df1.orderBy($"adRevenue".asc)
+        //.join(
+        //  uservisitsDF,
+        //  rankingsDF("pageURL") === uservisitsDF("destURL"))
       val dfRes = df.resPrepared
       Utils.force(dfRes)
       dfRes

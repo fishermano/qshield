@@ -31,7 +31,7 @@ void qexternal_merge(
 
   // Initialize the priority queue with the first row from each run
   for (uint32_t i = run_start; i < run_start + num_runs; i++) {
-    // debug("external_merge: Read first row from run %d\n", i);
+    debug("external_merge: Read first row from run %d\n", i);
     MergeItem item;
     item.v = r.next_from_run(i);
     item.run_idx = i;
@@ -39,17 +39,23 @@ void qexternal_merge(
   }
 
   // Merge the runs using the priority queue
+  int j = 0;
   while (!queue.empty()) {
+
     MergeItem item = queue.top();
     queue.pop();
     w.append(item.v);
 
     // Read another row from the same run that this one came from
     if (r.run_has_next(item.run_idx)) {
+      if(item.run_idx == 1){
+        j++;
+      }
       item.v = r.next_from_run(item.run_idx);
       queue.push(item);
     }
   }
+  debug("buffer 1 totally has %d items\n", j);
   w.finish_run();
 }
 
@@ -68,9 +74,11 @@ void qsort_single_block(
       return sort_eval.less_than(a, b);
     });
 
-  for (auto it = sort_ptrs.begin(); it != sort_ptrs.end(); ++it) {
+  int i = 0;
+  for (auto it = sort_ptrs.begin(); it != sort_ptrs.end(); ++it, i++) {
     w.append(*it);
   }
+  // debug("Totally append %d rows\n", i);
   w.finish_run();
 }
 
@@ -81,24 +89,24 @@ void qexternal_sort(uint8_t *sort_order, size_t sort_order_length,
 
   // 1. Sort each QEncryptedBlock individually by decrypting it, sorting within the enclave, and
   // re-encrypting to a different buffer.
-  QEncryptedBlocksToQEncryptedBlockReader br(
-    BufferRefView<qix::QEncryptedBlocks>(input_rows, input_rows_length));
-
   #if QSHIELD_TP
     const qix::QMeta *meta = br.meta();
   #endif
 
   QSortedRunsWriter w;
   {
+    QEncryptedBlocksToQEncryptedBlockReader r(
+      BufferRefView<qix::QEncryptedBlocks>(input_rows, input_rows_length));
     uint32_t i = 0;
-    for (auto it = br.begin(); it != br.end(); ++it, ++i) {
-      // debug("Sorting buffer %d with %d rows\n", i, it->num_rows());
+    for (auto it = r.begin(); it != r.end(); ++it, ++i) {
+      debug("Sorting buffer %d with %d rows\n", i, it->num_rows());
       #if QSHIELD_TP
         w.set_meta(meta);
       #endif
       qsort_single_block(w, *it, sort_eval);
-    }
 
+    }
+    // debug("w = %d\n", w.num_runs());
     if (w.num_runs() <= 1) {
       // Only 0 or 1 runs, so we are done - no need to merge runs
       w.as_row_writer()->output_buffer(output_rows, output_rows_length);
@@ -111,15 +119,17 @@ void qexternal_sort(uint8_t *sort_order, size_t sort_order_length,
   // queue, and re-encrypting to a different buffer.
   auto runs_buf = w.output_buffer();
   QSortedRunsReader r(runs_buf.view());
+  debug("totally have %d runs\n", r.num_runs());
+
   while (r.num_runs() > 1) {
-    // debug("external_sort: Merging %d runs, up to %d at a time\n",
-         // r.num_runs(), MAX_NUM_STREAMS);
+    debug("external_sort: Merging %d runs, up to %d at a time\n",
+         r.num_runs(), MAX_NUM_STREAMS);
 
     w.clear();
     for (uint32_t run_start = 0; run_start < r.num_runs(); run_start += MAX_NUM_STREAMS) {
       uint32_t num_runs =
         std::min(MAX_NUM_STREAMS, static_cast<uint32_t>(r.num_runs()) - run_start);
-      // debug("external_sort: Merging buffers %d-%d\n", run_start, run_start + num_runs - 1);
+      debug("external_sort: Merging buffers %d-%d\n", run_start, run_start + num_runs - 1);
       #if QSHIELD_TP
         w.set_meta(meta);
       #endif

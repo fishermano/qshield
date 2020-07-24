@@ -70,6 +70,38 @@ void QRowWriter::clear() {
   finished = false;
 }
 
+void QRowWriter::append(const tuix::Row *row){
+  rows_vector.push_back(flatbuffers_copy(row, builder));
+  total_num_rows++;
+  maybe_finish_block();
+}
+
+void QRowWriter::append(const std::vector<const tuix::Field *> &row_fields) {
+  flatbuffers::uoffset_t num_fields = row_fields.size();
+  std::vector<flatbuffers::Offset<tuix::Field>> field_values(num_fields);
+  for (flatbuffers::uoffset_t i = 0; i < num_fields; i++) {
+    field_values[i] = flatbuffers_copy<tuix::Field>(row_fields[i], builder);
+  }
+  rows_vector.push_back(tuix::CreateRowDirect(builder, &field_values));
+  total_num_rows++;
+  maybe_finish_block();
+}
+
+void QRowWriter::append(const tuix::Row *row1, const tuix::Row *row2) {
+  flatbuffers::uoffset_t num_fields = row1->field_values()->size() + row2->field_values()->size();
+  std::vector<flatbuffers::Offset<tuix::Field>> field_values(num_fields);
+  flatbuffers::uoffset_t i = 0;
+  for (auto it = row1->field_values()->begin(); it != row1->field_values()->end(); ++it, ++i) {
+    field_values[i] = flatbuffers_copy<tuix::Field>(*it, builder);
+  }
+  for (auto it = row2->field_values()->begin(); it != row2->field_values()->end(); ++it, ++i) {
+    field_values[i] = flatbuffers_copy<tuix::Field>(*it, builder);
+  }
+  rows_vector.push_back(tuix::CreateRowDirect(builder, &field_values));
+  total_num_rows++;
+  maybe_finish_block();
+}
+
 void QRowWriter::maybe_finish_block(){
   if(builder.GetSize() >= MAX_BLOCK_SIZE){
     finish_block();
@@ -118,7 +150,7 @@ void QRowWriter::finish_block(){
         enc_block_builder.CreateVector(enc_rows.get(), enc_rows_len)));
 
     builder.Clear();
-    rows_vector.clear();    
+    rows_vector.clear();
   #endif
 }
 
@@ -135,43 +167,13 @@ flatbuffers::Offset<qix::QEncryptedBlocks> QRowWriter::finish_blocks(){
     enc_block_builder,
     &enc_block_vector);
   enc_block_builder.Finish(result);
+  enc_block_vector.clear();
 
   finished = true;
 
   return result;
 }
 
-void QRowWriter::append(const tuix::Row *row){
-  rows_vector.push_back(flatbuffers_copy(row, builder));
-  total_num_rows++;
-  maybe_finish_block();
-}
-
-void QRowWriter::append(const std::vector<const tuix::Field *> &row_fields) {
-  flatbuffers::uoffset_t num_fields = row_fields.size();
-  std::vector<flatbuffers::Offset<tuix::Field>> field_values(num_fields);
-  for (flatbuffers::uoffset_t i = 0; i < num_fields; i++) {
-    field_values[i] = flatbuffers_copy<tuix::Field>(row_fields[i], builder);
-  }
-  rows_vector.push_back(tuix::CreateRowDirect(builder, &field_values));
-  total_num_rows++;
-  maybe_finish_block();
-}
-
-void QRowWriter::append(const tuix::Row *row1, const tuix::Row *row2) {
-  flatbuffers::uoffset_t num_fields = row1->field_values()->size() + row2->field_values()->size();
-  std::vector<flatbuffers::Offset<tuix::Field>> field_values(num_fields);
-  flatbuffers::uoffset_t i = 0;
-  for (auto it = row1->field_values()->begin(); it != row1->field_values()->end(); ++it, ++i) {
-    field_values[i] = flatbuffers_copy<tuix::Field>(*it, builder);
-  }
-  for (auto it = row2->field_values()->begin(); it != row2->field_values()->end(); ++it, ++i) {
-    field_values[i] = flatbuffers_copy<tuix::Field>(*it, builder);
-  }
-  rows_vector.push_back(tuix::CreateRowDirect(builder, &field_values));
-  total_num_rows++;
-  maybe_finish_block();
-}
 
 UntrustedBufferRef<qix::QEncryptedBlocks> QRowWriter::output_buffer(){
   if(!finished){

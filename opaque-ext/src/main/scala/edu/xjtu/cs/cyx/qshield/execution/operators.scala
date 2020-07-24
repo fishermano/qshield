@@ -191,6 +191,7 @@ object QEncryptedSortExec {
 
     time("sort"){
       val numPartitions = childRDD.partitions.length
+
       val result =
         if (numPartitions <= 1){
           childRDD.map { block =>
