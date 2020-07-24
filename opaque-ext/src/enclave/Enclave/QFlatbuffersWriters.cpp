@@ -78,28 +78,48 @@ void QRowWriter::maybe_finish_block(){
 
 void QRowWriter::finish_block(){
 
-  auto meta_tmp = flatbuffers_copy_meta(meta, builder);
+  #if QSHIELD_TP
+    auto meta_tmp = flatbuffers_copy_meta(meta, builder);
 
-  builder.Finish(qix::CreateQBlock(
-                  builder,
-                  meta_tmp.o,
-                  tuix::CreateRowsDirect(builder, &rows_vector)));
-  size_t enc_rows_len = enc_size(builder.GetSize());
+    builder.Finish(qix::CreateQBlock(
+                    builder,
+                    meta_tmp.o,
+                    tuix::CreateRowsDirect(builder, &rows_vector)));
+    size_t enc_rows_len = enc_size(builder.GetSize());
 
-  uint8_t *enc_rows_ptr = nullptr;
-  ocall_malloc(enc_rows_len, &enc_rows_ptr);
+    uint8_t *enc_rows_ptr = nullptr;
+    ocall_malloc(enc_rows_len, &enc_rows_ptr);
 
-  std::unique_ptr<uint8_t, decltype(&ocall_free)> enc_rows(enc_rows_ptr, &ocall_free);
-  rdd_encrypt(builder.GetBufferPointer(), builder.GetSize(), enc_rows.get());
+    std::unique_ptr<uint8_t, decltype(&ocall_free)> enc_rows(enc_rows_ptr, &ocall_free);
+    rdd_encrypt(builder.GetBufferPointer(), builder.GetSize(), enc_rows.get());
 
-  enc_block_vector.push_back(
-    qix::CreateQEncryptedBlock(
-      enc_block_builder,
-      rows_vector.size(),
-      enc_block_builder.CreateVector(enc_rows.get(), enc_rows_len)));
+    enc_block_vector.push_back(
+      qix::CreateQEncryptedBlock(
+        enc_block_builder,
+        rows_vector.size(),
+        enc_block_builder.CreateVector(enc_rows.get(), enc_rows_len)));
 
-  builder.Clear();
-  rows_vector.clear();
+    builder.Clear();
+    rows_vector.clear();
+  #else
+    builder.Finish(tuix::CreateRowsDirect(builder, &rows_vector));
+    size_t enc_rows_len = enc_size(builder.GetSize());
+
+    uint8_t *enc_rows_ptr = nullptr;
+    ocall_malloc(enc_rows_len, &enc_rows_ptr);
+
+    std::unique_ptr<uint8_t, decltype(&ocall_free)> enc_rows(enc_rows_ptr, &ocall_free);
+    rdd_encrypt(builder.GetBufferPointer(), builder.GetSize(), enc_rows.get());
+
+    enc_block_vector.push_back(
+      qix::CreateQEncryptedBlock(
+        enc_block_builder,
+        rows_vector.size(),
+        enc_block_builder.CreateVector(enc_rows.get(), enc_rows_len)));
+
+    builder.Clear();
+    rows_vector.clear();    
+  #endif
 }
 
 void QRowWriter::set_meta(const qix::QMeta *mt){

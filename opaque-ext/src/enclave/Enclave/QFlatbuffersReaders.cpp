@@ -46,11 +46,17 @@ void QEncryptedBlockToQRowReader::reset(const qix::QEncryptedBlock *enc_block){
   rdd_decrypt(enc_block->enc_rows()->data(),
             enc_block->enc_rows()->size(),
             rows_buf.get());
-  BufferRefView<qix::QBlock> buf(rows_buf.get(), rows_len);
-  buf.verify();
 
-  block = buf.root();
-  rows = block->rows();
+  #if QSHIELD_TP
+    BufferRefView<qix::QBlock> buf(rows_buf.get(), rows_len);
+    buf.verify();
+    block = buf.root();
+    rows = block->rows();
+  #else
+    BufferRefView<tuix::Rows> buf(rows_buf.get(), rows_len);
+    buf.verify();
+    rows = buf.root();
+  #endif
   if(rows->rows()->size() != num_rows) {
     throw std::runtime_error(
       std::string("QEncryptedBlock claimed to contain ")

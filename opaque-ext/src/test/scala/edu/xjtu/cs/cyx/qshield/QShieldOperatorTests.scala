@@ -64,6 +64,7 @@ trait QShieldOperatorTests extends FunSuite with BeforeAndAfterAll { self =>
     }
   }
 
+/**
   testQShield("big data 1") { qsecurityLevel =>
     QBigDataBenchmark.q1(spark, qsecurityLevel, "tiny", numPartitions).collect
   }
@@ -74,6 +75,12 @@ trait QShieldOperatorTests extends FunSuite with BeforeAndAfterAll { self =>
 
   testQShield("big data 3") { qsecurityLevel =>
     QBigDataBenchmark.q3(spark, qsecurityLevel, "tiny", numPartitions).collect
+  }
+*/
+  testQShield("operator") { qsecurityLevel =>
+    val res = QBigDataBenchmark.q(spark, qsecurityLevel, "tiny", numPartitions).collect
+    println("..............")
+    println(res.size)
   }
 
 }
