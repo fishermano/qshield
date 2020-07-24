@@ -57,6 +57,7 @@ void QEncryptedBlockToQRowReader::reset(const qix::QEncryptedBlock *enc_block){
     buf.verify();
     rows = buf.root();
   #endif
+  
   if(rows->rows()->size() != num_rows) {
     throw std::runtime_error(
       std::string("QEncryptedBlock claimed to contain ")

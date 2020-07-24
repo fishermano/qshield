@@ -107,7 +107,7 @@ object QBigDataBenchmark {
       val df = rankingsDF
         .join(
           uservisitsDF
-            .filter($"visitDate" >= lit("1980-01-01") && $"visitDate" <= lit("1985-01-01"))
+            .filter($"duration" >= 2 && $"duration" <= 3)
             .select($"destURL", $"sourceIP", $"adRevenue"),
           rankingsDF("pageURL") === uservisitsDF("destURL"))
         .select($"sourceIP", $"pageRank")
@@ -119,7 +119,6 @@ object QBigDataBenchmark {
   }
 
   def q(spark: SparkSession, qsecurityLevel: QSecurityLevel, size: String, numPartitions: Int) : DataFrame = {
-    import spark.implicits._
     val uservisitsDF = Utils.ensureCached(uservisits(spark, qsecurityLevel, size, numPartitions))
     Utils.time("load uservisits") { Utils.force(uservisitsDF) }
     val rankingsDF = Utils.ensureCached(rankings(spark, qsecurityLevel, size, numPartitions))
