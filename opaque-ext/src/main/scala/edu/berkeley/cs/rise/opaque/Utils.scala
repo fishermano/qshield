@@ -122,7 +122,7 @@ object Utils extends Logging {
 
   // a system environment variable that controls whether to measure performance
   // of function execution
-  private val perf: Boolean = System.getenv("SGX_PERF") == "1"
+  val perf: Boolean = System.getenv("SGX_PERF") == "1"
 
   // a wrapper function that measures the execution time (performance) of a
   // function

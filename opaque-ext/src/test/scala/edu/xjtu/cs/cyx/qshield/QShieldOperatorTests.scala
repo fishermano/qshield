@@ -23,10 +23,12 @@ import org.apache.spark.sql.SparkSession
 import org.scalactic.Equality
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.FunSuite
+import org.apache.spark.internal.Logging
 
 import edu.xjtu.cs.cyx.qshield.benchmark._
+import edu.berkeley.cs.rise.opaque.Utils
 
-trait QShieldOperatorTests extends FunSuite with BeforeAndAfterAll { self =>
+trait QShieldOperatorTests extends FunSuite with BeforeAndAfterAll with Logging { self =>
   def spark: SparkSession
   def numPartitions: Int
 
@@ -65,15 +67,27 @@ trait QShieldOperatorTests extends FunSuite with BeforeAndAfterAll { self =>
   }
 
   testQShield("big data 1") { qsecurityLevel =>
+    val start = System.nanoTime
     QBigDataBenchmark.q1(spark, qsecurityLevel, "tiny", numPartitions).collect
+    if (Utils.perf) {
+      //logWarning(s"Total Q1 time: ${(System.nanoTime - start) / 1000000.0} ms")
+    }
   }
 
   testQShield("big data 2") { qsecurityLevel =>
+    val start = System.nanoTime
     QBigDataBenchmark.q2(spark, qsecurityLevel, "tiny", numPartitions).collect
+    if (Utils.perf) {
+      //logWarning(s"Total Q2 time: ${(System.nanoTime - start) / 1000000.0} ms")
+    }
   }
 
   testQShield("big data 3") { qsecurityLevel =>
+    val start = System.nanoTime
     QBigDataBenchmark.q3(spark, qsecurityLevel, "tiny", numPartitions).collect
+    if (Utils.perf) {
+      //logWarning(s"Total Q3 time: ${(System.nanoTime - start) / 1000000.0} ms")
+    }
   }
 
 }
