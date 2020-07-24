@@ -165,5 +165,5 @@ object QShieldUtils extends Logging{
         }.toArray)))
     Block(builder.sizedByteArray())
   }
-  
+
 }

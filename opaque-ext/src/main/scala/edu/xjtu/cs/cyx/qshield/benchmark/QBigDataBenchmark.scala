@@ -104,15 +104,17 @@ object QBigDataBenchmark {
       "query" -> "big data 3",
       "system" -> qsecurityLevel.name,
       "size" -> size) {
-      val df = rankingsDF
-        .join(
-          uservisitsDF
-            .filter($"duration" >= 2 && $"duration" <= 3)
-            .select($"destURL", $"sourceIP", $"adRevenue"),
+      val userDF = uservisitsDF
+        .filter($"duration" >= 2 && $"duration" <= 3)
+        .select($"destURL", $"sourceIP", $"adRevenue")
+      val joinDF = rankingsDF
+        .join(userDF
+          ,
           rankingsDF("pageURL") === uservisitsDF("destURL"))
+      val df = joinDF
         .select($"sourceIP", $"pageRank")
         .orderBy($"pageRank".asc)
-      val dfRes = df.resPrepared
+      val dfRes = joinDF.resPrepared
       Utils.force(dfRes)
       dfRes
     }
