@@ -1,0 +1,117 @@
+[info] QShieldSinglePartitionSuite:
+20/07/25 13:22:57 INFO QShieldUtils: Starting an enclave
+***Data haved been outsourced to outsourced/tiny/RANKINGS
+***Data haved been outsourced to outsourced/medium/RANKINGS
+***Data haved been outsourced to outsourced/big/RANKINGS
+***Data haved been outsourced to outsourced/tiny/USERVISITS
+***Data haved been outsourced to outsourced/medium/USERVISITS
+***Data haved been outsourced to outsourced/big/USERVISITS
+20/07/25 13:23:01 WARN Utils: Force child of ACPolicyAppliedEncryptedBlockRDDExec: 34.298951 ms
+20/07/25 13:23:01 WARN Utils: ACPolicyAppliedEncryptedBlockRDDExec: 34.420291 ms
+20/07/25 13:23:01 WARN Utils: load rankings: 82.352271 ms
+20/07/25 13:23:02 WARN Utils: Force child of ACPolicyAppliedEncryptedBlockRDDExec: 6.635764 ms
+20/07/25 13:23:02 WARN Utils: ACPolicyAppliedEncryptedBlockRDDExec: 23.803359 ms
+20/07/25 13:23:02 WARN Utils: Force child of EncryptedFilterExec: 6.421976 ms
+20/07/25 13:23:02 WARN Utils: EncryptedFilterExec: 28.462417 ms
+20/07/25 13:23:02 WARN Utils: Force child of ResPreparedEncryptedBlockRDDExec: 5.685463 ms
+20/07/25 13:23:02 WARN Utils: ResPreparedEncryptedBlockRDDExec: 20.18845 ms
+20/07/25 13:23:02 WARN Utils: {"size": "medium", "system": "encrypted", "query": "big data 1", "distributed": false, "sgx": "hw", "time": 316.715453}
+20/07/25 13:23:02 WARN Utils: Force child of EncryptedFilterExec: 6.042475 ms
+20/07/25 13:23:02 WARN Utils: EncryptedFilterExec: 20.808111 ms
+20/07/25 13:23:02 WARN Utils: Force child of ResPreparedEncryptedBlockRDDExec: 5.575365 ms
+20/07/25 13:23:02 WARN Utils: ResPreparedEncryptedBlockRDDExec: 16.201996 ms
+Total result rows: 6120
+[info] - big data 1 - q encrypted
+20/07/25 13:23:02 WARN Utils: Force child of ACPolicyAppliedEncryptedBlockRDDExec: 24.194485 ms
+20/07/25 13:23:02 WARN Utils: ACPolicyAppliedEncryptedBlockRDDExec: 140.20138 ms
+20/07/25 13:23:02 WARN Utils: load uservisits: 175.850186 ms
+20/07/25 13:23:02 WARN Utils: Force child of ACPolicyAppliedEncryptedBlockRDDExec: 6.227234 ms
+20/07/25 13:23:02 WARN Utils: ACPolicyAppliedEncryptedBlockRDDExec: 105.36474 ms
+20/07/25 13:23:02 WARN Utils: Force child of EncryptedProjectExec: 5.548397 ms
+20/07/25 13:23:02 WARN Utils: EncryptedProjectExec: 59.938342 ms
+20/07/25 13:23:02 WARN Utils: force child of QEncryptedSort: 4.733434 ms
+20/07/25 13:23:03 WARN Utils: sort: 364.695978 ms
+20/07/25 13:23:03 WARN Utils: Force child of QEncryptedAggregateExec: 4.845817 ms
+20/07/25 13:23:03 WARN Utils: QEncryptedAggregateExec: 281.061745 ms
+20/07/25 13:23:03 WARN Utils: Force child of ResPreparedEncryptedBlockRDDExec: 5.314562 ms
+20/07/25 13:23:03 WARN Utils: ResPreparedEncryptedBlockRDDExec: 14.719132 ms
+20/07/25 13:23:03 WARN Utils: {"size": "medium", "system": "encrypted", "query": "big data 2", "distributed": false, "sgx": "hw", "time": 927.767391}
+20/07/25 13:23:03 WARN Utils: Force child of EncryptedProjectExec: 4.873864 ms
+20/07/25 13:23:03 WARN Utils: EncryptedProjectExec: 44.788469 ms
+20/07/25 13:23:03 WARN Utils: force child of QEncryptedSort: 5.357258 ms
+20/07/25 13:23:03 WARN Utils: sort: 364.944375 ms
+20/07/25 13:23:03 WARN Utils: Force child of QEncryptedAggregateExec: 4.57963 ms
+20/07/25 13:23:04 WARN Utils: QEncryptedAggregateExec: 255.939803 ms
+20/07/25 13:23:04 WARN Utils: Force child of ResPreparedEncryptedBlockRDDExec: 5.941947 ms
+20/07/25 13:23:04 WARN Utils: ResPreparedEncryptedBlockRDDExec: 13.428102 ms
+Total result rows: 9648
+[info] - big data 2 - q encrypted
+20/07/25 13:23:04 WARN Utils: Force child of ACPolicyAppliedEncryptedBlockRDDExec: 22.256716 ms
+20/07/25 13:23:04 WARN Utils: ACPolicyAppliedEncryptedBlockRDDExec: 99.251899 ms
+20/07/25 13:23:04 WARN Utils: load uservisits: 133.094413 ms
+20/07/25 13:23:04 WARN Utils: Force child of ACPolicyAppliedEncryptedBlockRDDExec: 13.839679 ms
+20/07/25 13:23:04 WARN Utils: ACPolicyAppliedEncryptedBlockRDDExec: 23.689095 ms
+20/07/25 13:23:04 WARN Utils: load rankings: 50.320621 ms
+20/07/25 13:23:04 WARN Utils: Force child of ACPolicyAppliedEncryptedBlockRDDExec: 4.882609 ms
+20/07/25 13:23:04 WARN Utils: ACPolicyAppliedEncryptedBlockRDDExec: 19.772726 ms
+20/07/25 13:23:04 WARN Utils: Force child of ACPolicyAppliedEncryptedBlockRDDExec: 6.919758 ms
+20/07/25 13:23:04 WARN Utils: ACPolicyAppliedEncryptedBlockRDDExec: 107.071913 ms
+20/07/25 13:23:04 WARN Utils: Force child of EncryptedProjectExec: 4.629536 ms
+20/07/25 13:23:04 WARN Utils: EncryptedProjectExec: 18.425496 ms
+20/07/25 13:23:04 WARN Utils: Force child of EncryptedProjectExec: 4.225782 ms
+20/07/25 13:23:04 WARN Utils: EncryptedProjectExec: 22.39444 ms
+20/07/25 13:23:04 WARN Utils: Force child of EncryptedFilterExec: 4.626564 ms
+20/07/25 13:23:04 WARN Utils: EncryptedFilterExec: 82.690893 ms
+20/07/25 13:23:04 WARN Utils: Force child of EncryptedProjectExec: 4.22189 ms
+20/07/25 13:23:04 WARN Utils: EncryptedProjectExec: 18.419612 ms
+20/07/25 13:23:04 WARN Utils: Force child of EncryptedProjectExec: 5.007901 ms
+20/07/25 13:23:04 WARN Utils: EncryptedProjectExec: 23.647506 ms
+20/07/25 13:23:04 WARN Utils: Force left child of QEncryptedUnionExec: 4.904089 ms
+20/07/25 13:23:04 WARN Utils: Force right child of QEncryptedUnionExec: 5.116317 ms
+20/07/25 13:23:04 WARN Utils: QEncryptedUnionExec: 25.113889 ms
+20/07/25 13:23:04 WARN Utils: force child of QEncryptedSort: 4.668208 ms
+20/07/25 13:23:05 WARN Utils: sort: 413.668323 ms
+20/07/25 13:23:05 WARN Utils: Force child of QEncryptedSortMergeJoinExec: 4.600374 ms
+20/07/25 13:23:05 WARN Utils: QEncryptedSortMergeJoinExec: 284.193187 ms
+20/07/25 13:23:05 WARN Utils: Force child of EncryptedProjectExec: 4.787053 ms
+20/07/25 13:23:05 WARN Utils: EncryptedProjectExec: 110.632779 ms
+20/07/25 13:23:05 WARN Utils: Force child of EncryptedProjectExec: 6.141358 ms
+20/07/25 13:23:05 WARN Utils: EncryptedProjectExec: 46.205078 ms
+20/07/25 13:23:05 WARN Utils: force child of QEncryptedSort: 4.558588 ms
+20/07/25 13:23:06 WARN Utils: sort: 230.650117 ms
+20/07/25 13:23:06 WARN Utils: Force child of ResPreparedEncryptedBlockRDDExec: 4.947968 ms
+20/07/25 13:23:06 WARN Utils: ResPreparedEncryptedBlockRDDExec: 26.610352 ms
+20/07/25 13:23:06 WARN Utils: {"size": "medium", "system": "encrypted", "query": "big data 3", "distributed": false, "sgx": "hw", "time": 1620.997645}
+20/07/25 13:23:06 WARN Utils: Force child of EncryptedProjectExec: 5.420028 ms
+20/07/25 13:23:06 WARN Utils: EncryptedProjectExec: 16.955654 ms
+20/07/25 13:23:06 WARN Utils: Force child of EncryptedProjectExec: 5.391027 ms
+20/07/25 13:23:06 WARN Utils: EncryptedProjectExec: 22.77738 ms
+20/07/25 13:23:06 WARN Utils: Force child of EncryptedFilterExec: 4.799254 ms
+20/07/25 13:23:06 WARN Utils: EncryptedFilterExec: 77.304552 ms
+20/07/25 13:23:06 WARN Utils: Force child of EncryptedProjectExec: 4.562251 ms
+20/07/25 13:23:06 WARN Utils: EncryptedProjectExec: 19.393785 ms
+20/07/25 13:23:06 WARN Utils: Force child of EncryptedProjectExec: 4.99557 ms
+20/07/25 13:23:06 WARN Utils: EncryptedProjectExec: 23.777823 ms
+20/07/25 13:23:06 WARN Utils: Force left child of QEncryptedUnionExec: 4.021404 ms
+20/07/25 13:23:06 WARN Utils: Force right child of QEncryptedUnionExec: 4.642077 ms
+20/07/25 13:23:06 WARN Utils: QEncryptedUnionExec: 14.124351 ms
+20/07/25 13:23:06 WARN Utils: force child of QEncryptedSort: 4.325658 ms
+20/07/25 13:23:06 WARN Utils: sort: 420.656404 ms
+20/07/25 13:23:06 WARN Utils: Force child of QEncryptedSortMergeJoinExec: 4.654241 ms
+20/07/25 13:23:07 WARN Utils: QEncryptedSortMergeJoinExec: 274.287009 ms
+20/07/25 13:23:07 WARN Utils: Force child of EncryptedProjectExec: 4.700663 ms
+20/07/25 13:23:07 WARN Utils: EncryptedProjectExec: 124.364179 ms
+20/07/25 13:23:07 WARN Utils: Force child of EncryptedProjectExec: 4.573002 ms
+20/07/25 13:23:07 WARN Utils: EncryptedProjectExec: 43.386201 ms
+20/07/25 13:23:07 WARN Utils: force child of QEncryptedSort: 5.780176 ms
+20/07/25 13:23:07 WARN Utils: sort: 229.28268 ms
+20/07/25 13:23:07 WARN Utils: Force child of ResPreparedEncryptedBlockRDDExec: 4.717006 ms
+20/07/25 13:23:07 WARN Utils: ResPreparedEncryptedBlockRDDExec: 43.270471 ms
+Total result rows: 29858
+[info] - big data 3 - q encrypted
+[info] Run completed in 37 seconds, 993 milliseconds.
+[info] Total number of tests run: 3
+[info] Suites: completed 1, aborted 0
+[info] Tests: succeeded 3, failed 0, canceled 0, ignored 0, pending 0
+[info] All tests passed.
+[success] Total time: 39 s, completed Jul 25, 2020 1:23:08 PM

@@ -1,80 +1,83 @@
 [info] OpaqueSinglePartitionSuite:
-20/07/02 21:29:51 WARN Utils: Starting an enclave
-20/07/02 21:29:53 WARN Utils: load rankings: 718.014599 ms
-20/07/02 21:29:53 WARN Utils: Force child of EncryptedFilterExec: 104.622323 ms
-20/07/02 21:29:53 WARN Utils: EncryptedFilterExec: 30.713748 ms
-20/07/02 21:29:53 WARN Utils: {"size": "big", "system": "encrypted", "query": "big data 1", "distributed": false, "sgx": "hw", "time": 337.652973}
-20/07/02 21:29:53 WARN Utils: Force child of EncryptedFilterExec: 8.80185 ms
-20/07/02 21:29:53 WARN Utils: EncryptedFilterExec: 24.10315 ms
+20/07/25 12:58:29 WARN Utils: Starting an enclave
+20/07/25 12:58:31 WARN Utils: load rankings: 735.033191 ms
+20/07/25 12:58:31 WARN Utils: Force child of EncryptedFilterExec: 77.442667 ms
+20/07/25 12:58:31 WARN Utils: EncryptedFilterExec: 57.121634 ms
+20/07/25 12:58:31 WARN Utils: {"size": "big", "system": "encrypted", "query": "big data 1", "distributed": false, "sgx": "hw", "time": 317.23275}
+20/07/25 12:58:31 WARN Utils: Force child of EncryptedFilterExec: 9.326102 ms
+20/07/25 12:58:31 WARN Utils: EncryptedFilterExec: 42.860604 ms
+Total result rows: 12000
 [info] - big data 1 - encrypted
-20/07/02 21:29:54 WARN Utils: load uservisits: 849.032208 ms
-20/07/02 21:29:55 WARN Utils: Force child of EncryptedProjectExec: 504.639042 ms
-20/07/02 21:29:55 WARN Utils: EncryptedProjectExec: 108.412064 ms
-20/07/02 21:29:55 WARN Utils: force child of EncryptedSort: 6.895517 ms
-20/07/02 21:29:56 WARN Utils: non-oblivious sort: 866.660277 ms
-20/07/02 21:29:56 WARN Utils: Force child of EncryptedAggregateExec: 6.810119 ms
-20/07/02 21:29:56 WARN Utils: EncryptedAggregateExec: 481.122548 ms
-20/07/02 21:29:56 WARN Utils: {"size": "big", "system": "encrypted", "query": "big data 2", "distributed": false, "sgx": "hw", "time": 2046.764428}
-20/07/02 21:29:56 WARN Utils: Force child of EncryptedProjectExec: 6.939244 ms
-20/07/02 21:29:56 WARN Utils: EncryptedProjectExec: 94.357418 ms
-20/07/02 21:29:56 WARN Utils: force child of EncryptedSort: 7.606216 ms
-20/07/02 21:29:57 WARN Utils: non-oblivious sort: 826.427797 ms
-20/07/02 21:29:57 WARN Utils: Force child of EncryptedAggregateExec: 6.518054 ms
-20/07/02 21:29:58 WARN Utils: EncryptedAggregateExec: 467.244544 ms
+20/07/25 12:58:33 WARN Utils: load uservisits: 911.456576 ms
+20/07/25 12:58:33 WARN Utils: Force child of EncryptedProjectExec: 498.610014 ms
+20/07/25 12:58:33 WARN Utils: EncryptedProjectExec: 115.851352 ms
+20/07/25 12:58:33 WARN Utils: force child of EncryptedSort: 7.316054 ms
+20/07/25 12:58:34 WARN Utils: non-oblivious sort: 865.374092 ms
+20/07/25 12:58:34 WARN Utils: Force child of EncryptedAggregateExec: 8.156451 ms
+20/07/25 12:58:35 WARN Utils: EncryptedAggregateExec: 480.147948 ms
+20/07/25 12:58:35 WARN Utils: {"size": "big", "system": "encrypted", "query": "big data 2", "distributed": false, "sgx": "hw", "time": 2054.199147}
+20/07/25 12:58:35 WARN Utils: Force child of EncryptedProjectExec: 7.976598 ms
+20/07/25 12:58:35 WARN Utils: EncryptedProjectExec: 102.471526 ms
+20/07/25 12:58:35 WARN Utils: force child of EncryptedSort: 5.774537 ms
+20/07/25 12:58:36 WARN Utils: non-oblivious sort: 829.3074 ms
+20/07/25 12:58:36 WARN Utils: Force child of EncryptedAggregateExec: 6.005041 ms
+20/07/25 12:58:36 WARN Utils: EncryptedAggregateExec: 476.685425 ms
+Total result rows: 9648
 [info] - big data 2 - encrypted
-20/07/02 21:29:58 WARN Utils: load uservisits: 465.899773 ms
-20/07/02 21:29:59 WARN Utils: load rankings: 66.319109 ms
-20/07/02 21:29:59 WARN Utils: Force child of EncryptedProjectExec: 76.738212 ms
-20/07/02 21:29:59 WARN Utils: EncryptedProjectExec: 25.826421 ms
-20/07/02 21:29:59 WARN Utils: Force child of EncryptedProjectExec: 5.697639 ms
-20/07/02 21:29:59 WARN Utils: EncryptedProjectExec: 36.710443 ms
-20/07/02 21:29:59 WARN Utils: Force child of EncryptedFilterExec: 402.080124 ms
-20/07/02 21:29:59 WARN Utils: EncryptedFilterExec: 209.551913 ms
-20/07/02 21:29:59 WARN Utils: Force child of EncryptedProjectExec: 5.640855 ms
-20/07/02 21:29:59 WARN Utils: EncryptedProjectExec: 10.303549 ms
-20/07/02 21:29:59 WARN Utils: Force child of EncryptedProjectExec: 6.624503 ms
-20/07/02 21:29:59 WARN Utils: EncryptedProjectExec: 8.659358 ms
-20/07/02 21:29:59 WARN Utils: Force left child of EncryptedUnionExec: 7.417845 ms
-20/07/02 21:29:59 WARN Utils: Force right child of EncryptedUnionExec: 7.012102 ms
-20/07/02 21:29:59 WARN Utils: EncryptedUnionExec: 20.80996 ms
-20/07/02 21:29:59 WARN Utils: force child of EncryptedSort: 6.889216 ms
-20/07/02 21:30:00 WARN Utils: non-oblivious sort: 415.632726 ms
-20/07/02 21:30:00 WARN Utils: Force child of EncryptedSortMergeJoinExec: 5.995973 ms
-20/07/02 21:30:00 WARN Utils: EncryptedSortMergeJoinExec: 113.908423 ms
-20/07/02 21:30:00 WARN Utils: Force child of EncryptedProjectExec: 5.323766 ms
-20/07/02 21:30:00 WARN Utils: EncryptedProjectExec: 31.246203 ms
-20/07/02 21:30:00 WARN Utils: Force child of EncryptedProjectExec: 6.660574 ms
-20/07/02 21:30:00 WARN Utils: EncryptedProjectExec: 11.961049 ms
-20/07/02 21:30:00 WARN Utils: force child of EncryptedSort: 7.21567 ms
-20/07/02 21:30:00 WARN Utils: non-oblivious sort: 23.411611 ms
-20/07/02 21:30:00 WARN Utils: {"size": "big", "system": "encrypted", "query": "big data 3", "distributed": false, "sgx": "hw", "time": 1566.462849}
-20/07/02 21:30:00 WARN Utils: Force child of EncryptedProjectExec: 6.122955 ms
-20/07/02 21:30:00 WARN Utils: EncryptedProjectExec: 23.810038 ms
-20/07/02 21:30:00 WARN Utils: Force child of EncryptedProjectExec: 5.828359 ms
-20/07/02 21:30:00 WARN Utils: EncryptedProjectExec: 35.04852 ms
-20/07/02 21:30:00 WARN Utils: Force child of EncryptedFilterExec: 5.710681 ms
-20/07/02 21:30:00 WARN Utils: EncryptedFilterExec: 210.334486 ms
-20/07/02 21:30:00 WARN Utils: Force child of EncryptedProjectExec: 5.042217 ms
-20/07/02 21:30:00 WARN Utils: EncryptedProjectExec: 8.173752 ms
-20/07/02 21:30:00 WARN Utils: Force child of EncryptedProjectExec: 5.190814 ms
-20/07/02 21:30:00 WARN Utils: EncryptedProjectExec: 8.354535 ms
-20/07/02 21:30:00 WARN Utils: Force left child of EncryptedUnionExec: 5.343564 ms
-20/07/02 21:30:00 WARN Utils: Force right child of EncryptedUnionExec: 5.050345 ms
-20/07/02 21:30:00 WARN Utils: EncryptedUnionExec: 15.741588 ms
-20/07/02 21:30:00 WARN Utils: force child of EncryptedSort: 5.678705 ms
-20/07/02 21:30:01 WARN Utils: non-oblivious sort: 412.044529 ms
-20/07/02 21:30:01 WARN Utils: Force child of EncryptedSortMergeJoinExec: 5.634591 ms
-20/07/02 21:30:01 WARN Utils: EncryptedSortMergeJoinExec: 109.971983 ms
-20/07/02 21:30:01 WARN Utils: Force child of EncryptedProjectExec: 5.320607 ms
-20/07/02 21:30:01 WARN Utils: EncryptedProjectExec: 14.289197 ms
-20/07/02 21:30:01 WARN Utils: Force child of EncryptedProjectExec: 5.074533 ms
-20/07/02 21:30:01 WARN Utils: EncryptedProjectExec: 10.1619 ms
-20/07/02 21:30:01 WARN Utils: force child of EncryptedSort: 5.357095 ms
-20/07/02 21:30:01 WARN Utils: non-oblivious sort: 19.760744 ms
+20/07/25 12:58:37 WARN Utils: load uservisits: 478.819081 ms
+20/07/25 12:58:37 WARN Utils: load rankings: 71.51456 ms
+20/07/25 12:58:37 WARN Utils: Force child of EncryptedProjectExec: 56.012334 ms
+20/07/25 12:58:37 WARN Utils: EncryptedProjectExec: 23.778477 ms
+20/07/25 12:58:37 WARN Utils: Force child of EncryptedProjectExec: 5.419561 ms
+20/07/25 12:58:37 WARN Utils: EncryptedProjectExec: 40.180245 ms
+20/07/25 12:58:37 WARN Utils: Force child of EncryptedFilterExec: 416.129011 ms
+20/07/25 12:58:38 WARN Utils: EncryptedFilterExec: 145.030859 ms
+20/07/25 12:58:38 WARN Utils: Force child of EncryptedProjectExec: 5.341818 ms
+20/07/25 12:58:38 WARN Utils: EncryptedProjectExec: 34.725936 ms
+20/07/25 12:58:38 WARN Utils: Force child of EncryptedProjectExec: 5.777888 ms
+20/07/25 12:58:38 WARN Utils: EncryptedProjectExec: 45.924336 ms
+20/07/25 12:58:38 WARN Utils: Force left child of EncryptedUnionExec: 5.884499 ms
+20/07/25 12:58:38 WARN Utils: Force right child of EncryptedUnionExec: 6.42149 ms
+20/07/25 12:58:38 WARN Utils: EncryptedUnionExec: 35.459161 ms
+20/07/25 12:58:38 WARN Utils: force child of EncryptedSort: 5.365606 ms
+20/07/25 12:58:39 WARN Utils: non-oblivious sort: 840.073485 ms
+20/07/25 12:58:39 WARN Utils: Force child of EncryptedSortMergeJoinExec: 5.42575 ms
+20/07/25 12:58:40 WARN Utils: EncryptedSortMergeJoinExec: 902.176447 ms
+20/07/25 12:58:40 WARN Utils: Force child of EncryptedProjectExec: 7.509345 ms
+20/07/25 12:58:40 WARN Utils: EncryptedProjectExec: 403.2704 ms
+20/07/25 12:58:40 WARN Utils: Force child of EncryptedProjectExec: 5.509665 ms
+20/07/25 12:58:40 WARN Utils: EncryptedProjectExec: 156.317002 ms
+20/07/25 12:58:40 WARN Utils: force child of EncryptedSort: 5.28944 ms
+20/07/25 12:58:41 WARN Utils: non-oblivious sort: 1351.469131 ms
+20/07/25 12:58:41 WARN Utils: {"size": "big", "system": "encrypted", "query": "big data 3", "distributed": false, "sgx": "hw", "time": 4612.31651}
+20/07/25 12:58:41 WARN Utils: Force child of EncryptedProjectExec: 4.914142 ms
+20/07/25 12:58:42 WARN Utils: EncryptedProjectExec: 23.79163 ms
+20/07/25 12:58:42 WARN Utils: Force child of EncryptedProjectExec: 5.271145 ms
+20/07/25 12:58:42 WARN Utils: EncryptedProjectExec: 34.677662 ms
+20/07/25 12:58:42 WARN Utils: Force child of EncryptedFilterExec: 6.24465 ms
+20/07/25 12:58:42 WARN Utils: EncryptedFilterExec: 144.428978 ms
+20/07/25 12:58:42 WARN Utils: Force child of EncryptedProjectExec: 5.078535 ms
+20/07/25 12:58:42 WARN Utils: EncryptedProjectExec: 32.278769 ms
+20/07/25 12:58:42 WARN Utils: Force child of EncryptedProjectExec: 5.166575 ms
+20/07/25 12:58:42 WARN Utils: EncryptedProjectExec: 39.409186 ms
+20/07/25 12:58:42 WARN Utils: Force left child of EncryptedUnionExec: 4.97604 ms
+20/07/25 12:58:42 WARN Utils: Force right child of EncryptedUnionExec: 5.569537 ms
+20/07/25 12:58:42 WARN Utils: EncryptedUnionExec: 26.297073 ms
+20/07/25 12:58:42 WARN Utils: force child of EncryptedSort: 7.971719 ms
+20/07/25 12:58:43 WARN Utils: non-oblivious sort: 861.472755 ms
+20/07/25 12:58:43 WARN Utils: Force child of EncryptedSortMergeJoinExec: 174.804699 ms
+20/07/25 12:58:44 WARN Utils: EncryptedSortMergeJoinExec: 847.178816 ms
+20/07/25 12:58:44 WARN Utils: Force child of EncryptedProjectExec: 5.172874 ms
+20/07/25 12:58:44 WARN Utils: EncryptedProjectExec: 380.889991 ms
+20/07/25 12:58:44 WARN Utils: Force child of EncryptedProjectExec: 5.271286 ms
+20/07/25 12:58:44 WARN Utils: EncryptedProjectExec: 153.57447 ms
+20/07/25 12:58:44 WARN Utils: force child of EncryptedSort: 4.90851 ms
+20/07/25 12:58:46 WARN Utils: non-oblivious sort: 1365.551731 ms
+Total result rows: 117040
 [info] - big data 3 - encrypted
-[info] Run completed in 30 seconds, 425 milliseconds.
+[info] Run completed in 37 seconds, 501 milliseconds.
 [info] Total number of tests run: 3
 [info] Suites: completed 1, aborted 0
 [info] Tests: succeeded 3, failed 0, canceled 0, ignored 0, pending 0
 [info] All tests passed.
-[success] Total time: 31 s, completed Jul 2, 2020 9:30:01 PM
+[success] Total time: 38 s, completed Jul 25, 2020 12:58:47 PM
