@@ -1,4 +1,5 @@
 #include "QFlatbuffersReaders.h"
+#include "qdebug.h"
 
 void QEncryptedTokenToQTokenReader::reset(const qix::QEncryptedToken *encrypted_token){
   const size_t tk_len = dec_size(encrypted_token->enc_tk()->size());
@@ -57,7 +58,7 @@ void QEncryptedBlockToQRowReader::reset(const qix::QEncryptedBlock *enc_block){
     buf.verify();
     rows = buf.root();
   #endif
-  
+
   if(rows->rows()->size() != num_rows) {
     throw std::runtime_error(
       std::string("QEncryptedBlock claimed to contain ")

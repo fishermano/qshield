@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 2.8)
 project(OpaqueEnclaveTrusted)
 
 set(QSHIELD_AC "1")
-set(QSHIELD_TP "0")
+set(QSHIELD_TP "1")
 message("${QSHIELD_AC}")
 message("${QSHIELD_TP}")
 configure_file("${CMAKE_SOURCE_DIR}/Enclave/qdebug.h.in" "${CMAKE_CURRENT_BINARY_DIR}/qdebug.h")

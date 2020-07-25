@@ -66,7 +66,7 @@ object QBigDataBenchmark {
       "query" -> "big data 1",
       "system" -> qsecurityLevel.name,
       "size" -> size) {
-      val df = rankingsDF.filter($"pageRank" > 100)
+      val df = rankingsDF.filter($"pageRank" > 10)
       val dfRes = df.resPrepared
       Utils.force(dfRes)
       dfRes
@@ -105,7 +105,7 @@ object QBigDataBenchmark {
       "system" -> qsecurityLevel.name,
       "size" -> size) {
       val userDF = uservisitsDF
-        .filter($"duration" >= 2 && $"duration" <= 3)
+        .filter($"duration" >= 2 && $"duration" <= 4)
         .select($"destURL", $"sourceIP", $"adRevenue")
       val joinDF = rankingsDF
         .join(userDF

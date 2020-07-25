@@ -79,6 +79,16 @@ void qaggregate_step2(
       prev_partition_last_group, prev_partition_last_group_length));
 
   QRowWriter w;
+  #if QSHIELD_TP
+    flatbuffers::FlatBufferBuilder meta_builder;
+    const flatbuffers::Offset<qix::QMeta> meta_new = w.unary_update_meta(r.meta(),
+                                                              false,
+                                                              "qaggregate",
+                                                              meta_builder);
+    meta_builder.Finish(meta_new);
+    w.set_meta(flatbuffers::GetRoot<qix::QMeta>(meta_builder.GetBufferPointer()));
+    meta_builder.Clear();
+  #endif
 
   if (next_partition_first_row_reader.num_rows() > 1) {
       throw std::runtime_error(
@@ -131,17 +141,6 @@ void qaggregate_step2(
       w.append(agg_op_eval.evaluate());
     }
   }
-
-  #if QSHIELD_TP
-    flatbuffers::FlatBufferBuilder meta_builder;
-    const flatbuffers::Offset<qix::QMeta> meta_new = w.unary_update_meta(r.meta(),
-                                                              false,
-                                                              "qaggregate",
-                                                              meta_builder);
-    meta_builder.Finish(meta_new);
-    w.set_meta(flatbuffers::GetRoot<qix::QMeta>(meta_builder.GetBufferPointer()));
-    meta_builder.Clear();
-  #endif
 
   w.output_buffer(output_rows, output_rows_length);
 }

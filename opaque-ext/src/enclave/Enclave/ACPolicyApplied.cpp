@@ -57,12 +57,6 @@ void ac_policy_applied(uint8_t *input_rows, size_t input_rows_length,
 
   RowReader row_r(BufferRefView<tuix::EncryptedBlocks>(input_rows, input_rows_length));
   QRowWriter row_w;
-
-  while (row_r.has_next()) {
-    const tuix::Row *row = row_r.next();
-    row_w.append(row);
-  }
-
   #if QSHIELD_TP
     flatbuffers::FlatBufferBuilder meta_builder;
     std::vector<flatbuffers::Offset<qix::QTrace>> trace_values(1);
@@ -81,6 +75,11 @@ void ac_policy_applied(uint8_t *input_rows, size_t input_rows_length,
     row_w.set_meta(flatbuffers::GetRoot<qix::QMeta>(meta_builder.GetBufferPointer()));
     meta_builder.Clear();
   #endif
+
+  while (row_r.has_next()) {
+    const tuix::Row *row = row_r.next();
+    row_w.append(row);
+  }
 
   row_w.output_buffer(output_rows, output_rows_length);
 }

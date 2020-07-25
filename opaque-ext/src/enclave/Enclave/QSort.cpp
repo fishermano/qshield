@@ -40,6 +40,9 @@ void qexternal_merge(
 
   // Merge the runs using the priority queue
   int j = 0;
+  #if QSHIELD_TP
+    w.set_meta(r.meta());
+  #endif
   while (!queue.empty()) {
 
     MergeItem item = queue.top();
@@ -55,6 +58,7 @@ void qexternal_merge(
       queue.push(item);
     }
   }
+
   debug("buffer 1 totally has %d items\n", j);
   w.finish_run();
 }
@@ -75,9 +79,13 @@ void qsort_single_block(
     });
 
   int i = 0;
+  #if QSHIELD_TP
+    w.set_meta(r.meta());
+  #endif
   for (auto it = sort_ptrs.begin(); it != sort_ptrs.end(); ++it, i++) {
     w.append(*it);
   }
+
   // debug("Totally append %d rows\n", i);
   w.finish_run();
 }
@@ -89,9 +97,6 @@ void qexternal_sort(uint8_t *sort_order, size_t sort_order_length,
 
   // 1. Sort each QEncryptedBlock individually by decrypting it, sorting within the enclave, and
   // re-encrypting to a different buffer.
-  #if QSHIELD_TP
-    const qix::QMeta *meta = br.meta();
-  #endif
 
   QSortedRunsWriter w;
   {
@@ -100,9 +105,6 @@ void qexternal_sort(uint8_t *sort_order, size_t sort_order_length,
     uint32_t i = 0;
     for (auto it = r.begin(); it != r.end(); ++it, ++i) {
       debug("Sorting buffer %d with %d rows\n", i, it->num_rows());
-      #if QSHIELD_TP
-        w.set_meta(meta);
-      #endif
       qsort_single_block(w, *it, sort_eval);
 
     }
@@ -130,10 +132,6 @@ void qexternal_sort(uint8_t *sort_order, size_t sort_order_length,
       uint32_t num_runs =
         std::min(MAX_NUM_STREAMS, static_cast<uint32_t>(r.num_runs()) - run_start);
       debug("external_sort: Merging buffers %d-%d\n", run_start, run_start + num_runs - 1);
-      #if QSHIELD_TP
-        w.set_meta(meta);
-      #endif
-
       qexternal_merge(r, run_start, num_runs, w, sort_eval);
     }
 
@@ -234,6 +232,9 @@ void qpartition_for_sort(uint8_t *sort_order, size_t sort_order_length,
   FlatbuffersSortOrderEvaluator sort_eval(sort_order, sort_order_length);
   QRowReader r(BufferRefView<qix::QEncryptedBlocks>(sorted_rows, sorted_rows_length));
   QRowWriter w;
+  #if QSHIELD_TP
+    w.set_meta(r.meta());
+  #endif
 
   uint32_t output_partition_idx = 0;
 
@@ -249,15 +250,14 @@ void qpartition_for_sort(uint8_t *sort_order, size_t sort_order_length,
     while (b_upper.get() != nullptr && !sort_eval.less_than(row, b_upper.get())) {
       b_upper.set(b.has_next() ? b.next() : nullptr);
 
-      #if QSHIELD_TP
-        w.set_meta(r.meta());
-      #endif
-
       // Write out the newly-finished partition
       w.output_buffer(
         &output_partition_ptrs[output_partition_idx],
         &output_partition_lengths[output_partition_idx]);
       w.clear();
+      #if QSHIELD_TP
+        w.set_meta(r.meta());
+      #endif
       output_partition_idx++;
     }
 
@@ -268,14 +268,13 @@ void qpartition_for_sort(uint8_t *sort_order, size_t sort_order_length,
   // partitions, write out enough empty partitions to ensure the expected number of output
   // partitions.
   while (output_partition_idx < num_partitions) {
-
-    #if QSHIELD_TP
-      w.set_meta(r.meta());
-    #endif
     w.output_buffer(
       &output_partition_ptrs[output_partition_idx],
       &output_partition_lengths[output_partition_idx]);
     w.clear();
+    #if QSHIELD_TP
+      w.set_meta(r.meta());
+    #endif
     output_partition_idx++;
   }
 

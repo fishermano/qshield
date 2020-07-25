@@ -1,5 +1,7 @@
 #include "QFlatbuffersWriters.h"
 
+#include "qdebug.h"
+
 flatbuffers::Offset<qix::QMeta> QRowWriter::unary_update_meta(
   const qix::QMeta *meta, bool is_first_node, std::string parent, flatbuffers::FlatBufferBuilder& builder){
 
@@ -41,7 +43,9 @@ flatbuffers::Offset<qix::QMeta> QRowWriter::flatbuffers_copy_meta(
   const qix::QMeta *meta, flatbuffers::FlatBufferBuilder& builder){
 
     flatbuffers::uoffset_t num_traces = meta->exe_trace()->size();
+
     std::vector<flatbuffers::Offset<qix::QTrace>> trace_values(num_traces);
+
     for(flatbuffers::uoffset_t i = 0; i < num_traces; i++){
       trace_values[i] = qix::CreateQTrace(
                           builder,

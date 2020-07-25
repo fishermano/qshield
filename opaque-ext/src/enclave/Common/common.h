@@ -5,7 +5,7 @@
 #include <sgx_tcrypto.h>
 
 #include "define.h"
-#define DEBUG
+// #define DEBUG
 
 // Declarations for C/C++ standard library functions that are not present in the trusted standard
 // libraries, but are reimplemented in Enclave/util.cpp. This allows us to use these functions
