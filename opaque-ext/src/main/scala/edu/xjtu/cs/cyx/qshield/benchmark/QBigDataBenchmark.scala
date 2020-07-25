@@ -114,7 +114,7 @@ object QBigDataBenchmark {
       val df = joinDF
         .select($"sourceIP", $"pageRank")
         .orderBy($"pageRank".asc)
-      val dfRes = joinDF.resPrepared
+      val dfRes = df.resPrepared
       Utils.force(dfRes)
       dfRes
     }

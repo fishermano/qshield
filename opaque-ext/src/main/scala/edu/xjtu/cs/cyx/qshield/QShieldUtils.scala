@@ -24,7 +24,6 @@ import edu.berkeley.cs.rise.opaque.Utils
 import edu.berkeley.cs.rise.opaque.execution.Block
 
 import java.nio.ByteBuffer
-import scala.collection.mutable.ArrayBuilder
 import com.google.flatbuffers.FlatBufferBuilder
 import org.apache.spark.internal.Logging
 import org.apache.spark.sql.SQLContext
@@ -67,7 +66,7 @@ object QShieldUtils extends Logging{
                           sqlContext.sparkContext.defaultParallelism)
 
     QOwnerStuber.dataOut(sqlContext,
-                          "file://".concat(qshieldHome).concat("/data/bdb/rankings/medium"),
+                          "file://".concat(qshieldHome).concat("/data/bdb/rankings/big"),
                           "big/RANKINGS",
                           StructType(Seq(
                             StructField("pageURL", StringType),

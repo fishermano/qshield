@@ -322,7 +322,8 @@ case class QEncryptedUnionExec(
     }
     val unioned = leftRDD.zipPartitions(rightRDD) {
       (leftBlockIter, rightBlockIter) =>
-        Iterator(QShieldUtils.concatQEncryptedBlocks(leftBlockIter.toSeq ++ rightBlockIter.toSeq))
+        val tBlocks = QShieldUtils.concatQEncryptedBlocks(leftBlockIter.toSeq ++ rightBlockIter.toSeq)
+        Iterator(tBlocks)
     }
     Utils.ensureCached(unioned)
     time("QEncryptedUnionExec") {unioned.count}
