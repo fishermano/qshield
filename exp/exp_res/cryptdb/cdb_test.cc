@@ -64,7 +64,7 @@ extern "C" {
  * for rankings: tiny-10 medium-50 big-100
  * for uservisits: tiny-10 medium-20 big-40
  */
-#define RANKINGS_FILE_NUM 50
+#define RANKINGS_FILE_NUM 100
 #define USERVISITS_FILE_NUM 20
 
 // #define FILE_NAME "rankings_insert.txt"
@@ -646,17 +646,18 @@ main(int argc,char ** argv) {
     }
 
     if(std::string("q1.txt").compare(FILE_NAME) == 0){
-      curQuery = std::string("select * from rankings where page_rank > 100;");
+      curQuery = std::string("select * from rankings where page_rank > 10;");
       batchTogether(client,curQuery,_thread_id);
     }
 
-    if(std::string("q2.txt").compare(FILE_NAME) == 0){
-      curQuery = std::string("select source_ip, sum(ad_revenue) from uservisits group by source_ip;");
-      batchTogether(client,curQuery,_thread_id);
-    }
+    // no supported
+    // if(std::string("q2.txt").compare(FILE_NAME) == 0){
+    //   curQuery = std::string("select substring(source_ip, 0, 8), sum(ad_revenue) from uservisits group by source_ip;");
+    //   batchTogether(client,curQuery,_thread_id);
+    // }
 
     if(std::string("q3.txt").compare(FILE_NAME) == 0){
-      curQuery = std::string("SELECT b.source_ip AS s_i, SUM(b.ad_revenue) AS s_a_r, AVG(a.page_rank) AS a_p_r FROM rankings AS a INNER JOIN uservisits AS b ON a.page_url = b.dest_url WHERE b.visit_date BETWEEN '1980-01-01' AND '1990-01-01' GROUP BY s_i ORDER BY s_a_r ASC;");
+      curQuery = std::string("SELECT b.source_ip AS s_i, SUM(b.ad_revenue) AS s_a_r, AVG(a.page_rank) AS a_p_r FROM rankings AS a INNER JOIN uservisits AS b ON a.page_url = b.dest_url WHERE b.duration BETWEEN 2 AND 4 GROUP BY s_i ORDER BY s_a_r ASC;");
       batchTogether(client,curQuery,_thread_id);
     }
 
