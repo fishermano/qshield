@@ -86,19 +86,19 @@ qshield_wo_tf_tiny = [qshield_wo_tf_tiny_q1, qshield_wo_tf_tiny_q2, qshield_wo_t
 qshield_wo_tf_tiny_log = list(map(to_log, qshield_wo_tf_tiny))
 
 cryptdb_big_q1 = to_ms(load_data('./exp_res/cryptdb/res/big/q1_mean.txt'))
-cryptdb_big_q2 = to_ms(load_data('./exp_res/cryptdb/res/big/q2_mean.txt'))
+# cryptdb_big_q2 = to_ms(load_data('./exp_res/cryptdb/res/big/q2_mean.txt'))
 cryptdb_big_q3 = to_ms(load_data('./exp_res/cryptdb/res/big/q3_mean.txt'))
-cryptdb_big = [cryptdb_big_q1, cryptdb_big_q2, cryptdb_big_q3]
+cryptdb_big = [cryptdb_big_q1, 100000, cryptdb_big_q3]
 cryptdb_big_log = list(map(to_log, cryptdb_big))
 cryptdb_medium_q1 = to_ms(load_data('./exp_res/cryptdb/res/medium/q1_mean.txt'))
-cryptdb_medium_q2 = to_ms(load_data('./exp_res/cryptdb/res/medium/q2_mean.txt'))
+# cryptdb_medium_q2 = to_ms(load_data('./exp_res/cryptdb/res/medium/q2_mean.txt'))
 cryptdb_medium_q3 = to_ms(load_data('./exp_res/cryptdb/res/medium/q3_mean.txt'))
-cryptdb_medium = [cryptdb_medium_q1, cryptdb_medium_q2, cryptdb_medium_q3]
+cryptdb_medium = [cryptdb_medium_q1, 100000, cryptdb_medium_q3]
 cryptdb_medium_log = list(map(to_log, cryptdb_medium))
 cryptdb_tiny_q1 = to_ms(load_data('./exp_res/cryptdb/res/tiny/q1_mean.txt'))
-cryptdb_tiny_q2 = to_ms(load_data('./exp_res/cryptdb/res/tiny/q2_mean.txt'))
+# cryptdb_tiny_q2 = to_ms(load_data('./exp_res/cryptdb/res/tiny/q2_mean.txt'))
 cryptdb_tiny_q3 = to_ms(load_data('./exp_res/cryptdb/res/tiny/q3_mean.txt'))
-cryptdb_tiny = [cryptdb_tiny_q1, cryptdb_tiny_q2, cryptdb_tiny_q3]
+cryptdb_tiny = [cryptdb_tiny_q1, 100000, cryptdb_tiny_q3]
 cryptdb_tiny_log = list(map(to_log, cryptdb_tiny))
 
 fig = plt.figure(figsize=(15, 2.8))
@@ -111,7 +111,7 @@ bar_width=0.15
 x_l=['Q1', 'Q2', 'Q3']
 x=np.arange(len(x_l))
 
-ax1.set_title(r'Tiny Dataset', title_font)
+ax1.set_title(r'(a) Tiny Dataset', title_font)
 ax1.grid(linestyle='-.', axis='y', zorder=1)
 a11 = ax1.bar(x, opaque_tiny_log, width=bar_width, label='Opaque', color='seagreen', edgecolor='white', linewidth=0.5, zorder=2)
 a12 = ax1.bar(x + bar_width, qshield_w_tf_tiny_log, width=bar_width, label='QShield with Trust-proof', color='goldenrod', edgecolor='white', linewidth=0.5, zorder=2)
@@ -121,7 +121,10 @@ j = 0
 all = opaque_tiny + qshield_w_tf_tiny + qshield_wo_tf_tiny + cryptdb_tiny
 for i in a11 + a12 + a13 +a14:
     h = i.get_height()
-    ax1.text(i.get_x() + i.get_width()/2, h, '%d' % int(all[j]), ha='center', va='bottom', fontdict=text_font)
+    if j != 10:
+        ax1.text(i.get_x() + i.get_width()/2, h, '%d' % int(all[j]), ha='center', va='bottom', fontdict=text_font)
+    else:
+        ax1.text(i.get_x() + i.get_width()/2, h, '%s' % 'N/A', ha='center', va='bottom', fontdict=text_font)
     j = j + 1
 ax1.set_xticks(x+1.5*bar_width)
 ax1.set_xticklabels(x_l)
@@ -132,7 +135,7 @@ labels = ax1.get_xticklabels() + ax1.get_yticklabels()
 ax1.legend(loc='upper left', frameon=True, prop=legend_font)
 ax1.set_ylabel('Logarithmic Time (ms)', label_font)
 
-ax2.set_title(r'Medium Dataset', title_font)
+ax2.set_title(r'(b) Medium Dataset', title_font)
 ax2.grid(linestyle='-.', axis='y', zorder=1)
 a21 = ax2.bar(x, opaque_medium_log, width=bar_width, label='Opaque', color='seagreen', edgecolor='white', linewidth=0.5, zorder=2)
 a22 = ax2.bar(x + bar_width, qshield_w_tf_medium_log, width=bar_width, label='QShield with Trust-proof', color='goldenrod', edgecolor='white', linewidth=0.5, zorder=2)
@@ -142,7 +145,10 @@ j = 0
 all = opaque_medium + qshield_w_tf_medium + qshield_wo_tf_medium + cryptdb_medium
 for i in a21 + a22 + a23 +a24:
     h = i.get_height()
-    ax2.text(i.get_x() + i.get_width()/2, h, '%d' % int(all[j]), ha='center', va='bottom', fontdict=text_font)
+    if j != 10:
+        ax2.text(i.get_x() + i.get_width()/2, h, '%d' % int(all[j]), ha='center', va='bottom', fontdict=text_font)
+    else:
+        ax2.text(i.get_x() + i.get_width()/2, h, '%s' % 'N/A', ha='center', va='bottom', fontdict=text_font)
     j = j + 1
 ax2.set_xticks(x+1.5*bar_width)
 ax2.set_xticklabels(x_l)
@@ -153,7 +159,7 @@ labels = ax2.get_xticklabels() + ax2.get_yticklabels()
 ax2.legend(loc='upper left', frameon=True, prop=legend_font)
 ax2.set_xlabel('Benchmark Query Type', label_font)
 
-ax3.set_title(r'Big Dataset', title_font)
+ax3.set_title(r'(c) Big Dataset', title_font)
 ax3.grid(linestyle='-.', axis='y', zorder=1)
 a31 = ax3.bar(x, opaque_big_log, width=bar_width, label='Opaque', color='seagreen', edgecolor='white', linewidth=0.5, zorder=2)
 a32 = ax3.bar(x + bar_width, qshield_w_tf_big_log, width=bar_width, label='QShield with Trust-proof', color='goldenrod', edgecolor='white', linewidth=0.5, zorder=2)
@@ -163,7 +169,10 @@ j = 0
 all = opaque_big + qshield_w_tf_big + qshield_wo_tf_big + cryptdb_big
 for i in a31 + a32 + a33 +a34:
     h = i.get_height()
-    ax3.text(i.get_x() + i.get_width()/2, h, '%d' % int(all[j]), ha='center', va='bottom', fontdict=text_font)
+    if j != 10:
+        ax3.text(i.get_x() + i.get_width()/2, h, '%d' % int(all[j]), ha='center', va='bottom', fontdict=text_font)
+    else:
+        ax3.text(i.get_x() + i.get_width()/2, h, '%s' % 'N/A', ha='center', va='bottom', fontdict=text_font)
     j = j + 1
 ax3.set_xticks(x+1.5*bar_width)
 ax3.set_xticklabels(x_l)
