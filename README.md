@@ -377,3 +377,91 @@ $ sudo nano /opt/sbt-0.13.17/conf/sbtopts
 
 ~$ source /etc/profile
 ``` 
+**11.** Setting pyspark development environement
+- update pip3 source mirror
+```
+~$ mkdir .pip
+~$ touch .pip/pip.conf
+~$ nano .pip/pip.conf
+    [global]
+    timeout = 6000
+    index-url = https://pypi.tuna.tsinghua.edu.cn/simple
+    trusted-host = pypi.tuna.tsinghua.edu.cn
+~$ pip3 install --upgrade pip
+```
+- install python3-pip and relevant dependencies
+```
+~$ sudo apt install python3-pip
+~$ pip3 install aiohttp
+~$ pip3 install jinja2
+// copy pysaprk py4j source code from spark protject to /home/hadoop/.local/lib/python3.6/site-packages
+~$ cp -r /home/hadoop/spark-2.4.5/python/lib/pyspark/ /home/hadoop/.local/lib/python3.6/site-packages/
+~$ cp -r /home/hadoop/spark-2.4.5/python/lib/py4j/ /home/hadoop/.local/lib/python3.6/site-packages/
+~$ sudo nano /etc/profile
+
+   export PYSPARK_PYTHON=/usr/bin/python3.6
+   export PYSPARK_DRIVER_PYTHON=/usr/bin/python3.6
+
+~$ pip3 install pyspark-asyncactions
+~$ pip3 install numpy
+~$ pip3 install sqlparse-0.3.1
+~$ pip3 install pyinstaller
+**12.** QShield Compilation
+- retrieve QShield source code
+```
+~$ git clone git@gitee.com:fishermano/qshield.git
+```
+- install QShield dependencies
+```
+// install sgx-enabled GMP library
+~$ cp ./qshield/tpl/sgx-gmp/sgx_tgmp.h /opt/sgxsdk/include
+~$ cp ./qshield/tpl/sgx-gmp/libsgx_tgmp.a /opt/sgxsdk/lib64
+
+// install sgx-enabled PBC library
+~$ cd ./qshield/tpl/sgx-pbc
+~/qshield/tpl/sgx-pbc$ ./bootstrap
+~/qshield/tpl/sgx-pbc$ ./configure prefix=/opt/sgxsdk
+~/qshield/tpl/sgx-pbc$ make
+~/qshield/tpl/sgx-pbc$ make install
+
+// install sgx-enabled e-scheme library
+~$ cd ./qshield/tpl/e-scheme
+~/qshield/tpl/e-scheme$ ./bootstrap
+~/qshield/tpl/e-scheme$ ./configure prefix=/opt/sgxsdk
+~/qshield/tpl/e-scheme$ make
+~/qshield/tpl/e-scheme$ make install
+```
+- check whether SETUP_DIR in the specification of pyinstaller has the correct absolute path of rest-apis
+
+```
+~$ nano ./qshield/rest-apis/app.spec
+```
+- modify QShield configuration
+```
+~$ nano ./qshield/rest-apis/conf/config_override.py
+
+    'master': 'spark://{the name of your host}:7077'
+    'jars': '/home/hadoop/qshield/opaque-ext/target/scala-2.11/opaque-ext_2.11-0.1.jar,/home/hadoop/qshield/data-owner/target/scala-2.11/data-owner_2.11-0.1.jar'
+```
+- generate data owner's private key
+```
+~$ openssl ecparam -name prime256v1 -genkey -noout -out private_key.pem
+```
+- configure QShield profile
+```
+~$ sudo nano /etc/profile
+
+    export QSHIELD_HOME=/home/hadoop/qshield
+    export SGX_PERF=1
+    export PRIVATE_KEY_PATH=/home/hadoop/private_key.pem
+    export SGX_MODE=HW
+    export LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu:$LD_LIBRARY_PATH
+
+~$ source /etc/profile
+```
+- compile QShield project
+```
+~$ cd qshield
+~/qshield$ ./build/sbt
+sbt (root)> package
+```
