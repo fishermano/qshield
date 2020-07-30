@@ -128,3 +128,39 @@ The following steps show how to build a development environment for QShield.
 ```
 ~/Repoes$ sudo apt-get remove libsgx-launch libsgx-epid libsgx-quote-ex libsgx-urts
 ```
+**5.** Setting Hadoop development environment
+- install java sdk
+```
+~$ cd Repoes
+// download jdk 1.8 (jdk-8u151-linux-x64.tar.gz) in the current directory
+~/Repoes$ sudo tar -xzvf jdk-8u151-linux-x64.tar.gz -C /opt/
+~/Repoes$ sudo nano /etc/profile
+
+    export JAVA_HOME=/opt/jdk1.8.0_151
+    export JRE_HOME=$JAVA_HOME/jre
+    export CLASSPATH=.:$JAVA_HOME/lib:$JAVA_HOME/jre/lib:$CLASSPATH
+    export PATH=$JAVA_HOME/bin:$JAVA_HOME/jre/bin:$PATH
+
+~/Repoes$ source /etc/profile
+```
+- install Hadoop sdk
+```
+~$ cd Repoes
+~/Repoes$ git clone git@gitee.com:fishermano/hadoop-3.1.0.git
+~/Repoes$ sudo tar -xzvf hadoop-3.1.0.tar.gz -C /opt/ or run 'sudo cp -R hadoop-3.1.0/ /opt'
+~/Repoes$ sudo chown -R hadoop.root /opt/hadoop-3.1.0
+
+// cofigure hadoop environment
+~/Repoes$ sudo nano /etc/profile
+
+    export HADOOP_HOME=/opt/hadoop-3.1.0
+    export HADOOP_MAPRED_HOME=$HADOOP_HOME
+    export HADOOP_COMMON_HOME=$HADOOP_HOME
+    export HADOOP_HDFS_HOME=$HADOOP_HOME
+    export YARN_HOME=$HADOOP_HOME
+    export HADOOP_COMMON_LIB_NATIVE_DIR=$HADOOP_HOME/lib/native
+    export PATH=$HADOOP_HOME/bin:$HADOOP_HOME/sbin:$PATH
+    export HADOOP_install=$HADOOP_HOME
+
+~/Repoes$ source /etc/profile
+```
