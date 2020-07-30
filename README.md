@@ -8,9 +8,29 @@ This project implements a prototype for QShield, a secure query system introduce
 #### SETUP
 The following steps show how to build a developing environment for QShield.
 
-1. Creating a hadoop user account
+**1.** Creating a hadoop user account
 ```
 ~$ sudo adduser hadoop
 ~$ sudo passwd hadoop
 ~$ sudo adduser hadoop sudo
 ```
+**2.** Updating apt repository
+```
+~$ sudo nano /etc/apt/sources.list
+
+deb http://mirrors.aliyun.com/ubuntu/ bionic main restricted
+deb http://mirrors.aliyun.com/ubuntu/ bionic-updates main restricted
+deb http://mirrors.aliyun.com/ubuntu/ bionic universe
+deb http://mirrors.aliyun.com/ubuntu/ bionic-updates universe
+deb http://mirrors.aliyun.com/ubuntu/ bionic multiverse
+deb http://mirrors.aliyun.com/ubuntu/ bionic-updates multiverse
+deb http://mirrors.aliyun.com/ubuntu/ bionic-backports main restricted universe multiverse
+deb http://mirrors.aliyun.com/ubuntu/ bionic-security main restricted
+deb http://mirrors.aliyun.com/ubuntu/ bionic-security universe
+```
+**3.** Setting ssh server login without password
+```
+~$ ssh-keygen -t rsa -C "xxx@xxx"
+~$ cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys
+```
+
