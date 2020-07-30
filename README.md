@@ -18,15 +18,15 @@ The following steps show how to build a development environment for QShield.
 ```
 ~$ sudo nano /etc/apt/sources.list
 
-        deb http://mirrors.aliyun.com/ubuntu/ bionic main restricted
-        deb http://mirrors.aliyun.com/ubuntu/ bionic-updates main restricted
-        deb http://mirrors.aliyun.com/ubuntu/ bionic universe
-        deb http://mirrors.aliyun.com/ubuntu/ bionic-updates universe
-        deb http://mirrors.aliyun.com/ubuntu/ bionic multiverse
-        deb http://mirrors.aliyun.com/ubuntu/ bionic-updates multiverse
-        deb http://mirrors.aliyun.com/ubuntu/ bionic-backports main restricted universe multiverse
-        deb http://mirrors.aliyun.com/ubuntu/ bionic-security main restricted
-        deb http://mirrors.aliyun.com/ubuntu/ bionic-security universe
+    deb http://mirrors.aliyun.com/ubuntu/ bionic main restricted
+    deb http://mirrors.aliyun.com/ubuntu/ bionic-updates main restricted
+    deb http://mirrors.aliyun.com/ubuntu/ bionic universe
+    deb http://mirrors.aliyun.com/ubuntu/ bionic-updates universe
+    deb http://mirrors.aliyun.com/ubuntu/ bionic multiverse
+    deb http://mirrors.aliyun.com/ubuntu/ bionic-updates multiverse
+    deb http://mirrors.aliyun.com/ubuntu/ bionic-backports main restricted universe multiverse
+    deb http://mirrors.aliyun.com/ubuntu/ bionic-security main restricted
+    deb http://mirrors.aliyun.com/ubuntu/ bionic-security universe
 ```
 **3.** Setting ssh server login without password
 ```
@@ -75,27 +75,56 @@ The following steps show how to build a development environment for QShield.
 // install required tools
 ~/Repoes/linux-sgx$ sudo apt-get install build-essential ocaml ocamlbuild automake autoconf libtool wget python libssl-dev git cmake perl
 ~/Repoes/linux-sgx$ sudo apt-get install libssl-dev libcurl4-openssl-dev protobuf-compiler libprotobuf-dev debhelper cmake reprepro
+
 // install required prebuilt binaries
 ~/Repoes/linux-sgx$ ./download_prebuilt.sh
 ~/Repoes/linux-sgx$ sudo cp external/toolset/{as,ld,ld.gold,objdump} /usr/local/bin
+
 // build sgx sdk installer
 ~/Repoes/linux-sgx$ make sdk_install_pkg
+
 // install sgx sdk
 // suggest: set the install directory as /opt/
 ~/Repoes/linux-sgx$ sudo ./linux/installer/bin/sgx_linux_x64_sdk_2.9.101.2.bin
 ~/Repoes/linux-sgx$ sudo chown -R hadoop.root /opt/sgxsdk
 ~/Repoes/linux-sgx$ sudo nano /etc/profile
 
-        export SGX_SDK=/opt/sgxsdk
-        export PATH=$PATH:$SGX_SDK/bin:$SGX_SDK/bin/x64
-        export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:$SGX_SDK/pkgconfig
+    export SGX_SDK=/opt/sgxsdk
+    export PATH=$PATH:$SGX_SDK/bin:$SGX_SDK/bin/x64
+    export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:$SGX_SDK/pkgconfig
 
 ~/Repoes/linux-sgx$ sudo touch /etc/ld.so.conf.d/sgx.conf
 ~/Repoes/linux-sgx$ sudo nano /etc/ld.so.conf.d/sgx.conf
 
-        # sgx libs configuration
-        /opt/sgxsdk/sdk_libs
+    # sgx libs configuration
+    /opt/sgxsdk/sdk_libs
 
 ~/Repoes/linux-sgx$ source /etc/profile
+```
+- install sgx psw
+```
+// install required tools
+~/Repoes/linux-sgx$ sudo apt-get install libssl-dev libcurl4-openssl-dev protobuf-compiler libprotobuf-dev debhelper cmake reprepro
+
+//build sgx psw local Debian package repository
+~/Repoes/linux-sgx$ make deb_local_repo
+~/Repoes/linux-sgx$ sudo nano /etc/apt/sources.list
+
+    deb [trusted=yes arch=amd64] file:/ABSOLUTE_PATH_TO_LOCAL_REPO bionic main
+
+~/Repoes/linux-sgx$ sudo apt update
+~/Repoes/linux-sgx$ cd ~/Repoes
+
+// install sgx psw [launch service]
+~/Repoes$ sudo apt-get install libsgx-launch libsgx-urts
+
+// install sgx psw [EPID-based attestation service]:
+~/Repoes$ sudo apt-get install libsgx-epid libsgx-urts
+
+// install sgx psw [algorithm agnostic attestation service]:
+~/Repoes$ sudo apt-get install libsgx-quote-ex libsgx-urts
+
+- uninstall sgx psw:
+~/Repoes$ sudo apt-get remove libsgx-launch libsgx-epid libsgx-quote-ex libsgx-urts
 ```
 
