@@ -406,6 +406,7 @@ $ sudo nano /opt/sbt-0.13.17/conf/sbtopts
 ~$ pip3 install numpy
 ~$ pip3 install sqlparse-0.3.1
 ~$ pip3 install pyinstaller
+```
 **12.** QShield Compilation
 - retrieve QShield source code
 ```
