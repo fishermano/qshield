@@ -18,15 +18,15 @@ The following steps show how to build a development environment for QShield.
 ```
 ~$ sudo nano /etc/apt/sources.list
 
-deb http://mirrors.aliyun.com/ubuntu/ bionic main restricted
-deb http://mirrors.aliyun.com/ubuntu/ bionic-updates main restricted
-deb http://mirrors.aliyun.com/ubuntu/ bionic universe
-deb http://mirrors.aliyun.com/ubuntu/ bionic-updates universe
-deb http://mirrors.aliyun.com/ubuntu/ bionic multiverse
-deb http://mirrors.aliyun.com/ubuntu/ bionic-updates multiverse
-deb http://mirrors.aliyun.com/ubuntu/ bionic-backports main restricted universe multiverse
-deb http://mirrors.aliyun.com/ubuntu/ bionic-security main restricted
-deb http://mirrors.aliyun.com/ubuntu/ bionic-security universe
+        deb http://mirrors.aliyun.com/ubuntu/ bionic main restricted
+        deb http://mirrors.aliyun.com/ubuntu/ bionic-updates main restricted
+        deb http://mirrors.aliyun.com/ubuntu/ bionic universe
+        deb http://mirrors.aliyun.com/ubuntu/ bionic-updates universe
+        deb http://mirrors.aliyun.com/ubuntu/ bionic multiverse
+        deb http://mirrors.aliyun.com/ubuntu/ bionic-updates multiverse
+        deb http://mirrors.aliyun.com/ubuntu/ bionic-backports main restricted universe multiverse
+        deb http://mirrors.aliyun.com/ubuntu/ bionic-security main restricted
+        deb http://mirrors.aliyun.com/ubuntu/ bionic-security universe
 ```
 **3.** Setting ssh server login without password
 ```
@@ -52,7 +52,7 @@ deb http://mirrors.aliyun.com/ubuntu/ bionic-security universe
 ~/Repoes$ cd linux-sgx-driver
 ~/Repoes/linux-sgx-driver$ dpkg-query -s linux-headers-$(uname -r)
 			   if not execute $ sudo apt-get install linux-headers-$(uname -r)
-~/Repoes/linux-sgx-driver$ (sudo apt install gcc make)
+~/Repoes/linux-sgx-driver$ sudo apt install gcc make
 ~/Repoes/linux-sgx-driver$ make
 ~/Repoes/linux-sgx-driver$ sudo mkdir -p "/lib/modules/"`uname -r`"/kernel/drivers/intel/sgx"
 ~/Repoes/linux-sgx-driver$ sudo cp isgx.ko "/lib/modules/"`uname -r`"/kernel/drivers/intel/sgx"
@@ -60,5 +60,42 @@ deb http://mirrors.aliyun.com/ubuntu/ bionic-security universe
 ~/Repoes/linux-sgx-driver$ sudo /sbin/depmod
 ~/Repoes/linux-sgx-driver$ sudo /sbin/modprobe isgx
 ~/Repoes/linux-sgx-driver$ cd ~/Repoes
+```
+- uninstall sgx driver
+```
+~/Repoes$ cd linux-sgx-driver
+~/Repoes/linux-sgx-driver$ sudo /sbin/modprobe -r isgx
+~/Repoes/linux-sgx-driver$ sudo rm -rf "/lib/modules/"`uname -r`"/kernel/drivers/intel/sgx"
+~/Repoes/linux-sgx-driver$ sudo /sbin/depmod
+~/Repoes/linux-sgx-driver$ sudo /bin/sed -i '/^isgx$/d' /etc/modules
+```
+- install sgx sdk
+```
+~/Repoes$ cd linux-sgx
+// install required tools
+~/Repoes/linux-sgx$ sudo apt-get install build-essential ocaml ocamlbuild automake autoconf libtool wget python libssl-dev git cmake perl
+~/Repoes/linux-sgx$ sudo apt-get install libssl-dev libcurl4-openssl-dev protobuf-compiler libprotobuf-dev debhelper cmake reprepro
+// install required prebuilt binaries
+~/Repoes/linux-sgx$ ./download_prebuilt.sh
+~/Repoes/linux-sgx$ sudo cp external/toolset/{as,ld,ld.gold,objdump} /usr/local/bin
+// build sgx sdk installer
+~/Repoes/linux-sgx$ make sdk_install_pkg
+// install sgx sdk
+// suggest: set the install directory as /opt/
+~/Repoes/linux-sgx$ sudo ./linux/installer/bin/sgx_linux_x64_sdk_2.9.101.2.bin
+~/Repoes/linux-sgx$ sudo chown -R hadoop.root /opt/sgxsdk
+~/Repoes/linux-sgx$ sudo nano /etc/profile
+
+        export SGX_SDK=/opt/sgxsdk
+        export PATH=$PATH:$SGX_SDK/bin:$SGX_SDK/bin/x64
+        export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:$SGX_SDK/pkgconfig
+
+~/Repoes/linux-sgx$ sudo touch /etc/ld.so.conf.d/sgx.conf
+~/Repoes/linux-sgx$ sudo nano /etc/ld.so.conf.d/sgx.conf
+
+        # sgx libs configuration
+        /opt/sgxsdk/sdk_libs
+
+~/Repoes/linux-sgx$ source /etc/profile
 ```
 
