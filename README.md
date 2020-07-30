@@ -128,7 +128,7 @@ The following steps show how to build a development environment for QShield.
 ```
 ~/Repoes$ sudo apt-get remove libsgx-launch libsgx-epid libsgx-quote-ex libsgx-urts
 ```
-**5.** Setting Hadoop development environment
+**6.** Setting Hadoop development environment
 - install java sdk
 ```
 ~$ cd Repoes
@@ -238,4 +238,52 @@ The following steps show how to build a development environment for QShield.
 
 // stop hdfs:
 ~/Repoes$ stop-all.sh
+```
+**7.** Setting SBT development environment
+```
+~$ cd Repoes
+~/Repoes$ git clone git@gitee.com:fishermano/sbt-0.13.17.git
+~/Repoes$ sudo cp -R sbt-0.13.17/ /opt
+
+// configure sbt
+~/Repoes$ sudo nano /etc/profile
+
+    export SBT_HOME=/opt/sbt-0.13.17
+    export PATH=$SBT_HOME/bin:$PATH
+
+~/Repoes$ source /etc/profile
+
+// configure sbt console to show current project module:
+~$ touch ~/.sbt/0.13/global.sbt
+~$ nano ~/.sbt/0.13/global.sbt
+
+    import scala.Console.{BLUE, RESET, UNDERLINED}
+    shellPrompt := { state =>
+       val projectId = Project.extract(state).currentProject.id
+       s"$BLUE sbt ($projectId)>$RESET "
+    }
+
+// configure sbt repository:
+~$ touch ~/.sbt/repositories
+~$ nano ~/.sbt/repositories
+
+     [repositories]
+     local
+     aliyun-central: https://maven.aliyun.com/repository/central
+     aliyun-google: https://maven.aliyun.com/repository/google
+     aliyun-gradle-plugin: https://maven.aliyun.com/repository/gradle-plugin
+     aliyun-jcenter: https://maven.aliyun.com/repository/jcenter
+     aliyun-spring: https://maven.aliyun.com/repository/spring
+     aliyun-spring-plugin: https://maven.aliyun.com/repository/spring-plugin
+     aliyun-public: https://maven.aliyun.com/repository/public
+     aliyun-releases: https://maven.aliyun.com/repository/releases
+     aliyun-grails-core: https://maven.aliyun.com/repository/grails-core
+     huaweicloud-maven: https://repo.huaweicloud.com/repository/maven/
+     maven-central: https://repo1.maven.org/maven2/
+     sbt-plugin-repo: https://repo.scala-sbt.org/scalasbt/sbt-plugin-releases, [organization]/[module]/(scala_[scalaVersion]/)(sbt_[sbtVersion]/)[revision]/[type]s/[artifact](-[classifier]).[ext]
+
+$ sudo nano /opt/sbt-0.13.17/conf/sbtopts
+
+     -Dsbt.override.build.repos=true
+
 ```
