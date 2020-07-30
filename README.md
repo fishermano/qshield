@@ -123,8 +123,8 @@ The following steps show how to build a development environment for QShield.
 
 // install sgx psw [algorithm agnostic attestation service]:
 ~/Repoes$ sudo apt-get install libsgx-quote-ex libsgx-urts
-
+```
 - uninstall sgx psw:
+```
 ~/Repoes$ sudo apt-get remove libsgx-launch libsgx-epid libsgx-quote-ex libsgx-urts
 ```
-
