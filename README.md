@@ -239,7 +239,7 @@ The following steps show how to build a development environment for QShield.
 // stop hdfs:
 ~/Repoes$ stop-all.sh
 ```
-**7.** Setting SBT development environment
+**7.** Setting sbt development environment
 ```
 ~$ cd Repoes
 ~/Repoes$ git clone git@gitee.com:fishermano/sbt-0.13.17.git
@@ -253,7 +253,7 @@ The following steps show how to build a development environment for QShield.
 
 ~/Repoes$ source /etc/profile
 
-// configure sbt console to show current project module:
+// configure sbt console to show current project module
 ~$ touch ~/.sbt/0.13/global.sbt
 ~$ nano ~/.sbt/0.13/global.sbt
 
@@ -263,7 +263,7 @@ The following steps show how to build a development environment for QShield.
        s"$BLUE sbt ($projectId)>$RESET "
     }
 
-// configure sbt repository:
+// configure sbt repository
 ~$ touch ~/.sbt/repositories
 ~$ nano ~/.sbt/repositories
 
@@ -287,3 +287,93 @@ $ sudo nano /opt/sbt-0.13.17/conf/sbtopts
      -Dsbt.override.build.repos=true
 
 ```
+**8.** Setting maven development environment
+```
+~$ sudo apt-get install maven
+
+// configure maven
+~/Repoes$ sudo nano /etc/profile
+
+     export MAVEN_HOME=/usr/share/maven
+     export MAVEN_OPTS="-Xmx2048m"
+
+~/Repoes$ source /etc/profile
+```
+**9.** Setting scala development environment
+```
+~$ cd Repoes
+~/Repoes$ git clone git@gitee.com:fishermano/scala-2.11.12.git
+~/Repoes$ sudo cp -R scala-2.11.12/ /opt
+
+// configure scala:
+~/Repoes$ sudo nano /etc/profile
+
+     export SCALA_HOME=/opt/scala-2.11.12
+     export PATH=$SCALA_HOME/bin:$PATH
+
+~/Repoes$ source /etc/profile
+```
+**10.** Setting Spark development environment
+```
+~$ git clone git@gitee.com:fishermano/spark-2.4.5.git
+```
+- compile spark core module
+```
+~$ cd spark-2.4.5
+~/spark-2.4.5$ mvn package -Pyarn -Phadoop-3.1 -DskipTests -pl core
+```
+- compile spark sql/core sql/catalyst modules
+```
+~/spark-2.4.5$ mvn package -Pyarn -Phadoop-3.1 -DskipTests -pl sql/catalyst,sql/core
+```
+- compile spark and produce a distribution
+```
+~/spark-2.4.5$ ./dev/make-distribution.sh --name custom-spark --tgz -Phadoop-3.1 -DskipTests
+```
+- install spark
+```
+~/spark-2.4.5$ sudo tar -zxvf spark-2.4.5-bin-custom-spark.tgz -C /opt/
+~/spark-2.4.5$ cd /opt
+/opt$ sudo chown -R hadoop.root spark-2.4.5-bin-custom-spark/
+
+// configure spark-env.sh
+/opt$ cd spark-2.4.5-bin-custom-spark/conf
+/opt/spark-2.4.5-bin-custom-spark/conf$ cp spark-env.sh.template spark-env.sh
+/opt/spark-2.4.5-bin-custom-spark/conf$ nano spark-env.sh
+
+    export JAVA_HOME=/opt/jdk1.8.0_151
+    export HADOOP_HOME=/opt/hadoop-3.1.0
+    export HADOOP_CONF_DIR=/opt/hadoop-3.1.0/etc/hadoop
+    export YARN_CONF_DIR=/opt/hadoop-3.1.0/etc/hadoop
+    export SPARK_MASTER_IP={the name of your host}
+    export SPARK_LOCAL_IP=127.0.1.1
+    export SPARK_WORKER_MEMORY=8g
+    export SPARK_HOME=/opt/spark-2.4.5-bin-custom-spark
+    export SPARK_LOCAL_DIRS=/opt/spark-2.4.5-bin-custom-spark/tmp
+    export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HADOOP_HOME/lib/native
+
+// configure /etc/hosts
+~$ sudo nano /etc/hosts
+
+    127.0.1.1 {the name of your host}
+
+// configure slaves (stand-alone)
+/opt/spark-2.4.5-bin-custom-spark/conf$ cp slaves.template slaves
+/opt/spark-2.4.5-bin-custom-spark/conf$ nano slaves
+
+    localhost
+
+// configure log4j.properties (hide inessential information output to console)
+/opt/spark-2.4.5-bin-custom-spark/conf$ cp log4j.properties.template log4j.properties
+/opt/spark-2.4.5-bin-custom-spark/conf$ nano log4j.properties
+
+    [replacing all 'INFO' with 'WARN']
+
+// configure /etc/profile
+~$ sudo nano /etc/profile
+
+    export SPARK_HOME=/opt/spark-2.4.5-bin-custom-spark
+    export PATH=$SPARK_HOME/bin:$SPARK_HOME/sbin:$PATH
+
+~$ source /etc/profile
+``` 
