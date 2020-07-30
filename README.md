@@ -164,3 +164,78 @@ The following steps show how to build a development environment for QShield.
 
 ~/Repoes$ source /etc/profile
 ```
+- run hadoop
+```
+// configure core-site.xml
+~/Repoes$ sudo nano /opt/hadoop-3.1.0/etc/hadoop/core-site.xml
+
+    <configuration>
+　　    <property>
+　　　　　　<name>hadoop.tmp.dir</name>
+　　　　　　<value>file:/opt/hadoop-3.1.0/tmp</value>
+　　　　　　<description>Abase for other temporary directories.
+　　　　　　</description>
+　　    </property>
+　　    <property>
+　　　　　　<name>fs.defaultFS</name>
+　　　　　  <value>hdfs://localhost:9000</value>
+　　    </property>
+    </configuration>
+
+// configure hadoop-env.sh
+~/Repoes$ sudo nano /opt/hadoop-3.1.0/etc/hadoop/hadoop-env.sh
+
+    export JAVA_HOME=/opt/jdk1.8.0_151
+    export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HADOOP_COMMON_LIB_NATIVE_DIR
+
+// configure hdfs-site.xml
+~/Repoes$ sudo nano /opt/hadoop-3.1.0/etc/hadoop/hdfs-site.xml
+
+    <configuration>
+       <property>
+          <name>dfs.replication</name>
+          <value>1</value>
+       </property>
+       <property>
+          <name>dfs.namenode.name.dir</name>
+          <value>file:/opt/hadoop-3.1.0/tmp/dfs/name</value>
+       </property>
+       <property>
+          <name>dfs.datanode.data.dir</name>
+          <value>file:/opt/hadoop-3.1.0/tmp/dfs/data</value>
+       </property>
+       <property>
+          <name>dfs.http.address</name>
+          <value>0.0.0.0:9870</value>
+       </property>
+    </configuration>
+
+// configure yarn-site.xml
+~/Repoes$ sudo nano /opt/hadoop-3.1.0/etc/hadoop/yarn-site.xml
+
+    <configuration>
+       <property>
+         <name>yarn.nodemanager.aux-services</name>
+         <value>mapreduce_shuffle</value>
+       </property>
+    </configuration>
+
+// configure mapred-site.xml
+~/Repoes$ sudo nano /opt/hadoop-3.1.0/etc/hadoop/mapred-site.xml
+
+    <configuration>
+      <property>
+         <name>mapreduce.framework.name</name>
+         <value>yarn</value>
+      </property>
+    </configuration>
+
+// format namenode
+~/Repoes$ hdfs namenode -format
+
+// start hdfs:
+~/Repoes$ start-dfs.sh
+
+// stop hdfs:
+~/Repoes$ stop-all.sh
+```
