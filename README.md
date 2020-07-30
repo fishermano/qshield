@@ -466,3 +466,22 @@ $ sudo nano /opt/sbt-0.13.17/conf/sbtopts
 ~/qshield$ ./build/sbt
 sbt (root)> package
 ```
+
+#### TEST
+**1.** run test cases
+```
+~/qshield$ ./build/sbt
+sbt (root)> project opaqueExt
+sbt (opaqueExt)> test
+```
+**2.** run in web mode
+- start a qshield service
+```
+~/qshield$ ./qshield
+```
+- run a data user instance
+```
+~/qshield$ ./build/sbt
+sbt (root)> project dataUser
+sbt (dataUser)> run
+```
