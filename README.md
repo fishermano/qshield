@@ -8,6 +8,8 @@ This project implements a prototype for QShield, a secure query system introduce
 #### SETUP
 The following steps show how to build a development environment for QShield.
 
+Required OS: Ubuntu 16.04 18.04
+
 **1.** Creating a hadoop user account
 ```
 ~$ sudo adduser hadoop
