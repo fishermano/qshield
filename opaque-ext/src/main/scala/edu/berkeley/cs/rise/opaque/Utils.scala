@@ -494,7 +494,7 @@ object Utils extends Logging {
           tuix.FieldUnion.BinaryField,
           tuix.BinaryField.createBinaryField(
             builder,
-            tuix.BinaryField.createValueVector(builder, Array.empty),
+            tuix.BinaryField.createValueVector(builder, Array.empty[Byte]),
             0),
           isNull)
       case (x: Byte, ByteType) =>
@@ -625,7 +625,7 @@ object Utils extends Logging {
           tuix.StringField.createStringField(
             builder,
             // TODO: pad strings to upper bound for obliviousness
-            tuix.StringField.createValueVector(builder, Array.empty),
+            tuix.StringField.createValueVector(builder, Array.empty[Byte]),
             0),
           isNull)
     }

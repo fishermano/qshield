@@ -2,7 +2,7 @@ sparkVersion := "2.4.5"
 
 sparkComponents ++= Seq("core", "sql", "catalyst")
 
-val flatbuffersVersion = "1.7.0"
+val flatbuffersVersion = "master"
 
 val flatbuffersGenJavaDir = SettingKey[File]("flatbuffersGenJavaDir",
   "Location of Flatbuffers generated Java files.")

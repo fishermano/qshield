@@ -6,7 +6,7 @@ libraryDependencies += "org.scalanlp" %% "breeze" % "0.13.2"
 
 libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.5" % "test"
 
-val flatbuffersVersion = "1.7.0"
+val flatbuffersVersion = "master"
 
 concurrentRestrictions in Global := Seq(Tags.limit(Tags.Test, 1))
 

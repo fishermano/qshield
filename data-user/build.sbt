@@ -1,7 +1,7 @@
 libraryDependencies +=  "org.scalaj" %% "scalaj-http" % "2.4.2"
 libraryDependencies += "com.alibaba" % "fastjson" % "1.2.70"
 
-val flatbuffersVersion = "1.7.0"
+val flatbuffersVersion = "master"
 
 val flatbuffersGenJavaDir = SettingKey[File]("flatbuffersGenJavaDir",
   "Location of Flatbuffers generated Java files.")

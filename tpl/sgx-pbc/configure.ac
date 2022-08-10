@@ -68,17 +68,17 @@ AC_SUBST(PBC_WITH_DEBUG)
 
 SGX_INIT()
 
-lib_err_msg="add its path to LDFLAGS\nsee ./configure --help"
-SGX_TSTDC_CHECK_LIB([m], [pow], [], [
-                  echo "************************"
-                  echo "m library not found"
-                  echo -e $lib_err_msg
-                  echo "************************"
-                  exit -1
-                  ])
+#lib_err_msg="add its path to LDFLAGS\nsee ./configure --help"
+#SGX_TSTDC_CHECK_LIB([m], [pow], [], [
+#                  echo "************************"
+#                  echo "m library not found"
+#                 echo -e $lib_err_msg
+#                  echo "************************"
+#                  exit -1
+#                  ])
 
-SGX_TSTDC_CHECK_HEADERS([stdlib.h string.h sys/time.h])
-SGX_TSTDC_CHECK_FUNCS([floor gettimeofday memmove memset pow sqrt strchr strdup])
+#SGX_TSTDC_CHECK_HEADERS([stdlib.h string.h sys/time.h])
+#SGX_TSTDC_CHECK_FUNCS([floor gettimeofday memmove memset pow sqrt strchr strdup])
 
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_FILES([Makefile])
