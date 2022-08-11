@@ -1,4 +1,4 @@
-# QShield
+# QShield 
 
 #### INTRODUCTION
 This project implements a prototype for QShield, a secure query system introduced by the TPDS paper entitled "QShield: Protecting Outsourced Cloud Data Queries with Multi-user Access Control Based on SGX".
@@ -378,7 +378,7 @@ $ sudo nano /opt/sbt-0.13.17/conf/sbtopts
     export PATH=$SPARK_HOME/bin:$SPARK_HOME/sbin:$PATH
 
 ~$ source /etc/profile
-``` 
+```
 **11.** Setting pyspark development environement
 - update pip3 source mirror
 ```
