@@ -13,6 +13,8 @@ PORT = configs.server.port
 from coroweb import add_routes, add_static
 from tools import MyJsonEncoder
 
+import six # required by mkl-service module
+
 import orm
 import handlers
 
