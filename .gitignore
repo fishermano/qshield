@@ -16,6 +16,9 @@ tpl/sgx-pbc/ecc/.deps/
 tpl/sgx-pbc/ecc/.dirstamp
 tpl/sgx-pbc/misc/.deps/
 tpl/sgx-pbc/misc/.dirstamp
+tpl/sgx-pbc/libsgx_tpbc.a
+tpl/e-scheme/libsgx_tescheme.a
+
 
 exp/dag/build
 exp/dag/install
