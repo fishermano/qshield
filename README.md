@@ -1,4 +1,4 @@
-# QShield 
+# QShield
 
 #### INTRODUCTION
 This project implements a prototype for QShield, a secure query system introduced by the TPDS paper entitled "QShield: Protecting Outsourced Cloud Data Queries with Multi-user Access Control Based on SGX".
