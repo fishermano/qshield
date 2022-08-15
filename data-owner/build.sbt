@@ -2,7 +2,7 @@ sparkVersion := "2.4.5"
 
 sparkComponents ++= Seq("core", "sql", "catalyst")
 
-val flatbuffersVersion = "master"
+val flatbuffersVersion = "1.7.0"
 
 val flatbuffersGenJavaDir = SettingKey[File]("flatbuffersGenJavaDir",
   "Location of Flatbuffers generated Java files.")
@@ -63,7 +63,8 @@ fetchFlatbuffersLibTask := {
       "-DFLATBUFFERS_BUILD_TESTS=OFF",
       "-DFLATBUFFERS_BUILD_FLATLIB=OFF",
       "-DFLATBUFFERS_BUILD_FLATHASH=OFF",
-      "-DFLATBUFFERS_BUILD_FLATC=ON"), flatbuffersSource).! != 0
+      "-DFLATBUFFERS_BUILD_FLATC=ON",
+      "-DCMAKE_CXX_FLAGS=-Wno-ignored-qualifiers"), flatbuffersSource).! != 0
       || Process(Seq("make", "-j" + nproc), flatbuffersSource).! != 0) {
       sys.error("Flatbuffers library build failed.")
     }

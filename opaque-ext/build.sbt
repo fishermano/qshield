@@ -6,7 +6,7 @@ libraryDependencies += "org.scalanlp" %% "breeze" % "0.13.2"
 
 libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.5" % "test"
 
-val flatbuffersVersion = "master"
+val flatbuffersVersion = "1.7.0"
 
 concurrentRestrictions in Global := Seq(Tags.limit(Tags.Test, 1))
 
@@ -162,7 +162,8 @@ fetchFlatbuffersLibTask := {
       "-DFLATBUFFERS_BUILD_TESTS=OFF",
       "-DFLATBUFFERS_BUILD_FLATLIB=OFF",
       "-DFLATBUFFERS_BUILD_FLATHASH=OFF",
-      "-DFLATBUFFERS_BUILD_FLATC=ON"), flatbuffersSource).! != 0
+      "-DFLATBUFFERS_BUILD_FLATC=ON",
+      "-DCMAKE_CXX_FLAGS=-Wno-ignored-qualifiers"), flatbuffersSource).! != 0
       || Process(Seq("make", "-j" + nproc), flatbuffersSource).! != 0) {
       sys.error("Flatbuffers library build failed.")
     }
