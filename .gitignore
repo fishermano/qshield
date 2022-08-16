@@ -18,6 +18,7 @@ tpl/sgx-pbc/misc/.deps/
 tpl/sgx-pbc/misc/.dirstamp
 tpl/sgx-pbc/libsgx_tpbc.a
 tpl/e-scheme/libsgx_tescheme.a
+rest-apis/conf/config_override.py
 
 
 exp/dag/build
