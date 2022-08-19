@@ -7,9 +7,11 @@ This project implements a prototype for QShield, a secure query system introduce
 
 **Branches:**
 - master (work-in-progress)
+
 QShield (base) with tpoa algorithm
 
 - v1 - v3
+
 QShield with secret share mechanism and trust proof mechanism (base)
 
 #### SETUP
