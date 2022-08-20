@@ -24,7 +24,7 @@ def init_sql_ra_context(**kw):
     global __sqlContext
 
     try:
-        __config = SparkConf().setAll([('spark.jars', kw.get('jars','opaque-ext_2.11-0.1.jar,data-owner_2.11-0.1.jar')), ('spark.debug.maxToStringFields', '1000'), ('spark.driver.memory', '2g'), ('spark.executor.memory', '8g')])
+        __config = SparkConf().setAll([('spark.jars', kw.get('jars','qshield-core_2.11-0.4.jar,data-owner_2.11-0.4.jar')), ('spark.debug.maxToStringFields', '1000'), ('spark.driver.memory', '2g'), ('spark.executor.memory', '8g')])
         __spark = SparkSession.builder.appName(kw.get('app_name', 'qshield')).master(kw.get('master', 'localhost')).config(conf=__config).getOrCreate()
         __sqlContext = SQLContext(__spark.sparkContext)
 

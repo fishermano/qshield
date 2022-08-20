@@ -2,7 +2,7 @@
 
 block_cipher = None
 
-SETUP_DIR = '/home/sgx/repoes/qshield/rest-apis/'
+SETUP_DIR = '/home/sgx/repoes/qshield/rest/'
 
 a = Analysis(['app.py',
               'apis.py',
@@ -19,7 +19,7 @@ a = Analysis(['app.py',
               SETUP_DIR + 'models/qshield/orm.py',
               SETUP_DIR + 'timers/BaseTimer.py',
               SETUP_DIR + 'timers/PipelineTimer.py'],
-             pathex=['/home/sgx/repoes/qshield/rest-apis'],
+             pathex=['/home/sgx/repoes/qshield/rest'],
              binaries=[],
              datas=[],
              hiddenimports=['models', 'orm', 'timers', 'conf'],

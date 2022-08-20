@@ -42,8 +42,8 @@ add_custom_command(
   OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/Enclave_t.c)
 
 add_custom_command(
-  COMMAND ../../../../data-owner/target/native/keygen ${CMAKE_CURRENT_BINARY_DIR}/key.cpp
-  DEPENDS ../../../../data-owner/target/native/keygen
+  COMMAND ../../../../owner/target/native/keygen ${CMAKE_CURRENT_BINARY_DIR}/key.cpp
+  DEPENDS ../../../../owner/target/native/keygen
   OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/key.cpp)
 
 include_directories(SYSTEM "$ENV{SGX_SDK}/include/libcxx")
