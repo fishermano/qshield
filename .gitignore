@@ -7,8 +7,6 @@ rest/build
 rest/dist
 rest/conf/config_override.py
 
-tmp/
-
 /qshield
 
 private_key.pem
