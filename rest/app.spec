@@ -44,5 +44,5 @@ exe = EXE(pyz,
           strip=False,
           upx=True,
           upx_exclude=[],
-          runtime_tmpdir=None,
+          runtime_tmpdir='./tmp',
           console=True )

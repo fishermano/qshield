@@ -110,9 +110,6 @@ cleanRestApisTask := {
   val confCacheDir = baseDirectory.value / "rest" / "conf" / "__pycache__"
   val modelCacheDir = baseDirectory.value / "rest" / "models" / "qshield" / "__pycache__"
   val timersCacheDir = baseDirectory.value / "rest" / "timers" / "__pycache__"
-  val rootProjTargetDir = baseDirectory.value / "project" / "target"
-  val rootProjProjectDir = baseDirectory.value / "project" / "project"
-  val rootTargetDir = baseDirectory.value / "target"
   if (restApisGenRunableScriptTask.value.exists) IO.delete(restApisGenRunableScriptTask.value)
   if (bootstrapScriptBuildDir.exists) IO.delete(bootstrapScriptBuildDir)
   if (bootstrapScriptDistDir.exists) IO.delete(bootstrapScriptDistDir)
@@ -120,7 +117,4 @@ cleanRestApisTask := {
   if (confCacheDir.exists) IO.delete(confCacheDir)
   if (modelCacheDir.exists) IO.delete(modelCacheDir)
   if (timersCacheDir.exists) IO.delete(timersCacheDir)
-  if (rootTargetDir.exists) IO.delete(rootTargetDir)
-  if (rootProjTargetDir.exists) IO.delete(rootProjTargetDir)
-  if (rootProjProjectDir.exists) IO.delete(rootProjProjectDir)
 }
