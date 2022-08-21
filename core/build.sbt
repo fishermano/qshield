@@ -1,12 +1,18 @@
-sparkVersion := "2.4.5"
+/**
+ * build configuration for qshield-core project
+ * @author Yaxing Chen
+ * @version 0.0.4
+ */
 
+ /**
+  * spark modules used in project
+  * @see sbt-spark plugin
+  */
 sparkComponents ++= Seq("core", "sql", "catalyst")
 
 libraryDependencies += "org.scalanlp" %% "breeze" % "0.13.2"
 
 libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.5" % "test"
-
-val flatbuffersVersion = "1.7.0"
 
 concurrentRestrictions in Global := Seq(Tags.limit(Tags.Test, 1))
 
@@ -130,21 +136,15 @@ sgxGdbTask := {
 }
 
 fetchFlatbuffersLibTask := {
-  val flatbuffersSource = target.value / "flatbuffers" / s"flatbuffers-$flatbuffersVersion"
+  val flatbuffersSource = target.value / "flatbuffers" / (s"flatbuffers-" + flatbuffersVersion.value)
   if (!flatbuffersSource.exists) {
-    // Fetch flatbuffers from Github
-    // streams.value.log.info(s"Fetching Flatbuffers")
-    // val flatbuffersUrl = new java.net.URL(
-    //  s"https://github.com/google/flatbuffers/archive/v$flatbuffersVersion.zip")
-    // IO.unzipURL(flatbuffersUrl, flatbuffersSource.getParentFile)
-
     // Fetch flatbuffers from local resource
     streams.value.log.info(s"Fetching Flatbuffers")
-    val flatbuffersLoc = baseDirectory.value / "src" / "deps" / s"flatbuffers-$flatbuffersVersion.zip"
+    val flatbuffersLoc = baseDirectory.value / "src" / "deps" / (s"flatbuffers-" + flatbuffersVersion.value + ".zip")
     if (!flatbuffersLoc.exists) {
       // Fetch flatbuffers from Github
       val flatbuffersUrl = new java.net.URL(
-        s"https://github.com/google/flatbuffers/archive/v$flatbuffersVersion.zip")
+        s"https://github.com/google/flatbuffers/archive/v" + flatbuffersVersion.value + ".zip")
       IO.unzipURL(flatbuffersUrl, flatbuffersSource.getParentFile)
     }else{
       IO.unzip(flatbuffersLoc, flatbuffersSource.getParentFile)

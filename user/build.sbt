@@ -1,8 +1,6 @@
 libraryDependencies +=  "org.scalaj" %% "scalaj-http" % "2.4.2"
 libraryDependencies += "com.alibaba" % "fastjson" % "1.2.70"
 
-val flatbuffersVersion = "1.7.0"
-
 val flatbuffersGenJavaDir = SettingKey[File]("flatbuffersGenJavaDir",
   "Location of Flatbuffers generated Java files.")
 
@@ -19,15 +17,15 @@ val buildFlatbuffersTask = TaskKey[Seq[File]]("buildFlatbuffers",
 sourceGenerators in Compile += buildFlatbuffersTask.taskValue
 
 fetchFlatbuffersLibTask := {
-  val flatbuffersSource = target.value / "flatbuffers" / s"flatbuffers-$flatbuffersVersion"
+  val flatbuffersSource = target.value / "flatbuffers" / (s"flatbuffers-" + flatbuffersVersion.value)
   if (!flatbuffersSource.exists) {
     // Fetch flatbuffers from local resource
     streams.value.log.info(s"Fetching Flatbuffers")
-    val flatbuffersLoc = baseDirectory.value / "src" / "deps" / s"flatbuffers-$flatbuffersVersion.zip"
+    val flatbuffersLoc = baseDirectory.value / "src" / "deps" / (s"flatbuffers-" + flatbuffersVersion.value + ".zip")
     if (!flatbuffersLoc.exists) {
       // Fetch flatbuffers from Github
       val flatbuffersUrl = new java.net.URL(
-        s"https://github.com/google/flatbuffers/archive/v$flatbuffersVersion.zip")
+        s"https://github.com/google/flatbuffers/archive/v" + flatbuffersVersion.value + ".zip")
       IO.unzipURL(flatbuffersUrl, flatbuffersSource.getParentFile)
     }else{
       IO.unzip(flatbuffersLoc, flatbuffersSource.getParentFile)
