@@ -4,6 +4,18 @@
  * @version 0.0.4
  */
 
+ /**
+  * define build type
+  */
+val buildType = SettingKey[BuildType]("buildType",
+ "Release, Debug, or Profile.")
+buildType := Release
+
+ /**
+  * re-define baseDirectory used in nativeBuildTask
+  */
+baseDirectory in nativeBuildTask := (baseDirectory in ThisBuild).value
+
 /**
  * spark modules used in project
  * @see sbt-spark plugin
@@ -96,13 +108,6 @@ buildFlatbuffersTask := {
 sourceGenerators in Compile += buildFlatbuffersTask.taskValue
 
 /**
- * define buildType for JNI build
- */
-val buildType = SettingKey[BuildType]("buildType",
-  "Release, Debug, or Profile.")
-buildType := Release
-
-/**
  * define a task to build natice C++ code by JNI
  * @return c shared library directory
  */
@@ -126,11 +131,6 @@ nativeBuildTask :={
   if (installResult != 0) sys.error("C++ build failed.")
   nativeBuildDir / "lib"
 }
-
-/**
- * re-define baseDirectory used in nativeBuildTask
- */
-baseDirectory in nativeBuildTask := (baseDirectory in ThisBuild).value
 
 /**
  * re-define compile task by making nativeBuildTask as a prerequisite
@@ -169,13 +169,7 @@ copyNativeLibrariesToResourcesTask :={
 resourceGenerators in Compile += copyNativeLibrariesToResourcesTask.taskValue
 
 /**
- * Add the managed resource directory to the resource classpath so we can find libraries at runtime
- */
-managedResourceDirectories in Compile += resourceManaged.value
-
-/**
  * define a task to collect platform-related information
- * @type {[type]}
  */
 nativePlatform := {
   try {
@@ -199,3 +193,8 @@ nativePlatform := {
       "unknown-unknown"
   }
 }
+
+/**
+ * Add the managed resource directory to the resource classpath so we can find libraries at runtime
+ */
+managedResourceDirectories in Compile += resourceManaged.value

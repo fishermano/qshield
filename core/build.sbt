@@ -4,35 +4,45 @@
  * @version 0.0.4
  */
 
+/**
+ * define build type
+ */
+val buildType = SettingKey[BuildType]("buildType",
+ "Release, Debug, or Profile.")
+buildType := Release
+
+ /**
+  * re-define baseDirectory used in enclaveBuildTask
+  */
+baseDirectory in enclaveBuildTask := (baseDirectory in ThisBuild).value
+
  /**
   * spark modules used in project
   * @see sbt-spark plugin
   */
 sparkComponents ++= Seq("core", "sql", "catalyst")
 
+/**
+ * re-assign libraryDependencies by appending additional dependencies for this subproject
+ */
 libraryDependencies += "org.scalanlp" %% "breeze" % "0.13.2"
-
 libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.5" % "test"
 
-concurrentRestrictions in Global := Seq(Tags.limit(Tags.Test, 1))
-
-fork in Test := true
-fork in run := true
-
-javaOptions in Test ++= Seq("-Xmx2048m", "-XX:ReservedCodeCacheSize=384m")
+/**
+ * Setup some sbt compiling and bootstrap parameters
+ */
+concurrentRestrictions in Global := Seq(Tags.limit(Tags.Test, 1)) // parallelism of test as 1
+fork in Test := true // test run on a new JVM
+javaOptions in Test ++= Seq("-Xmx2048m", "-XX:ReservedCodeCacheSize=384m") // test run with 2G memory and 384M code cache
+fork in run := true // run on a new JVM
 javaOptions in run ++= Seq(
-  "-Xmx2048m", "-XX:ReservedCodeCacheSize=384m", "-Dspark.master=local[1]")
+  "-Xmx2048m", "-XX:ReservedCodeCacheSize=384m", "-Dspark.master=local[1]") // run with 2G memory, 384M code cache, and spark master as local
+javaOptions ++= { if (buildType.value == Debug) Seq("-Xdebug", "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=8000") else Nil } // debug parameters
 
-javaOptions ++= { if (buildType.value == Debug) Seq("-Xdebug", "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=8000") else Nil }
-
-// Include Spark dependency for `build/sbt run`, though it is marked as "provided" for use with
-// spark-submit. From
-// https://github.com/sbt/sbt-assembly/blob/4a211b329bf31d9d5f0fae67ea4252896d8a4a4d/README.md
-run in Compile := Defaults.runTask(
-  fullClasspath in Compile,
-  mainClass in (Compile, run),
-  runner in (Compile, run)).evaluated
-
+/**
+ * Setup some scalac compiling parameters
+ * @type {[type]}
+ */
 scalacOptions ++= Seq(
   "-deprecation",
   "-encoding", "UTF-8",
@@ -48,93 +58,23 @@ scalacOptions ++= Seq(
   "-Ywarn-nullary-unit",
   "-Ywarn-unused-import"
 )
-
 scalacOptions in (Compile, console) := Seq.empty
-
 scalacOptions ++= { if (buildType.value == Debug) Seq("-g:vars") else Nil }
 
-val buildType = SettingKey[BuildType]("buildType",
-  "Release, Debug, or Profile.")
+/**
+ * Include Spark dependency for `build/sbt run`, though it is marked as "provided" for use with spark-submit. From https://github.com/sbt/sbt-assembly/blob/4a211b329bf31d9d5f0fae67ea4252896d8a4a4d/README.md
+ */
+run in Compile := Defaults.runTask(
+  fullClasspath in Compile,
+  mainClass in (Compile, run),
+  runner in (Compile, run)).evaluated
 
-buildType := Release
-
-val flatbuffersGenCppDir = SettingKey[File]("flatbuffersGenCppDir",
-  "Location of Flatbuffers generated C++ files.")
-
-flatbuffersGenCppDir := sourceManaged.value / "flatbuffers" / "gen-cpp"
-
+/**
+ * define a task to fetch flatbuffer library and build it to generate flatc executables
+ * @return flatc executables
+ */
 val fetchFlatbuffersLibTask = TaskKey[File]("fetchFlatbuffersLib",
   "Fetches and builds the Flatbuffers library, returning its location.")
-
-unmanagedSources in Compile ++= ((fetchFlatbuffersLibTask.value / "java") ** "*.java").get
-
-val buildFlatbuffersTask = TaskKey[Seq[File]]("buildFlatbuffers",
-  "Generates Java and C++ sources from Flatbuffers interface files, returning the Java sources.")
-
-sourceGenerators in Compile += buildFlatbuffersTask.taskValue
-
-val enclaveBuildTask = TaskKey[File]("enclaveBuild",
-  "Builds the C++ enclave code, returning the directory containing the resulting shared libraries.")
-
-baseDirectory in enclaveBuildTask := (baseDirectory in ThisBuild).value
-
-compile in Compile := { (compile in Compile).dependsOn(enclaveBuildTask).value }
-
-val copyEnclaveLibrariesToResourcesTask = TaskKey[Seq[File]]("copyEnclaveLibrariesToResources",
-  "Copies the enclave libraries to the managed resources directory, returning the copied files.")
-
-resourceGenerators in Compile += copyEnclaveLibrariesToResourcesTask.taskValue
-
-// Add the managed resource directory to the resource classpath so we can find libraries at runtime
-managedResourceDirectories in Compile += resourceManaged.value
-
-val fetchIntelAttestationReportSigningCACertTask = TaskKey[Seq[File]](
-  "fetchIntelAttestationReportSigningCACert",
-  "Fetches and decompresses the Intel IAS SGX Report Signing CA file, required for "
-    + "remote attestation.")
-
-resourceGenerators in Compile += fetchIntelAttestationReportSigningCACertTask.taskValue
-
-val fetchPairingParamTask = TaskKey[Seq[File]](
-  "fetchPairingParam",
-  "Fetches pairing parameters, required for "
-    + "pairing initialization.")
-
-resourceGenerators in Compile += fetchPairingParamTask.taskValue
-
-// Watch the enclave C++ files
-watchSources ++=
-  ((sourceDirectory.value / "enclave") ** (
-    ("*.cpp" || "*.c" || "*.h" || "*.tcc" || "*.edl" || "CMakeLists.txt") -- ".*")).get
-
-// Watch the Flatbuffer schemas
-watchSources ++=
-  ((sourceDirectory.value / "flatbuffers") ** "*.fbs").get
-
-val sgxGdbTask = TaskKey[Unit]("sgx-gdb-task",
-  "Runs OpaqueSinglePartitionSuite under the sgx-gdb debugger.")
-
-def sgxGdbCommand = Command.command("sgx-gdb") { state =>
-  val extracted = Project extract state
-  val newState = extracted.append(Seq(buildType := Debug), state)
-  Project.extract(newState).runTask(sgxGdbTask, newState)
-  state
-}
-
-commands += sgxGdbCommand
-
-cleanupCommands in console := "spark.stop()"
-
-sgxGdbTask := {
-  (compile in Test).value
-  Process(Seq(
-    "sgx-gdb", "java",
-    "-x",
-    ((baseDirectory in ThisBuild).value / "project" / "resources" / "run-tests.gdb").getPath),
-    None,
-    "CLASSPATH" -> (fullClasspath in Test).value.map(_.data.getPath).mkString(":")).!<
-}
-
 fetchFlatbuffersLibTask := {
   val flatbuffersSource = target.value / "flatbuffers" / (s"flatbuffers-" + flatbuffersVersion.value)
   if (!flatbuffersSource.exists) {
@@ -149,7 +89,6 @@ fetchFlatbuffersLibTask := {
     }else{
       IO.unzip(flatbuffersLoc, flatbuffersSource.getParentFile)
     }
-
   }
   val flatc = flatbuffersSource / "flatc"
   if (!flatc.exists) {
@@ -171,22 +110,35 @@ fetchFlatbuffersLibTask := {
   flatbuffersSource
 }
 
-// Flatbuffers header file generation
+/**
+ * re-assign unmangedSourced by appending java files generated by flatbuffer
+ */
+unmanagedSources in Compile ++= ((fetchFlatbuffersLibTask.value / "java") ** "*.java").get
 
+/**
+ * directory for c\c++ code generated by flatbuffer
+ * @see sourceManaged.value = ThisBuild / target / scala-2.11 / src_managed /
+ */
+val flatbuffersGenCppDir = SettingKey[File]("flatbuffersGenCppDir",
+  "Location of Flatbuffers generated C++ files.")
+flatbuffersGenCppDir := sourceManaged.value / "flatbuffers" / "gen-cpp"
+
+/**
+ * define a task to generate c\c++ sources from self-defined flatbuffer interface files
+ * @return c\c++ files corresponding to fbs files
+ */
+val buildFlatbuffersTask = TaskKey[Seq[File]]("buildFlatbuffers",
+  "Generates Java and C++ sources from Flatbuffers interface files, returning the Java sources.")
 buildFlatbuffersTask := {
   import sys.process._
-
   val flatc = fetchFlatbuffersLibTask.value / "flatc"
-
   val javaOutDir = sourceManaged.value / "flatbuffers" / "gen-java"
-
   val flatbuffers = ((sourceDirectory.value / "flatbuffers") ** "*.fbs").get
   // Only regenerate Flatbuffers headers if any .fbs file changed, indicated by their latest
   // modification time being newer than all generated headers. We do this because regenerating
   // Flatbuffers headers causes a full enclave rebuild, which is slow.
   val fbsLastMod = flatbuffers.map(_.lastModified).max
   val gen = (flatbuffersGenCppDir.value ** "*.h" +++ javaOutDir ** "*.java").get
-
   if (gen.isEmpty || fbsLastMod > gen.map(_.lastModified).max) {
     for (fbs <- flatbuffers) {
       streams.value.log.info(s"Generating flatbuffers for ${fbs}")
@@ -196,10 +148,20 @@ buildFlatbuffersTask := {
       }
     }
   }
-
   (javaOutDir ** "*.java").get
 }
 
+/**
+ * re-assign sourceGenerators by append buildFlatbuffersTask
+ */
+sourceGenerators in Compile += buildFlatbuffersTask.taskValue
+
+/**
+ * define a task to build enclave code
+ * @return enclave static library (.a)
+ */
+val enclaveBuildTask = TaskKey[File]("enclaveBuild",
+  "Builds the C++ enclave code, returning the directory containing the resulting shared libraries.")
 enclaveBuildTask := {
   buildFlatbuffersTask.value // Enclave build depends on the generated C++ headers
   import sys.process._
@@ -223,6 +185,37 @@ enclaveBuildTask := {
   enclaveBuildDir / "lib"
 }
 
+/**
+ * re-define compile task by making enclaveBuildTask as a prerequisite
+ */
+compile in Compile := { (compile in Compile).dependsOn(enclaveBuildTask).value }
+
+/**
+ * define a task to copy enclave libraries to managed resources directory
+ * @return all enclave library files
+ */
+val copyEnclaveLibrariesToResourcesTask = TaskKey[Seq[File]]("copyEnclaveLibrariesToResources",
+  "Copies the enclave libraries to the managed resources directory, returning the copied files.")
+copyEnclaveLibrariesToResourcesTask := {
+  val libraries = (enclaveBuildTask.value ** "*.so").get
+  val mappings: Seq[(File, String)] =
+    libraries pair rebase(enclaveBuildTask.value, s"/native/${nativePlatform.value}")
+  val resources: Seq[File] = for ((file, path) <- mappings) yield {
+    val resource = resourceManaged.value / path
+    IO.copyFile(file, resource)
+    resource
+  }
+  resources
+}
+
+/**
+ * re-assign resourceGenerators by append copyEnclaveLibrariesToResourcesTask
+ */
+resourceGenerators in Compile += copyEnclaveLibrariesToResourcesTask.taskValue
+
+/**
+ * define a task to collect platform-related information
+ */
 nativePlatform := {
   try {
     val lines = Process("uname -sm").lines
@@ -246,18 +239,14 @@ nativePlatform := {
   }
 }
 
-copyEnclaveLibrariesToResourcesTask := {
-  val libraries = (enclaveBuildTask.value ** "*.so").get
-  val mappings: Seq[(File, String)] =
-    libraries pair rebase(enclaveBuildTask.value, s"/native/${nativePlatform.value}")
-  val resources: Seq[File] = for ((file, path) <- mappings) yield {
-    val resource = resourceManaged.value / path
-    IO.copyFile(file, resource)
-    resource
-  }
-  resources
-}
-
+/**
+ * define a task to fetch SGX CA Cert file
+ * @return SGX CA Cert files
+ */
+val fetchIntelAttestationReportSigningCACertTask = TaskKey[Seq[File]](
+  "fetchIntelAttestationReportSigningCACert",
+  "Fetches and decompresses the Intel IAS SGX Report Signing CA file, required for "
+    + "remote attestation.")
 fetchIntelAttestationReportSigningCACertTask := {
   val cert = resourceManaged.value / "AttestationReportSigningCACert.pem"
   if (!cert.exists) {
@@ -273,6 +262,19 @@ fetchIntelAttestationReportSigningCACertTask := {
   Seq(cert)
 }
 
+/**
+ * re-assign resourceGenerators by append fetchIntelAttestationReportSigningCACertTask
+ */
+resourceGenerators in Compile += fetchIntelAttestationReportSigningCACertTask.taskValue
+
+/**
+ * define a task to fetch parameters for PBC
+ * @type {[type]}
+ */
+val fetchPairingParamTask = TaskKey[Seq[File]](
+  "fetchPairingParam",
+  "Fetches pairing parameters, required for "
+    + "pairing initialization.")
 fetchPairingParamTask := {
   val param_a = resourceManaged.value / "a.param"
   if (!param_a.exists) {
@@ -281,3 +283,55 @@ fetchPairingParamTask := {
   }
   Seq(param_a)
 }
+
+/**
+ * re-assign resourceGenerators by append fetchPairingParamTask
+ */
+resourceGenerators in Compile += fetchPairingParamTask.taskValue
+
+/**
+ * re-assign watchSources for watching enclave sources by appending enclave C++ files
+ */
+watchSources ++=
+  ((sourceDirectory.value / "enclave") ** (
+    ("*.cpp" || "*.c" || "*.h" || "*.tcc" || "*.edl" || "CMakeLists.txt") -- ".*")).get
+
+/**
+ * re-assign watchSources for watching the Flatbuffer schemas by appinding fbs files
+ */
+watchSources ++=
+  ((sourceDirectory.value / "flatbuffers") ** "*.fbs").get
+
+/**
+ * define a task to debug enclave codes
+ * @type {[type]}
+ */
+val sgxGdbTask = TaskKey[Unit]("sgx-gdb-task",
+  "Runs OpaqueSinglePartitionSuite under the sgx-gdb debugger.")
+sgxGdbTask := {
+  (compile in Test).value
+  Process(Seq(
+    "sgx-gdb", "java",
+    "-x",
+    ((baseDirectory in ThisBuild).value / "project" / "resources" / "run-tests.gdb").getPath),
+    None,
+    "CLASSPATH" -> (fullClasspath in Test).value.map(_.data.getPath).mkString(":")).!<
+}
+
+/**
+ * define a command for sgx debug
+ */
+def sgxGdbCommand = Command.command("sgx-gdb") { state =>
+  val extracted = Project extract state
+  val newState = extracted.append(Seq(buildType := Debug), state)
+  Project.extract(newState).runTask(sgxGdbTask, newState)
+  state
+}
+commands += sgxGdbCommand
+
+// cleanupCommands in console := "spark.stop()"
+
+/**
+ * Add the managed resource directory to the resource classpath so we can find libraries at runtime
+ */
+managedResourceDirectories in Compile += resourceManaged.value
