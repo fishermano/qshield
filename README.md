@@ -3,7 +3,7 @@
 #### INTRODUCTION
 This project upgrades QShield prototype, a confidential query system initially introduced by the TPDS paper entitled "QShield: Protecting Outsourced Cloud Data Queries with Multi-user Access Control Based on SGX" (DoI: 10.1109/TPDS.2020.3024880), by integrating with tpoa algorthm.
 
-![Image Text](https://gitee.com/fishermano/qshield/raw/master/dev/design/mindmap.png)
+![Image Text](https://gitee.com/fishermano/qshield/raw/master/dev/mindmap.png)
 
 **Branches:**
 - master (work-in-progress)
