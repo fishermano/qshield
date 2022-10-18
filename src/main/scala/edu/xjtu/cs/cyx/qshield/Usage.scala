@@ -15,6 +15,12 @@
  * limitations under the License.
  */
 
+/**
+ * usage specification
+ * @author Yaxing Chen
+ * @version 0.0.4
+ */
+
 package edu.xjtu.cs.cyx.qshield
 
 object Usage {
