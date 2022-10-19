@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.8)
 
-project(OpaqueEnclaveTrusted)
+project(QShieldEnclaveTrusted)
 
 set(QSHIELD_AC "1")
 set(QSHIELD_TP "0")

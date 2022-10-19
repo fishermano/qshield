@@ -165,8 +165,8 @@ val enclaveBuildTask = TaskKey[File]("enclaveBuild",
 enclaveBuildTask := {
   buildFlatbuffersTask.value // Enclave build depends on the generated C++ headers
   import sys.process._
-  val enclaveSourceDir = baseDirectory.value / "src" / "enclave"
-  val enclaveBuildDir = target.value / "enclave"
+  val enclaveSourceDir = baseDirectory.value / "src" / "native"
+  val enclaveBuildDir = target.value / "native"
   enclaveBuildDir.mkdirs()
   val cmakeResult =
     Process(Seq(
@@ -293,7 +293,7 @@ resourceGenerators in Compile += fetchPairingParamTask.taskValue
  * re-assign watchSources for watching enclave sources by appending enclave C++ files
  */
 watchSources ++=
-  ((sourceDirectory.value / "enclave") ** (
+  ((sourceDirectory.value / "native") ** (
     ("*.cpp" || "*.c" || "*.h" || "*.tcc" || "*.edl" || "CMakeLists.txt") -- ".*")).get
 
 /**
