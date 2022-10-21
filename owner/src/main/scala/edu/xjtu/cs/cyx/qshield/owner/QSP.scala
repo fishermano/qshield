@@ -15,6 +15,12 @@
  * limitations under the License.
  */
 
+ /**
+  * Define data owner class 
+  * @author Yaxing Chen
+  * @version 0.0.4
+  */
+
 package edu.xjtu.cs.cyx.qshield.owner
 
 import edu.berkeley.cs.rise.opaque.tuix
