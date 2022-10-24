@@ -1,0 +1,386 @@
+@startuml
+skinparam classAttributeIconSize 0
+
+namespace org.apache.spark.sql.execution{
+  abstract class SparkPlan
+}
+
+namespace edu.berkeley.cs.rise.opaque{
+  namespace benchmark{
+    class Benchmark << (O,orchid) Object >> {
+      + dataDir : String
+      + main(args : Array[String]) : Unit
+    }
+    class BigDataBenchmark << (O,orchid) Object >> {
+      +rankings(spark: SparkSession, securityLevel: SecurityLevel, size: String, numPartitions: Int): DataFrame
+      +uservisits(spark: SparkSession, securityLevel: SecurityLevel, size: String, numPartitions: Int): DataFrame
+      +q1(spark: SparkSession, securityLevel: SecurityLevel, size: String, numPartitions: Int): DataFrame
+      +q2(spark: SparkSession, securityLevel: SecurityLevel, size: String, numPartitions: Int): DataFrame
+      +q3(spark: SparkSession, securityLevel: SecurityLevel, size: String, numPartitions: Int): DataFrame
+    }
+    class KMeans << (O,orchid) Object >> {
+      +data(spark: SparkSession, securityLevel: SecurityLevel, numPartitions: Int, rand: Random, N: Int, D: Int): DataFrame
+      +train(spark: SparkSession, securityLevel: SecurityLevel, numPartitions: Int, N: Int, D: Int, K: Int, convergeDist: Double): Array[Array[Double]]
+    }
+    class LeastSquares << (O,orchid) Object >> {
+      +data(spark: SparkSession, securityLevel: SecurityLevel, numPartitions: Int): DataFrame
+      +query(spark: SparkSession, securityLevel: SecurityLevel, size: String, numPartitions: Int): DataFrame
+    }
+    class LogisticRegression << (O,orchid) Object >> {
+      +data(spark: SparkSession, securityLevel: SecurityLevel, numPartitions: Int, rand: Random, N: Int, D: Int, R: Double): DataFrame
+      +train(spark: SparkSession, securityLevel: SecurityLevel, N: Int, numPartitions: Int): Array[Double]
+    }
+    class PageRank << (O,orchid) Object >> {
+      +run(spark: SparkSession, securityLevel: SecurityLevel, size: String, numPartitions: Int): DataFrame
+    }
+    class TPCH << (O,orchid) Object >> {
+      -tpch9EncryptedDFs(sqlContext: SQLContext, securityLevel: SecurityLevel, size: String, numPartitions: Int): (DataFrame, DataFrame, DataFrame, DataFrame, DataFrame, DataFrame)
+      +part(sqlContext: SQLContext, securityLevel: SecurityLevel, size: String, numPartitions: Int): DataFrame
+      +supplier(sqlContext: SQLContext, securityLevel: SecurityLevel, size: String, numPartitions: Int): DataFrame
+      +lineitem(sqlContext: SQLContext, securityLevel: SecurityLevel, size: String, numPartitions: Int): DataFrame
+      +partsupp(sqlContext: SQLContext, securityLevel: SecurityLevel, size: String, numPartitions: Int): DataFrame
+      +orders(sqlContext: SQLContext, securityLevel: SecurityLevel, size: String, numPartitions: Int): DataFrame
+      +nation(sqlContext: SQLContext, securityLevel: SecurityLevel, size: String, numPartitions: Int): DataFrame
+      +tpch9(sqlContext: SQLContext, securityLevel: SecurityLevel, size: String, numPartitions: Int, quantityThreshold: Option[Int] = None): DataFrame
+    }
+    interface SecurityLevel <<sealed trait>> {
+      +name: String
+      +applyTo[T](df: DataFrame): DataFrame
+    }
+    class Encrypted << (O,orchid) Object >> {
+      +name: String <i><color:grey>default="encrypted"</color></i>
+      +applyTo[T](df: DataFrame): DataFrame
+    }
+    class Insecure << (O,orchid) Object >> {
+      +name: String <i><color:grey>default="spark sql"</color></i>
+      +applyTo[T](df: DataFrame): DataFrame
+    }
+  }
+
+  namespace execution{
+    interface LeafExecNode <<trait>>{
+      +child: Seq[SparkPlan] <i><color:grey>default=Nil</color></i>
+      +producedAttributes: AttributeSet <i><color:grey>default=outputSet</color></i>
+    }
+    interface UnaryExecNode <<trait>>{
+      +child: SparkPlan
+      +children: Seq[SparkPlan] <i><color:grey>default=child :: Nil</color></i>
+      +outputPartitioning: Partitioning <i><color:grey>default=child.outputPartitioning</color></i>
+    }
+    interface BinaryExecNode <<trait>>{
+      +left: SparkPlan
+      +right: SparkPlan
+      +children: Seq[SparkPlan] <i><color:grey>default=Seq[left,right]</color></i>
+    }
+    interface OpaqueOperatorExec <<trait>>{
+      +executeBlocked(): RDD[Block]
+      +timeOperator[A](childRDD: RDD[A], desc: String)(f: RDD[A] => RDD[Block]): RDD[Block]
+      +doExecute(): RDD[InternalRow]
+      +executeCollect(): Array[InternalRow]
+      +executeTake(n: Int): Array[InternalRow]
+    }
+    class Block <<Serializable>>{
+      +bytes: Array[Byte]
+    }
+    class EncryptedLocalTableScanExec{
+      -unsafeRows: Array[InternalRow]
+      EncryptedLocalTableScanExec(output: Seq[Attribute], plaintextData: Seq[InternalRow])
+      +executeBlocked(): RDD[Block]
+    }
+    class EncryptExec{
+      +output: Seq[Attribute]
+      EncryptExec(child: SparkPlan)
+      +executeBlocked(): RDD[Block]
+    }
+    class EncryptedBlockRDDScanExec{
+      EncryptedBlockRDDScanExec(output: Seq[Attribute], rdd: RDD[Block])
+      +executeBlocked(): RDD[Block]
+    }
+    class EncryptedProjectExec{
+      +output: Seq[Attribute]
+      EncryptedProjectExec(projectList: Seq[NamedExpression], child: SparkPlan)
+      +executeBlocked(): RDD[Block]
+    }
+    class EncryptedFilterExec{
+      +output: Seq[Attribute]
+      EncryptedFilterExec(condition: Expression, child: SparkPlan)
+      +executeBlocked(): RDD[Block]
+    }
+    class EncryptedAggregateExec{
+      +producedAttributes: AttributeSet
+      +output: Seq[Attribute]
+      EncryptedAggregateExec(groupingExpressions: Seq[Expression], aggExpressions: Seq[NamedExpression], child: SparkPlan)
+      +executeBlocked(): RDD[Block]
+    }
+    class EncryptedSortMergeJoinExec{
+      EncryptedSortMergeJoinExec(joinType: JoinType, leftKeys: Seq[Expression], rightKeys: Seq[Expression], leftSchema: Seq[Attribute], rightSchema: Seq[Attribute],output: Seq[Attribute], child: SparkPlan)
+      +executeBlocked(): RDD[Block]
+    }
+    class EncryptedUnionExec{
+      +output: Seq[Attribute]
+      EncryptedUnionExec(left: SparkPlan, right: SparkPlan)
+      +executeBlocked(): RDD[Block]
+    }
+    class EncryptedSortExec{
+      +output: Seq[Attribute]
+      EncryptedSortExec(order: Seq[SortOrder], child: SparkPlan)
+      +executeBlocked(): RDD[Block]
+    }
+    class SGXEnclave <<Serializable>><<Java Native Interface>>{
+      +StartEnclave(libraryPath: String): Long
+      +StopEnclave(enclaveId: Long): Unit
+      +RemoteAttestation0(eid: Long): Array[Byte]
+      +RemoteAttestation1(eid: Long): Array[Byte]
+      +RemoteAttestation2(eid: Long, msg2Input: Array[Byte]): Array[Byte]
+      +RemoteAttestation3(eid: Long, attResultInput: Array[Byte]): Unit
+      +Project(eid: Long, condition: Array[Byte], input: Array[Byte]): Array[Byte]
+      +Filter(eid: Long, condition: Array[Byte], input: Array[Byte]): Array[Byte]
+      +Encrypt(eid: Long, plaintext: Array[Byte]): Array[Byte]
+      +Decrypt(eid: Long, ciphertext: Array[Byte]): Array[Byte]
+      +Sample(eid: Long, input: Array[Byte]): Array[Byte]
+      +FindRangeBounds(eid: Long, order: Array[Byte], numPartitions: Int, input: Array[Byte]): Array[Byte]
+      +PartitionForSort(eid: Long, order: Array[Byte], numPartitions: Int, input: Array[Byte],boundaries: Array[Byte]): Array[Array[Byte]]
+      +ExternalSort(eid: Long, order: Array[Byte], input: Array[Byte]): Array[Byte]
+      +ScanCollectLastPrimary(eid: Long, joinExpr: Array[Byte], input: Array[Byte]): Array[Byte]
+      +NonObliviousSortMergeJoin(eid: Long, joinExpr: Array[Byte], input: Array[Byte], joinRow: Array[Byte]): Array[Byte]
+      +NonObliviousAggregateStep1(eid: Long, aggOp: Array[Byte], inputRows: Array[Byte]): (Array[Byte], Array[Byte], Array[Byte])
+      +NonObliviousAggregateStep2(eid: Long, aggOp: Array[Byte], inputRows: Array[Byte], nextPartitionFirstRow: Array[Byte], prevPartitionLastGroup: Array[Byte], prevPartitionLastRow: Array[Byte]): Array[Byte]
+    }
+
+  }
+
+  namespace expressions{
+    class ClosestPoint{
+      +dataType: DataType
+      +inputTypes: Seq[]
+      ClosestPoint(left: Expression, right: Expression)
+      #nullSafeEval(input1: Any, input2: Any): ArrayData
+    }
+    class DotProduct{
+      +dataType: DataType
+      +inputTypes: Array[]
+      +symbol: String
+      +sqlOperator: String
+      DotProduct(left: Expression, right: Expression)
+      #nullSafeEval(input1: Any, input2: Any): Double
+    }
+    class VectorAdd{
+      +dataType: DataType
+      +inputTypes: Array[]
+      +symbol: String
+      +sqlOperator: String
+      VectorAdd(left: Expression, right: Expression)
+      #nullSafeEval(input1: Any, input2: Any): ArrayData
+    }
+    class VectorMultiply{
+      +dataType: DataType
+      +inputTypes: Seq[]
+      VectorMultiply(left: Expression, right: Expression)
+      #nullSafeEval(input1: Any, input2: Any): ArrayData
+    }
+    class VectorSum{
+      +inputSchema: StructType
+      +bufferSchema: StructType
+      +dataType: DataType
+      +deterministic: Boolean
+      -addArray(agg: Array[Double], arr: Array[Double]): Unit
+      -ensureArraySize(agg: Array[Double], size: Int): Array[Double]
+      +initialize(buffer: MutableAggregationBuffer): Unit
+      +update(buffer: MutableAggregationBuffer, input: Row): Unit
+      +merge(buffer1: MutableAggregationBuffer, buffer2: Row): Unit
+      +evaluate(buffer: Row): Array[Double]
+    }
+  }
+
+  namespace logical{
+    interface OpaqueOperator <<trait>> {
+      +references: AttributeSet
+    }
+
+    class Encrypt{
+      +output: Seq[Attribute]
+      Encrypt(child: LogicalPlan)
+    }
+    class EncryptedLocalRelation{
+      #stringArgs: Iterator
+      EncryptedLocalRelation(output: Seq[Attribute], plaintextData: Seq[InternalRow])
+      +newInstance(): EncryptedLocalRelation
+    }
+    class EncryptedBlockRDD{
+      +children: Seq[LogicalPlan]
+      +producedAttributes: AttributeSet
+      EncryptedBlockRDD(output: Seq[Attribute], rdd: RDD[Block])
+      +newInstance(): EncryptedBlockRDD
+    }
+    class EncryptedProject{
+      +output: Seq[Attribute]
+      EncryptedProject(projectList: Seq[NamedExpression], child: OpaqueOperator)
+    }
+    class EncryptedFilter{
+      +output: Seq[Attribute]
+      EncryptedFilter(condition: Expression, child: OpaqueOperator)
+    }
+    class EncryptedSort{
+      +output: Seq[Attribute]
+      EncryptedSort(order: Seq[SortOrder], child: OpaqueOperator)
+    }
+    class EncryptedAggregate{
+      +producedAttributes: AttributeSet
+      +output: Seq[Attribute]
+      EncryptedAggregate(groupingExpressions: Seq[Expression], aggExpressions: Seq[NamedExpression], child: OpaqueOperator)
+    }
+    class EncryptedJoin{
+      +output: Seq[Attribute]
+      EncryptedJoin(left: OpaqueOperator, right: OpaqueOperator, joinType: JoinType, condition: Option[Expression])
+    }
+    class EncryptedUnion{
+      +output: Seq[Attribute]
+      EncryptedUnion(left: OpaqueOperator, right: OpaqueOperator)
+    }
+
+    class EncryptLocalRelation << (O,orchid) Object >> {
+      +apply(plan: LogicalPlan): LogicalPlan
+    }
+    class ConvertToOpaqueOperators << (O,orchid) Object >> {
+      +isEncrypted(plan: LogicalPlan): Boolean
+      +isEncrypted(plan: SparkPlan): Boolean
+      +apply(plan: LogicalPlan): LogicalPlan
+    }
+  }
+
+  class Utils << (O,orchid) Object>> {
+    -perf : Boolean <i><color:grey>default=System.getenv."SGX_PERF"</color></i>
+    +eid: Long <i><color:grey>default=0</color></i>
+    +GCM_IV_LENGTH: Int <i><color:grey>default=12</color></i>
+    +GCM_KEY_LENGTH: Int <i><color:grey>default=16</color></i>
+    +GCM_TAG_LENGTH: Int <i><color:grey>default=16</color></i>
+    +sharedKey: Array[Byte] <i><color:grey>default="Opaque devel key".getBytes</color></i>
+    +attested: Boolean <i><color:grey>default=false</color></i>
+    +attesting_getepid: Boolean <i><color:grey>default=false</color></i>
+    +attesting_getmsg1: Boolean <i><color:grey>default=false</color></i>
+    +attesting_getmsg3: Boolean <i><color:grey>default=false</color></i>
+    +attesting_final_ra: Boolean <i><color:grey>default=false</color></i>
+    +MaxBlockSize: Int <i><color:grey>default=1000</color></i>
+    +emptyBlock: Block
+    -jsonSerialize(x: Any): String
+    +time[A](desc: String)(f: => A): A
+    +logPerf(message: String): Unit
+    +retry[T](n: Int)(fn: => T): T
+    +timeBenchmark[A](benchmarkAttrs: (String, Any)*)(f: => A): A
+    +findLibraryAsResource(libraryName: String): String
+    +findResource(resourceName: String): String
+    +createTempDir(): File
+    +deleteRecursively(file: File): Unit
+    +initEnclave(): (SGXEnclave, Long)
+    +encrypt(data: Array[Byte]): Array[Byte]
+    +decrypt(data: Array[Byte]): Array[Byte]
+    +initSQLContext(sqlContext: SQLContext): Unit
+    +concatByteArrays(arrays: Array[Array[Byte]]): Array[Byte]
+    +splitBytes(bytes: Array[Byte], numSplits: Int): Array[Array[Byte]]
+    +ensureCached[T](rdd: RDD[T], storageLevel: StorageLevel): RDD[T]
+    +ensureCached[T](rdd: RDD[T]): RDD[T]
+    +ensureCached[T](ds: Dataset[T], storageLevel: StorageLevel): Dataset[T]
+    +ensureCached[T](ds: Dataset[T]): Dataset[T]
+    +force(ds: Dataset[_]): Unit
+    +flatbuffersCreateField(builder: FlatBufferBuilder, value: Any, dataType: DataType, isNull: Boolean): Int
+    +flatbuffersExtractFieldValue(f: tuix.Field): Any
+    +encryptInternalRowsFlatbuffers(rows: Seq[InternalRow], types: Seq[DataType], useEnclave: Boolean): Block
+    +decryptBlockFlatbuffers(block: Block): Seq[InternalRow]
+    +treeFold[BaseType <: TreeNode[BaseType], B](tree: BaseType)(op: (Seq[B], BaseType) => B): B
+    +flatbuffersSerializeExpression(builder: FlatBufferBuilder, expr: Expression, input: Seq[Attribute]): Int
+    +serializeFilterExpression(condition: Expression, input: Seq[Attribute]): Array[Byte]
+    +serializeProjectList(projectList: Seq[NamedExpression], input: Seq[Attribute]): Array[Byte]
+    +serializeSortOrder(sortOrder: Seq[SortOrder], input: Seq[Attribute]): Array[Byte]
+    +serializeJoinExpression(joinType: JoinType, leftKeys: Seq[Expression], rightKeys: Seq[Expression], leftSchema: Seq[Attribute], rightSchema: Seq[Attribute]): Array[Byte]
+    +serializeAggOp(groupingExpressions: Seq[Expression], aggExpressions: Seq[NamedExpression], input: Seq[Attribute]): Array[Byte]
+    +serializeAggExpression(builder: FlatBufferBuilder, e: AggregateExpression, input: Seq[Attribute], aggSchema: Seq[Attribute], concatSchema: Seq[Attribute]): Int
+    +concatEncryptedBlocks(blocks: Seq[Block]): Block
+  }
+
+}
+
+namespace edu.xjtu.cs.cyx.qshield{
+  namespace benchmark{
+
+  }
+
+  namespace execution{
+
+  }
+
+  namespace logical{
+
+  }
+}
+
+namespace org.apache.spark.sql{
+
+}
+
+edu.berkeley.cs.rise.opaque.Utils <.down. edu.berkeley.cs.rise.opaque.benchmark.Benchmark
+edu.berkeley.cs.rise.opaque.Utils <.down. edu.berkeley.cs.rise.opaque.benchmark.BigDataBenchmark
+edu.berkeley.cs.rise.opaque.Utils <.down. edu.berkeley.cs.rise.opaque.benchmark.KMeans
+edu.berkeley.cs.rise.opaque.Utils <.down. edu.berkeley.cs.rise.opaque.benchmark.LeastSquares
+edu.berkeley.cs.rise.opaque.Utils <.down. edu.berkeley.cs.rise.opaque.benchmark.LogisticRegression
+edu.berkeley.cs.rise.opaque.Utils <.down. edu.berkeley.cs.rise.opaque.benchmark.PageRank
+edu.berkeley.cs.rise.opaque.Utils .down.> edu.berkeley.cs.rise.opaque.execution.Block
+
+edu.berkeley.cs.rise.opaque.benchmark.SecurityLevel <.. edu.berkeley.cs.rise.opaque.benchmark.Benchmark
+edu.berkeley.cs.rise.opaque.benchmark.SecurityLevel <.. edu.berkeley.cs.rise.opaque.benchmark.BigDataBenchmark
+edu.berkeley.cs.rise.opaque.benchmark.SecurityLevel <.. edu.berkeley.cs.rise.opaque.benchmark.KMeans
+edu.berkeley.cs.rise.opaque.benchmark.SecurityLevel <.. edu.berkeley.cs.rise.opaque.benchmark.LeastSquares
+edu.berkeley.cs.rise.opaque.benchmark.SecurityLevel <.. edu.berkeley.cs.rise.opaque.benchmark.LogisticRegression
+edu.berkeley.cs.rise.opaque.benchmark.SecurityLevel <.. edu.berkeley.cs.rise.opaque.benchmark.PageRank
+edu.berkeley.cs.rise.opaque.benchmark.SecurityLevel <.right. edu.berkeley.cs.rise.opaque.benchmark.TPCH
+edu.berkeley.cs.rise.opaque.benchmark.SecurityLevel <|-up- edu.berkeley.cs.rise.opaque.benchmark.Encrypted
+edu.berkeley.cs.rise.opaque.benchmark.SecurityLevel <|-up- edu.berkeley.cs.rise.opaque.benchmark.Insecure
+
+org.apache.spark.sql.execution.SparkPlan <|-up- edu.berkeley.cs.rise.opaque.execution.LeafExecNode
+org.apache.spark.sql.execution.SparkPlan <|-up- edu.berkeley.cs.rise.opaque.execution.UnaryExecNode
+org.apache.spark.sql.execution.SparkPlan <|-up- edu.berkeley.cs.rise.opaque.execution.BinaryExecNode
+org.apache.spark.sql.execution.SparkPlan <|-up- edu.berkeley.cs.rise.opaque.execution.OpaqueOperatorExec
+
+edu.berkeley.cs.rise.opaque.execution.EncryptedLocalTableScanExec --|> edu.berkeley.cs.rise.opaque.execution.LeafExecNode
+edu.berkeley.cs.rise.opaque.execution.EncryptedLocalTableScanExec --|> edu.berkeley.cs.rise.opaque.execution.OpaqueOperatorExec
+edu.berkeley.cs.rise.opaque.execution.EncryptExec --|> edu.berkeley.cs.rise.opaque.execution.UnaryExecNode
+edu.berkeley.cs.rise.opaque.execution.EncryptExec --|> edu.berkeley.cs.rise.opaque.execution.OpaqueOperatorExec
+edu.berkeley.cs.rise.opaque.execution.EncryptedBlockRDDScanExec --|> edu.berkeley.cs.rise.opaque.execution.LeafExecNode
+edu.berkeley.cs.rise.opaque.execution.EncryptedBlockRDDScanExec --|> edu.berkeley.cs.rise.opaque.execution.OpaqueOperatorExec
+edu.berkeley.cs.rise.opaque.execution.EncryptedProjectExec --|> edu.berkeley.cs.rise.opaque.execution.UnaryExecNode
+edu.berkeley.cs.rise.opaque.execution.EncryptedProjectExec --|> edu.berkeley.cs.rise.opaque.execution.OpaqueOperatorExec
+edu.berkeley.cs.rise.opaque.execution.EncryptedFilterExec --|> edu.berkeley.cs.rise.opaque.execution.UnaryExecNode
+edu.berkeley.cs.rise.opaque.execution.EncryptedFilterExec --|> edu.berkeley.cs.rise.opaque.execution.OpaqueOperatorExec
+edu.berkeley.cs.rise.opaque.execution.EncryptedAggregateExec --|> edu.berkeley.cs.rise.opaque.execution.UnaryExecNode
+edu.berkeley.cs.rise.opaque.execution.EncryptedAggregateExec --|> edu.berkeley.cs.rise.opaque.execution.OpaqueOperatorExec
+edu.berkeley.cs.rise.opaque.execution.EncryptedSortMergeJoinExec --|> edu.berkeley.cs.rise.opaque.execution.UnaryExecNode
+edu.berkeley.cs.rise.opaque.execution.EncryptedSortMergeJoinExec --|> edu.berkeley.cs.rise.opaque.execution.OpaqueOperatorExec
+edu.berkeley.cs.rise.opaque.execution.EncryptedUnionExec --|> edu.berkeley.cs.rise.opaque.execution.BinaryExecNode
+edu.berkeley.cs.rise.opaque.execution.EncryptedUnionExec --|> edu.berkeley.cs.rise.opaque.execution.OpaqueOperatorExec
+edu.berkeley.cs.rise.opaque.execution.EncryptedSortExec --|> edu.berkeley.cs.rise.opaque.execution.UnaryExecNode
+edu.berkeley.cs.rise.opaque.execution.EncryptedSortExec --|> edu.berkeley.cs.rise.opaque.execution.OpaqueOperatorExec
+
+edu.berkeley.cs.rise.opaque.execution.EncryptedSortMergeJoinExec .up.> edu.berkeley.cs.rise.opaque.execution.SGXEnclave
+edu.berkeley.cs.rise.opaque.execution.EncryptedAggregateExec .up.> edu.berkeley.cs.rise.opaque.execution.SGXEnclave
+edu.berkeley.cs.rise.opaque.execution.EncryptedFilterExec .up.> edu.berkeley.cs.rise.opaque.execution.SGXEnclave
+edu.berkeley.cs.rise.opaque.execution.EncryptedProjectExec .up.> edu.berkeley.cs.rise.opaque.execution.SGXEnclave
+edu.berkeley.cs.rise.opaque.execution.EncryptedSortExec .up.> edu.berkeley.cs.rise.opaque.execution.SGXEnclave
+
+edu.berkeley.cs.rise.opaque.logical.Encrypt --|> edu.berkeley.cs.rise.opaque.logical.OpaqueOperator
+edu.berkeley.cs.rise.opaque.logical.EncryptedLocalRelation --|> edu.berkeley.cs.rise.opaque.logical.OpaqueOperator
+edu.berkeley.cs.rise.opaque.logical.EncryptedBlockRDD --|> edu.berkeley.cs.rise.opaque.logical.OpaqueOperator
+edu.berkeley.cs.rise.opaque.logical.EncryptedProject --|> edu.berkeley.cs.rise.opaque.logical.OpaqueOperator
+edu.berkeley.cs.rise.opaque.logical.EncryptedFilter --|> edu.berkeley.cs.rise.opaque.logical.OpaqueOperator
+edu.berkeley.cs.rise.opaque.logical.EncryptedSort --|> edu.berkeley.cs.rise.opaque.logical.OpaqueOperator
+edu.berkeley.cs.rise.opaque.logical.EncryptedAggregate --|> edu.berkeley.cs.rise.opaque.logical.OpaqueOperator
+edu.berkeley.cs.rise.opaque.logical.EncryptedJoin --|> edu.berkeley.cs.rise.opaque.logical.OpaqueOperator
+edu.berkeley.cs.rise.opaque.logical.EncryptedUnion --|> edu.berkeley.cs.rise.opaque.logical.OpaqueOperator
+
+edu.berkeley.cs.rise.opaque.logical.EncryptLocalRelation ..> edu.berkeley.cs.rise.opaque.logical.EncryptedLocalRelation
+edu.berkeley.cs.rise.opaque.logical.ConvertToOpaqueOperators ..> edu.berkeley.cs.rise.opaque.logical.EncryptedBlockRDD
+edu.berkeley.cs.rise.opaque.logical.ConvertToOpaqueOperators ..> edu.berkeley.cs.rise.opaque.logical.EncryptedProject
+edu.berkeley.cs.rise.opaque.logical.ConvertToOpaqueOperators ..> edu.berkeley.cs.rise.opaque.logical.EncryptedFilter
+edu.berkeley.cs.rise.opaque.logical.ConvertToOpaqueOperators ..> edu.berkeley.cs.rise.opaque.logical.EncryptedSort
+edu.berkeley.cs.rise.opaque.logical.ConvertToOpaqueOperators ..> edu.berkeley.cs.rise.opaque.logical.EncryptedJoin
+edu.berkeley.cs.rise.opaque.logical.ConvertToOpaqueOperators ..> edu.berkeley.cs.rise.opaque.logical.EncryptedAggregate
+edu.berkeley.cs.rise.opaque.logical.ConvertToOpaqueOperators ..> edu.berkeley.cs.rise.opaque.logical.EncryptedUnion
+@enduml
