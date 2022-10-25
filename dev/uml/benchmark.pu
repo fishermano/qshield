@@ -1,0 +1,94 @@
+@startuml
+left to right direction
+namespace edu.berkeley.cs.rise.opaque{
+  namespace benchmark{
+    class Benchmark << (O,orchid) Object >> {
+      + dataDir : String
+      + main(args : Array[String]) : Unit
+    }
+    class BigDataBenchmark << (O,orchid) Object >> {
+      +rankings(spark: SparkSession, securityLevel: SecurityLevel, size: String, numPartitions: Int): DataFrame
+      +uservisits(spark: SparkSession, securityLevel: SecurityLevel, size: String, numPartitions: Int): DataFrame
+      +q1(spark: SparkSession, securityLevel: SecurityLevel, size: String, numPartitions: Int): DataFrame
+      +q2(spark: SparkSession, securityLevel: SecurityLevel, size: String, numPartitions: Int): DataFrame
+      +q3(spark: SparkSession, securityLevel: SecurityLevel, size: String, numPartitions: Int): DataFrame
+    }
+    class KMeans << (O,orchid) Object >> {
+      +data(spark: SparkSession, securityLevel: SecurityLevel, numPartitions: Int, rand: Random, N: Int, D: Int): DataFrame
+      +train(spark: SparkSession, securityLevel: SecurityLevel, numPartitions: Int, N: Int, D: Int, K: Int, convergeDist: Double): Array[Array[Double]]
+    }
+    class LeastSquares << (O,orchid) Object >> {
+      +data(spark: SparkSession, securityLevel: SecurityLevel, numPartitions: Int): DataFrame
+      +query(spark: SparkSession, securityLevel: SecurityLevel, size: String, numPartitions: Int): DataFrame
+    }
+    class LogisticRegression << (O,orchid) Object >> {
+      +data(spark: SparkSession, securityLevel: SecurityLevel, numPartitions: Int, rand: Random, N: Int, D: Int, R: Double): DataFrame
+      +train(spark: SparkSession, securityLevel: SecurityLevel, N: Int, numPartitions: Int): Array[Double]
+    }
+    class PageRank << (O,orchid) Object >> {
+      +run(spark: SparkSession, securityLevel: SecurityLevel, size: String, numPartitions: Int): DataFrame
+    }
+    class TPCH << (O,orchid) Object >> {
+      -tpch9EncryptedDFs(sqlContext: SQLContext, securityLevel: SecurityLevel, size: String, numPartitions: Int): (DataFrame, DataFrame, DataFrame, DataFrame, DataFrame, DataFrame)
+      +part(sqlContext: SQLContext, securityLevel: SecurityLevel, size: String, numPartitions: Int): DataFrame
+      +supplier(sqlContext: SQLContext, securityLevel: SecurityLevel, size: String, numPartitions: Int): DataFrame
+      +lineitem(sqlContext: SQLContext, securityLevel: SecurityLevel, size: String, numPartitions: Int): DataFrame
+      +partsupp(sqlContext: SQLContext, securityLevel: SecurityLevel, size: String, numPartitions: Int): DataFrame
+      +orders(sqlContext: SQLContext, securityLevel: SecurityLevel, size: String, numPartitions: Int): DataFrame
+      +nation(sqlContext: SQLContext, securityLevel: SecurityLevel, size: String, numPartitions: Int): DataFrame
+      +tpch9(sqlContext: SQLContext, securityLevel: SecurityLevel, size: String, numPartitions: Int, quantityThreshold: Option[Int] = None): DataFrame
+    }
+    interface SecurityLevel <<sealed trait>> {
+      +name: String
+      +applyTo[T](df: DataFrame): DataFrame
+    }
+    class Encrypted << (O,orchid) Object >> {
+      +name: String <i><color:grey>default="encrypted"</color></i>
+      +applyTo[T](df: DataFrame): DataFrame
+    }
+    class Insecure << (O,orchid) Object >> {
+      +name: String <i><color:grey>default="spark sql"</color></i>
+      +applyTo[T](df: DataFrame): DataFrame
+    }
+  }
+}
+
+namespace edu.xjtu.cs.cyx.qshield{
+  namespace benchmark{
+    class QBigDataBenchmark << (O,orchid) Object >> {
+      +rankings(spark: SparkSession, qsecurityLevel: QSecurityLevel, size: String, numPartitions: Int): DataFrame
+      +uservisits(spark: SparkSession, qsecurityLevel: QSecurityLevel, size: String, numPartitions: Int): DataFrame
+      +q1(spark: SparkSession, qsecurityLevel: QSecurityLevel, size: String, numPartitions: Int): DataFrame
+      +q2(spark: SparkSession, qsecurityLevel: QSecurityLevel, size: String, numPartitions: Int): DataFrame
+      +q3(spark: SparkSession, qsecurityLevel: QSecurityLevel, size: String, numPartitions: Int): DataFrame
+      +q(spark: SparkSession, qsecurityLevel: QSecurityLevel, size: String, numPartitions: Int) : DataFrame
+    }
+    interface QSecurityLevel <<trait>> {
+      +name: String
+      +applyTo[T](df: DataFrame): DataFrame
+    }
+    class QEncrypted << (O,orchid) Object >> {
+      +name: String <i><color:grey>default="encrypted"</color></i>
+      +GCM_IV_LENGTH: Int <i><color:grey>default=12</color></i>
+      +GCM_KEY_LENGTH: Int <i><color:grey>default=16</color></i>
+      +GCM_TAG_LENGTH: Int <i><color:grey>default=16</color></i>
+      +tokenKey: Array[Byte] <i><color:grey>default="Opaque devel key".getBytes</color></i>
+      +encrypt(data: Array[Byte]): Array[Byte]
+      +applyTo[T](df: DataFrame): DataFrame
+    }
+  }
+}
+
+edu.berkeley.cs.rise.opaque.benchmark.Benchmark .left.> edu.berkeley.cs.rise.opaque.benchmark.SecurityLevel
+edu.berkeley.cs.rise.opaque.benchmark.BigDataBenchmark ..> edu.berkeley.cs.rise.opaque.benchmark.SecurityLevel
+edu.berkeley.cs.rise.opaque.benchmark.KMeans ..> edu.berkeley.cs.rise.opaque.benchmark.SecurityLevel
+edu.berkeley.cs.rise.opaque.benchmark.LeastSquares .right.> edu.berkeley.cs.rise.opaque.benchmark.SecurityLevel
+edu.berkeley.cs.rise.opaque.benchmark.LogisticRegression ..> edu.berkeley.cs.rise.opaque.benchmark.SecurityLevel
+edu.berkeley.cs.rise.opaque.benchmark.PageRank ..> edu.berkeley.cs.rise.opaque.benchmark.SecurityLevel
+edu.berkeley.cs.rise.opaque.benchmark.TPCH ..> edu.berkeley.cs.rise.opaque.benchmark.SecurityLevel
+edu.berkeley.cs.rise.opaque.benchmark.Encrypted --up-|> edu.berkeley.cs.rise.opaque.benchmark.SecurityLevel
+edu.berkeley.cs.rise.opaque.benchmark.Insecure --up-|> edu.berkeley.cs.rise.opaque.benchmark.SecurityLevel
+
+edu.xjtu.cs.cyx.qshield.benchmark.QEncrypted -right-|> edu.xjtu.cs.cyx.qshield.benchmark.QSecurityLevel
+edu.xjtu.cs.cyx.qshield.benchmark.QBigDataBenchmark .down.> edu.xjtu.cs.cyx.qshield.benchmark.QSecurityLevel
+@enduml

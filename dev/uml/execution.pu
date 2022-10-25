@@ -1,0 +1,221 @@
+@startuml
+
+namespace org.apache.spark.sql.execution{
+  abstract class SparkPlan
+}
+
+namespace edu.berkeley.cs.rise.opaque{
+  namespace execution{
+    interface LeafExecNode <<trait>>{
+      +child: Seq[SparkPlan] <i><color:grey>default=Nil</color></i>
+      +producedAttributes: AttributeSet <i><color:grey>default=outputSet</color></i>
+    }
+    interface UnaryExecNode <<trait>>{
+      +child: SparkPlan
+      +children: Seq[SparkPlan] <i><color:grey>default=child :: Nil</color></i>
+      +outputPartitioning: Partitioning <i><color:grey>default=child.outputPartitioning</color></i>
+    }
+    interface BinaryExecNode <<trait>>{
+      +left: SparkPlan
+      +right: SparkPlan
+      +children: Seq[SparkPlan] <i><color:grey>default=Seq[left,right]</color></i>
+    }
+    interface OpaqueOperatorExec <<trait>>{
+      +executeBlocked(): RDD[Block]
+      +timeOperator[A](childRDD: RDD[A], desc: String)(f: RDD[A] => RDD[Block]): RDD[Block]
+      +doExecute(): RDD[InternalRow]
+      +executeCollect(): Array[InternalRow]
+      +executeTake(n: Int): Array[InternalRow]
+    }
+    class Block <<Serializable>>{
+      +bytes: Array[Byte]
+    }
+    class EncryptedLocalTableScanExec{
+      -unsafeRows: Array[InternalRow]
+      EncryptedLocalTableScanExec(output: Seq[Attribute], plaintextData: Seq[InternalRow])
+      +executeBlocked(): RDD[Block]
+    }
+    class EncryptExec{
+      +output: Seq[Attribute]
+      EncryptExec(child: SparkPlan)
+      +executeBlocked(): RDD[Block]
+    }
+    class EncryptedBlockRDDScanExec{
+      EncryptedBlockRDDScanExec(output: Seq[Attribute], rdd: RDD[Block])
+      +executeBlocked(): RDD[Block]
+    }
+    class EncryptedProjectExec{
+      +output: Seq[Attribute]
+      EncryptedProjectExec(projectList: Seq[NamedExpression], child: SparkPlan)
+      +executeBlocked(): RDD[Block]
+    }
+    class EncryptedFilterExec{
+      +output: Seq[Attribute]
+      EncryptedFilterExec(condition: Expression, child: SparkPlan)
+      +executeBlocked(): RDD[Block]
+    }
+    class EncryptedAggregateExec{
+      +producedAttributes: AttributeSet
+      +output: Seq[Attribute]
+      EncryptedAggregateExec(groupingExpressions: Seq[Expression], aggExpressions: Seq[NamedExpression], child: SparkPlan)
+      +executeBlocked(): RDD[Block]
+    }
+    class EncryptedSortMergeJoinExec{
+      EncryptedSortMergeJoinExec(joinType: JoinType, leftKeys: Seq[Expression], rightKeys: Seq[Expression], leftSchema: Seq[Attribute], rightSchema: Seq[Attribute],output: Seq[Attribute], child: SparkPlan)
+      +executeBlocked(): RDD[Block]
+    }
+    class EncryptedUnionExec{
+      +output: Seq[Attribute]
+      EncryptedUnionExec(left: SparkPlan, right: SparkPlan)
+      +executeBlocked(): RDD[Block]
+    }
+    class EncryptedSortExec{
+      +output: Seq[Attribute]
+      EncryptedSortExec(order: Seq[SortOrder], child: SparkPlan)
+      +executeBlocked(): RDD[Block]
+    }
+    class SGXEnclave <<Serializable>><<Java Native Interface>>{
+      +StartEnclave(libraryPath: String): Long
+      +StopEnclave(enclaveId: Long): Unit
+      +RemoteAttestation0(eid: Long): Array[Byte]
+      +RemoteAttestation1(eid: Long): Array[Byte]
+      +RemoteAttestation2(eid: Long, msg2Input: Array[Byte]): Array[Byte]
+      +RemoteAttestation3(eid: Long, attResultInput: Array[Byte]): Unit
+      +Project(eid: Long, condition: Array[Byte], input: Array[Byte]): Array[Byte]
+      +Filter(eid: Long, condition: Array[Byte], input: Array[Byte]): Array[Byte]
+      +Encrypt(eid: Long, plaintext: Array[Byte]): Array[Byte]
+      +Decrypt(eid: Long, ciphertext: Array[Byte]): Array[Byte]
+      +Sample(eid: Long, input: Array[Byte]): Array[Byte]
+      +FindRangeBounds(eid: Long, order: Array[Byte], numPartitions: Int, input: Array[Byte]): Array[Byte]
+      +PartitionForSort(eid: Long, order: Array[Byte], numPartitions: Int, input: Array[Byte],boundaries: Array[Byte]): Array[Array[Byte]]
+      +ExternalSort(eid: Long, order: Array[Byte], input: Array[Byte]): Array[Byte]
+      +ScanCollectLastPrimary(eid: Long, joinExpr: Array[Byte], input: Array[Byte]): Array[Byte]
+      +NonObliviousSortMergeJoin(eid: Long, joinExpr: Array[Byte], input: Array[Byte], joinRow: Array[Byte]): Array[Byte]
+      +NonObliviousAggregateStep1(eid: Long, aggOp: Array[Byte], inputRows: Array[Byte]): (Array[Byte], Array[Byte], Array[Byte])
+      +NonObliviousAggregateStep2(eid: Long, aggOp: Array[Byte], inputRows: Array[Byte], nextPartitionFirstRow: Array[Byte], prevPartitionLastGroup: Array[Byte], prevPartitionLastRow: Array[Byte]): Array[Byte]
+    }
+  }
+}
+
+namespace edu.xjtu.cs.cyx.qshield{
+  namespace execution{
+    class ACPolicyAppliedEncryptedBlockRDDExec{
+      ACPolicyAppliedEncryptedBlockRDDExec(output: Seq[Attribute], rdd: RDD[Block], tk: Array[Byte])
+      +executeBlocked(): RDD[Block]
+    }
+    class ResPreparedEncryptedBlockRDDExec{
+      ResPreparedEncryptedBlockRDDExec(child: SparkPlan)
+      +output: Seq[Attribute]
+      +executeBlocked(): RDD[Block]
+    }
+    class QEncryptedFilterExec{
+      QEncryptedFilterExec(condition: Expression, child: SparkPlan)
+      +output: Seq[Attribute]
+      +executeBlocked(): RDD[Block]
+    }
+    class QEncryptedProjectExec{
+      QEncryptedProjectExec(projectList: Seq[NamedExpression], child: SparkPlan)
+      +output: Seq[Attribute]
+      +executeBlocked(): RDD[Block]
+    }
+    class QEncryptedAggregateExec{
+      QEncryptedAggregateExec(groupingExpressions: Seq[Expression], aggExpressions: Seq[NamedExpression], child: SparkPlan)
+      +producedAttributes: AttributeSet
+      +output: Seq[Attribute]
+      +executeBlocked(): RDD[Block]
+    }
+    class QEncryptedSortExec{
+      QEncryptedSortExec(order: Seq[SortOrder], child: SparkPlan)
+      +output: Seq[Attribute]
+      +executeBlocked(): RDD[Block]
+    }
+    class QEncryptedSortMergeJoinExec{
+      QEncryptedSortMergeJoinExec(joinType: JoinType, leftKeys: Seq[Expression], rightKeys: Seq[Expression], leftSchema: Seq[Attribute], rightSchema: Seq[Attribute], output: Seq[Attribute], child: SparkPlan)
+      +executeBlocked(): RDD[Block]
+    }
+    class QEncryptedUnionExec{
+      QEncryptedUnionExec(left: SparkPlan, right: SparkPlan)
+      +output: Seq[Attribute]
+      +executeBlocked(): RDD[Block]
+    }
+    class QEncryptedBlockRDDScanExec{
+      QEncryptedBlockRDDScanExec(output: Seq[Attribute], rdd: RDD[Block])
+      +executeBlocked(): RDD[Block]
+    }
+    class QShieldSGXEnclave <<Serializable>><<Java Native Interface>> {
+      +ACPolicyApplied(eid: Long, input: Array[Byte], tk: Array[Byte]): Array[Byte]
+      +ResPrepared(eid: Long, input: Array[Byte]): Array[Byte]
+      +QProject(eid: Long, projectList: Array[Byte], input: Array[Byte]): Array[Byte]
+      +QFilter(eid: Long, condition: Array[Byte], input: Array[Byte]): Array[Byte]
+      +QAggregateStep1(eid: Long, aggOp: Array[Byte], inputRows: Array[Byte]): (Array[Byte], Array[Byte], Array[Byte])
+      +QAggregateStep2(eid: Long, aggOp: Array[Byte], inputRows: Array[Byte], nextPartitionFirstRow: Array[Byte], prevPartitionLastGroup: Array[Byte], prevPartitionLastRow: Array[Byte]): Array[Byte]
+      +QSample(eid: Long, input: Array[Byte]): Array[Byte]
+      +QFindRangeBounds(eid: Long, order: Array[Byte], numPartitions: Int, input: Array[Byte]): Array[Byte]
+      +QPartitionForSort(eid: Long, order: Array[Byte], numPartitions: Int, input: Array[Byte], boundaries: Array[Byte]): Array[Array[Byte]]
+      +QExternalSort(eid: Long, order: Array[Byte], input: Array[Byte]): Array[Byte]
+      +QScanCollectLastPrimary(eid: Long, joinExpr: Array[Byte], input: Array[Byte]): Array[Byte]
+      +QSortMergeJoin(eid: Long, joinExpr: Array[Byte], input: Array[Byte], joinRow: Array[Byte]): Array[Byte]
+      +InitPairing(eid: Long, param: Array[Byte]): Unit
+    }
+  }
+}
+
+org.apache.spark.sql.execution.SparkPlan <|.[#green]u. edu.berkeley.cs.rise.opaque.execution.LeafExecNode
+org.apache.spark.sql.execution.SparkPlan <|.[#green]u. edu.berkeley.cs.rise.opaque.execution.UnaryExecNode
+org.apache.spark.sql.execution.SparkPlan <|.[#green]u. edu.berkeley.cs.rise.opaque.execution.BinaryExecNode
+org.apache.spark.sql.execution.SparkPlan <|.[#green]u. edu.berkeley.cs.rise.opaque.execution.OpaqueOperatorExec
+
+edu.berkeley.cs.rise.opaque.execution.OpaqueOperatorExec .left.> edu.berkeley.cs.rise.opaque.execution.Block
+
+edu.berkeley.cs.rise.opaque.execution.EncryptedLocalTableScanExec ----|> edu.berkeley.cs.rise.opaque.execution.LeafExecNode
+edu.berkeley.cs.rise.opaque.execution.EncryptedLocalTableScanExec ...[#blue].|> edu.berkeley.cs.rise.opaque.execution.OpaqueOperatorExec
+edu.berkeley.cs.rise.opaque.execution.EncryptExec ----|> edu.berkeley.cs.rise.opaque.execution.UnaryExecNode
+edu.berkeley.cs.rise.opaque.execution.EncryptExec ...[#blue].|> edu.berkeley.cs.rise.opaque.execution.OpaqueOperatorExec
+edu.berkeley.cs.rise.opaque.execution.EncryptedBlockRDDScanExec ----|> edu.berkeley.cs.rise.opaque.execution.LeafExecNode
+edu.berkeley.cs.rise.opaque.execution.EncryptedBlockRDDScanExec ...[#blue].|> edu.berkeley.cs.rise.opaque.execution.OpaqueOperatorExec
+edu.berkeley.cs.rise.opaque.execution.EncryptedProjectExec ----|> edu.berkeley.cs.rise.opaque.execution.UnaryExecNode
+edu.berkeley.cs.rise.opaque.execution.EncryptedProjectExec ...[#blue].|> edu.berkeley.cs.rise.opaque.execution.OpaqueOperatorExec
+edu.berkeley.cs.rise.opaque.execution.EncryptedFilterExec ----|> edu.berkeley.cs.rise.opaque.execution.UnaryExecNode
+edu.berkeley.cs.rise.opaque.execution.EncryptedFilterExec ...[#blue].|> edu.berkeley.cs.rise.opaque.execution.OpaqueOperatorExec
+edu.berkeley.cs.rise.opaque.execution.EncryptedAggregateExec ----|> edu.berkeley.cs.rise.opaque.execution.UnaryExecNode
+edu.berkeley.cs.rise.opaque.execution.EncryptedAggregateExec ...[#blue].|> edu.berkeley.cs.rise.opaque.execution.OpaqueOperatorExec
+edu.berkeley.cs.rise.opaque.execution.EncryptedSortMergeJoinExec ----|> edu.berkeley.cs.rise.opaque.execution.UnaryExecNode
+edu.berkeley.cs.rise.opaque.execution.EncryptedSortMergeJoinExec ...[#blue].|> edu.berkeley.cs.rise.opaque.execution.OpaqueOperatorExec
+edu.berkeley.cs.rise.opaque.execution.EncryptedUnionExec ----|> edu.berkeley.cs.rise.opaque.execution.BinaryExecNode
+edu.berkeley.cs.rise.opaque.execution.EncryptedUnionExec ...[#blue].|> edu.berkeley.cs.rise.opaque.execution.OpaqueOperatorExec
+edu.berkeley.cs.rise.opaque.execution.EncryptedSortExec ----|> edu.berkeley.cs.rise.opaque.execution.UnaryExecNode
+edu.berkeley.cs.rise.opaque.execution.EncryptedSortExec ...[#blue].|> edu.berkeley.cs.rise.opaque.execution.OpaqueOperatorExec
+
+edu.berkeley.cs.rise.opaque.execution.EncryptedSortMergeJoinExec -up-> edu.berkeley.cs.rise.opaque.execution.SGXEnclave
+edu.berkeley.cs.rise.opaque.execution.EncryptedAggregateExec -up-> edu.berkeley.cs.rise.opaque.execution.SGXEnclave
+edu.berkeley.cs.rise.opaque.execution.EncryptedFilterExec -up-> edu.berkeley.cs.rise.opaque.execution.SGXEnclave
+edu.berkeley.cs.rise.opaque.execution.EncryptedProjectExec -up-> edu.berkeley.cs.rise.opaque.execution.SGXEnclave
+edu.berkeley.cs.rise.opaque.execution.EncryptedSortExec -up-> edu.berkeley.cs.rise.opaque.execution.SGXEnclave
+
+edu.xjtu.cs.cyx.qshield.execution.ACPolicyAppliedEncryptedBlockRDDExec ---up-|> edu.berkeley.cs.rise.opaque.execution.LeafExecNode
+edu.xjtu.cs.cyx.qshield.execution.ACPolicyAppliedEncryptedBlockRDDExec ...up.|> edu.berkeley.cs.rise.opaque.execution.OpaqueOperatorExec
+edu.xjtu.cs.cyx.qshield.execution.ResPreparedEncryptedBlockRDDExec ---up-|> edu.berkeley.cs.rise.opaque.execution.UnaryExecNode
+edu.xjtu.cs.cyx.qshield.execution.ResPreparedEncryptedBlockRDDExec ...up.|> edu.berkeley.cs.rise.opaque.execution.OpaqueOperatorExec
+edu.xjtu.cs.cyx.qshield.execution.QEncryptedFilterExec ---up-|> edu.berkeley.cs.rise.opaque.execution.UnaryExecNode
+edu.xjtu.cs.cyx.qshield.execution.QEncryptedFilterExec ...[#blue]u.|> edu.berkeley.cs.rise.opaque.execution.OpaqueOperatorExec
+edu.xjtu.cs.cyx.qshield.execution.QEncryptedProjectExec ---up-|> edu.berkeley.cs.rise.opaque.execution.UnaryExecNode
+edu.xjtu.cs.cyx.qshield.execution.QEncryptedProjectExec ...[#blue]u.|> edu.berkeley.cs.rise.opaque.execution.OpaqueOperatorExec
+edu.xjtu.cs.cyx.qshield.execution.QEncryptedAggregateExec ---up-|> edu.berkeley.cs.rise.opaque.execution.UnaryExecNode
+edu.xjtu.cs.cyx.qshield.execution.QEncryptedAggregateExec ...[#blue]u.|> edu.berkeley.cs.rise.opaque.execution.OpaqueOperatorExec
+edu.xjtu.cs.cyx.qshield.execution.QEncryptedSortExec ---up-|> edu.berkeley.cs.rise.opaque.execution.UnaryExecNode
+edu.xjtu.cs.cyx.qshield.execution.QEncryptedSortExec ...[#blue]u.|> edu.berkeley.cs.rise.opaque.execution.OpaqueOperatorExec
+edu.xjtu.cs.cyx.qshield.execution.QEncryptedSortMergeJoinExec ---up-|> edu.berkeley.cs.rise.opaque.execution.UnaryExecNode
+edu.xjtu.cs.cyx.qshield.execution.QEncryptedSortMergeJoinExec ...[#blue]u.|> edu.berkeley.cs.rise.opaque.execution.OpaqueOperatorExec
+edu.xjtu.cs.cyx.qshield.execution.QEncryptedUnionExec ---up-|> edu.berkeley.cs.rise.opaque.execution.BinaryExecNode
+edu.xjtu.cs.cyx.qshield.execution.QEncryptedUnionExec ...[#blue]u.|> edu.berkeley.cs.rise.opaque.execution.OpaqueOperatorExec
+edu.xjtu.cs.cyx.qshield.execution.QEncryptedBlockRDDScanExec ---up-|> edu.berkeley.cs.rise.opaque.execution.LeafExecNode
+edu.xjtu.cs.cyx.qshield.execution.QEncryptedBlockRDDScanExec ...[#blue]u.|> edu.berkeley.cs.rise.opaque.execution.OpaqueOperatorExec
+
+edu.xjtu.cs.cyx.qshield.execution.ACPolicyAppliedEncryptedBlockRDDExec --> edu.xjtu.cs.cyx.qshield.execution.QShieldSGXEnclave
+edu.xjtu.cs.cyx.qshield.execution.ResPreparedEncryptedBlockRDDExec --> edu.xjtu.cs.cyx.qshield.execution.QShieldSGXEnclave
+edu.xjtu.cs.cyx.qshield.execution.QEncryptedFilterExec --> edu.xjtu.cs.cyx.qshield.execution.QShieldSGXEnclave
+edu.xjtu.cs.cyx.qshield.execution.QEncryptedProjectExec --> edu.xjtu.cs.cyx.qshield.execution.QShieldSGXEnclave
+edu.xjtu.cs.cyx.qshield.execution.QEncryptedAggregateExec --> edu.xjtu.cs.cyx.qshield.execution.QShieldSGXEnclave
+edu.xjtu.cs.cyx.qshield.execution.QEncryptedSortExec --> edu.xjtu.cs.cyx.qshield.execution.QShieldSGXEnclave
+edu.xjtu.cs.cyx.qshield.execution.QEncryptedSortMergeJoinExec --> edu.xjtu.cs.cyx.qshield.execution.QShieldSGXEnclave
+@enduml
