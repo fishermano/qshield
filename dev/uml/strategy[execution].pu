@@ -26,46 +26,67 @@ namespace edu.xjtu.cs.cyx.qshield{
   }
 }
 
-org.apache.spark.sql.Strategy <|--u- edu.berkeley.cs.rise.opaque.OpaqueOperators
-org.apache.spark.sql.Strategy <|--- edu.xjtu.cs.cyx.qshield.QShieldOperators
+class org.apache.spark.sql.Strategy #line:black
+class edu.berkeley.cs.rise.opaque.OpaqueOperators #line:blue
+class edu.berkeley.cs.rise.opaque.logical.EncryptedProject #line:blue
+class edu.berkeley.cs.rise.opaque.execution.EncryptedProjectExec #line:blue
+class edu.berkeley.cs.rise.opaque.logical.EncryptedFilter #line:blue
+class edu.berkeley.cs.rise.opaque.execution.EncryptedFilterExec #line:blue
+class edu.berkeley.cs.rise.opaque.logical.EncryptedSort #line:blue
+class edu.berkeley.cs.rise.opaque.execution.EncryptedSortExec #line:blue
+class edu.berkeley.cs.rise.opaque.logical.EncryptedJoin #line:blue
+class edu.berkeley.cs.rise.opaque.execution.EncryptedSortMergeJoinExec #line:blue
+class edu.berkeley.cs.rise.opaque.logical.EncryptedAggregate #line:blue
+class edu.berkeley.cs.rise.opaque.execution.EncryptedAggregateExec #line:blue
+class edu.berkeley.cs.rise.opaque.logical.EncryptedUnion #line:blue
+class edu.berkeley.cs.rise.opaque.execution.EncryptedUnionExec #line:blue
+class edu.berkeley.cs.rise.opaque.logical.Encrypt #line:blue
+class edu.berkeley.cs.rise.opaque.execution.EncryptExec #line:blue
+class edu.berkeley.cs.rise.opaque.logical.EncryptedLocalRelation #line:blue
+class edu.berkeley.cs.rise.opaque.execution.EncryptedLocalTableScanExec #line:blue
+class edu.berkeley.cs.rise.opaque.logical.EncryptedBlockRDD #line:blue
+class edu.berkeley.cs.rise.opaque.execution.EncryptedBlockRDDScanExec #line:blue
 
-edu.berkeley.cs.rise.opaque.OpaqueOperators -u--> edu.berkeley.cs.rise.opaque.logical.EncryptedProject
+org.apache.spark.sql.Strategy <|--[#black,thickness=2]u- edu.berkeley.cs.rise.opaque.OpaqueOperators
+org.apache.spark.sql.Strategy <|--[#black,thickness=2]- edu.xjtu.cs.cyx.qshield.QShieldOperators
+
+edu.berkeley.cs.rise.opaque.OpaqueOperators -[#blue]u--> edu.berkeley.cs.rise.opaque.logical.EncryptedProject
 edu.berkeley.cs.rise.opaque.OpaqueOperators -[#blue]u--> edu.berkeley.cs.rise.opaque.execution.EncryptedProjectExec
-edu.berkeley.cs.rise.opaque.OpaqueOperators -u--> edu.berkeley.cs.rise.opaque.logical.EncryptedFilter
+edu.berkeley.cs.rise.opaque.OpaqueOperators -[#blue]u--> edu.berkeley.cs.rise.opaque.logical.EncryptedFilter
 edu.berkeley.cs.rise.opaque.OpaqueOperators -[#blue]u--> edu.berkeley.cs.rise.opaque.execution.EncryptedFilterExec
-edu.berkeley.cs.rise.opaque.OpaqueOperators -u--> edu.berkeley.cs.rise.opaque.logical.EncryptedSort
+edu.berkeley.cs.rise.opaque.OpaqueOperators -[#blue]u--> edu.berkeley.cs.rise.opaque.logical.EncryptedSort
 edu.berkeley.cs.rise.opaque.OpaqueOperators -[#blue]u--> edu.berkeley.cs.rise.opaque.execution.EncryptedSortExec
-edu.berkeley.cs.rise.opaque.OpaqueOperators -u--> edu.berkeley.cs.rise.opaque.logical.EncryptedJoin
+edu.berkeley.cs.rise.opaque.OpaqueOperators -[#blue]u--> edu.berkeley.cs.rise.opaque.logical.EncryptedJoin
 edu.berkeley.cs.rise.opaque.OpaqueOperators -[#blue]u--> edu.berkeley.cs.rise.opaque.execution.EncryptedSortMergeJoinExec
-edu.berkeley.cs.rise.opaque.OpaqueOperators -u--> edu.berkeley.cs.rise.opaque.logical.EncryptedAggregate
+edu.berkeley.cs.rise.opaque.OpaqueOperators -[#blue]u--> edu.berkeley.cs.rise.opaque.logical.EncryptedAggregate
 edu.berkeley.cs.rise.opaque.OpaqueOperators -[#blue]u--> edu.berkeley.cs.rise.opaque.execution.EncryptedAggregateExec
-edu.berkeley.cs.rise.opaque.OpaqueOperators -u--> edu.berkeley.cs.rise.opaque.logical.EncryptedUnion
+edu.berkeley.cs.rise.opaque.OpaqueOperators -[#blue]u--> edu.berkeley.cs.rise.opaque.logical.EncryptedUnion
 edu.berkeley.cs.rise.opaque.OpaqueOperators -[#blue]u--> edu.berkeley.cs.rise.opaque.execution.EncryptedUnionExec
-edu.berkeley.cs.rise.opaque.OpaqueOperators -u--> edu.berkeley.cs.rise.opaque.logical.Encrypt
+edu.berkeley.cs.rise.opaque.OpaqueOperators -[#blue]u--> edu.berkeley.cs.rise.opaque.logical.Encrypt
 edu.berkeley.cs.rise.opaque.OpaqueOperators -[#blue]u--> edu.berkeley.cs.rise.opaque.execution.EncryptExec
-edu.berkeley.cs.rise.opaque.OpaqueOperators -u--> edu.berkeley.cs.rise.opaque.logical.EncryptedLocalRelation
+edu.berkeley.cs.rise.opaque.OpaqueOperators -[#blue]u--> edu.berkeley.cs.rise.opaque.logical.EncryptedLocalRelation
 edu.berkeley.cs.rise.opaque.OpaqueOperators -[#blue]u--> edu.berkeley.cs.rise.opaque.execution.EncryptedLocalTableScanExec
-edu.berkeley.cs.rise.opaque.OpaqueOperators -u--> edu.berkeley.cs.rise.opaque.logical.EncryptedBlockRDD
+edu.berkeley.cs.rise.opaque.OpaqueOperators -[#blue]u--> edu.berkeley.cs.rise.opaque.logical.EncryptedBlockRDD
 edu.berkeley.cs.rise.opaque.OpaqueOperators -[#blue]u--> edu.berkeley.cs.rise.opaque.execution.EncryptedBlockRDDScanExec
 
 edu.xjtu.cs.cyx.qshield.QShieldOperators ---> edu.xjtu.cs.cyx.qshield.logical.ACPolicyAppliedEncryptedBlockRDD
-edu.xjtu.cs.cyx.qshield.QShieldOperators -[#blue]--> edu.xjtu.cs.cyx.qshield.execution.ACPolicyAppliedEncryptedBlockRDDExec
+edu.xjtu.cs.cyx.qshield.QShieldOperators ---> edu.xjtu.cs.cyx.qshield.execution.ACPolicyAppliedEncryptedBlockRDDExec
 edu.xjtu.cs.cyx.qshield.QShieldOperators ---> edu.xjtu.cs.cyx.qshield.logical.ResPreparedEncryptedBlockRDD
-edu.xjtu.cs.cyx.qshield.QShieldOperators -[#blue]--> edu.xjtu.cs.cyx.qshield.execution.ResPreparedEncryptedBlockRDDExec
+edu.xjtu.cs.cyx.qshield.QShieldOperators ---> edu.xjtu.cs.cyx.qshield.execution.ResPreparedEncryptedBlockRDDExec
 edu.xjtu.cs.cyx.qshield.QShieldOperators ---> edu.berkeley.cs.rise.opaque.logical.EncryptedProject
-edu.xjtu.cs.cyx.qshield.QShieldOperators -[#blue]--> edu.xjtu.cs.cyx.qshield.execution.QEncryptedProjectExec
+edu.xjtu.cs.cyx.qshield.QShieldOperators ---> edu.xjtu.cs.cyx.qshield.execution.QEncryptedProjectExec
 edu.xjtu.cs.cyx.qshield.QShieldOperators ---> edu.berkeley.cs.rise.opaque.logical.EncryptedFilter
-edu.xjtu.cs.cyx.qshield.QShieldOperators -[#blue]--> edu.xjtu.cs.cyx.qshield.execution.QEncryptedFilterExec
+edu.xjtu.cs.cyx.qshield.QShieldOperators ---> edu.xjtu.cs.cyx.qshield.execution.QEncryptedFilterExec
 edu.xjtu.cs.cyx.qshield.QShieldOperators ---> edu.berkeley.cs.rise.opaque.logical.EncryptedAggregate
-edu.xjtu.cs.cyx.qshield.QShieldOperators -[#blue]--> edu.xjtu.cs.cyx.qshield.execution.QEncryptedAggregateExec
+edu.xjtu.cs.cyx.qshield.QShieldOperators ---> edu.xjtu.cs.cyx.qshield.execution.QEncryptedAggregateExec
 edu.xjtu.cs.cyx.qshield.QShieldOperators ---> edu.berkeley.cs.rise.opaque.logical.EncryptedSort
-edu.xjtu.cs.cyx.qshield.QShieldOperators -[#blue]--> edu.xjtu.cs.cyx.qshield.execution.QEncryptedSortExec
+edu.xjtu.cs.cyx.qshield.QShieldOperators ---> edu.xjtu.cs.cyx.qshield.execution.QEncryptedSortExec
 edu.xjtu.cs.cyx.qshield.QShieldOperators ---> edu.berkeley.cs.rise.opaque.logical.EncryptedUnion
-edu.xjtu.cs.cyx.qshield.QShieldOperators -[#blue]--> edu.xjtu.cs.cyx.qshield.execution.QEncryptedUnionExec
+edu.xjtu.cs.cyx.qshield.QShieldOperators ---> edu.xjtu.cs.cyx.qshield.execution.QEncryptedUnionExec
 edu.xjtu.cs.cyx.qshield.QShieldOperators ---> edu.berkeley.cs.rise.opaque.logical.EncryptedJoin
-edu.xjtu.cs.cyx.qshield.QShieldOperators -[#blue]--> edu.xjtu.cs.cyx.qshield.execution.QEncryptedSortMergeJoinExec
+edu.xjtu.cs.cyx.qshield.QShieldOperators ---> edu.xjtu.cs.cyx.qshield.execution.QEncryptedSortMergeJoinExec
 edu.xjtu.cs.cyx.qshield.QShieldOperators ---> edu.berkeley.cs.rise.opaque.logical.EncryptedBlockRDD
-edu.xjtu.cs.cyx.qshield.QShieldOperators -[#blue]--> edu.xjtu.cs.cyx.qshield.execution.QEncryptedBlockRDDScanExecs
+edu.xjtu.cs.cyx.qshield.QShieldOperators ---> edu.xjtu.cs.cyx.qshield.execution.QEncryptedBlockRDDScanExecs
 @enduml
 
 @startuml
@@ -230,56 +251,73 @@ namespace edu.xjtu.cs.cyx.qshield{
   }
 }
 
-org.apache.spark.sql.execution.SparkPlan <|.[#green]u. edu.berkeley.cs.rise.opaque.execution.LeafExecNode
-org.apache.spark.sql.execution.SparkPlan <|.[#green]u. edu.berkeley.cs.rise.opaque.execution.UnaryExecNode
-org.apache.spark.sql.execution.SparkPlan <|.[#green]u. edu.berkeley.cs.rise.opaque.execution.BinaryExecNode
-org.apache.spark.sql.execution.SparkPlan <|.[#green]u. edu.berkeley.cs.rise.opaque.execution.OpaqueOperatorExec
+class edu.berkeley.cs.rise.opaque.execution.SGXEnclave #line:blue
+class edu.berkeley.cs.rise.opaque.execution.LeafExecNode #line:blue
+class edu.berkeley.cs.rise.opaque.execution.UnaryExecNode #line:blue
+class edu.berkeley.cs.rise.opaque.execution.BinaryExecNode #line:blue
+class edu.berkeley.cs.rise.opaque.execution.OpaqueOperatorExec #line:blue
+class edu.berkeley.cs.rise.opaque.execution.Block #line:blue
+class edu.berkeley.cs.rise.opaque.execution.EncryptedLocalTableScanExec #line:blue
+class edu.berkeley.cs.rise.opaque.execution.EncryptExec #line:blue
+class edu.berkeley.cs.rise.opaque.execution.EncryptedBlockRDDScanExec #line:blue
+class edu.berkeley.cs.rise.opaque.execution.EncryptedProjectExec #line:blue
+class edu.berkeley.cs.rise.opaque.execution.EncryptedFilterExec #line:blue
+class edu.berkeley.cs.rise.opaque.execution.EncryptedAggregateExec #line:blue
+class edu.berkeley.cs.rise.opaque.execution.EncryptedSortMergeJoinExec #line:blue
+class edu.berkeley.cs.rise.opaque.execution.EncryptedUnionExec #line:blue
+class edu.berkeley.cs.rise.opaque.execution.EncryptedSortExec #line:blue
+class org.apache.spark.sql.execution.SparkPlan #line:black
 
-edu.berkeley.cs.rise.opaque.execution.OpaqueOperatorExec .left.> edu.berkeley.cs.rise.opaque.execution.Block
+org.apache.spark.sql.execution.SparkPlan <|.[#black,thickness=2]u. edu.berkeley.cs.rise.opaque.execution.LeafExecNode
+org.apache.spark.sql.execution.SparkPlan <|.[#black,thickness=2]u. edu.berkeley.cs.rise.opaque.execution.UnaryExecNode
+org.apache.spark.sql.execution.SparkPlan <|.[#black,thickness=2]u. edu.berkeley.cs.rise.opaque.execution.BinaryExecNode
+org.apache.spark.sql.execution.SparkPlan <|.[#black,thickness=2]u. edu.berkeley.cs.rise.opaque.execution.OpaqueOperatorExec
 
-edu.berkeley.cs.rise.opaque.execution.EncryptedLocalTableScanExec ----|> edu.berkeley.cs.rise.opaque.execution.LeafExecNode
+edu.berkeley.cs.rise.opaque.execution.OpaqueOperatorExec .[#blue]l.> edu.berkeley.cs.rise.opaque.execution.Block
+
+edu.berkeley.cs.rise.opaque.execution.EncryptedLocalTableScanExec ---[#blue]-|> edu.berkeley.cs.rise.opaque.execution.LeafExecNode
 edu.berkeley.cs.rise.opaque.execution.EncryptedLocalTableScanExec ...[#blue].|> edu.berkeley.cs.rise.opaque.execution.OpaqueOperatorExec
-edu.berkeley.cs.rise.opaque.execution.EncryptExec ----|> edu.berkeley.cs.rise.opaque.execution.UnaryExecNode
+edu.berkeley.cs.rise.opaque.execution.EncryptExec ---[#blue]-|> edu.berkeley.cs.rise.opaque.execution.UnaryExecNode
 edu.berkeley.cs.rise.opaque.execution.EncryptExec ...[#blue].|> edu.berkeley.cs.rise.opaque.execution.OpaqueOperatorExec
-edu.berkeley.cs.rise.opaque.execution.EncryptedBlockRDDScanExec ----|> edu.berkeley.cs.rise.opaque.execution.LeafExecNode
+edu.berkeley.cs.rise.opaque.execution.EncryptedBlockRDDScanExec ---[#blue]-|> edu.berkeley.cs.rise.opaque.execution.LeafExecNode
 edu.berkeley.cs.rise.opaque.execution.EncryptedBlockRDDScanExec ...[#blue].|> edu.berkeley.cs.rise.opaque.execution.OpaqueOperatorExec
-edu.berkeley.cs.rise.opaque.execution.EncryptedProjectExec ----|> edu.berkeley.cs.rise.opaque.execution.UnaryExecNode
+edu.berkeley.cs.rise.opaque.execution.EncryptedProjectExec ---[#blue]-|> edu.berkeley.cs.rise.opaque.execution.UnaryExecNode
 edu.berkeley.cs.rise.opaque.execution.EncryptedProjectExec ...[#blue].|> edu.berkeley.cs.rise.opaque.execution.OpaqueOperatorExec
-edu.berkeley.cs.rise.opaque.execution.EncryptedFilterExec ----|> edu.berkeley.cs.rise.opaque.execution.UnaryExecNode
+edu.berkeley.cs.rise.opaque.execution.EncryptedFilterExec ---[#blue]-|> edu.berkeley.cs.rise.opaque.execution.UnaryExecNode
 edu.berkeley.cs.rise.opaque.execution.EncryptedFilterExec ...[#blue].|> edu.berkeley.cs.rise.opaque.execution.OpaqueOperatorExec
-edu.berkeley.cs.rise.opaque.execution.EncryptedAggregateExec ----|> edu.berkeley.cs.rise.opaque.execution.UnaryExecNode
+edu.berkeley.cs.rise.opaque.execution.EncryptedAggregateExec ---[#blue]-|> edu.berkeley.cs.rise.opaque.execution.UnaryExecNode
 edu.berkeley.cs.rise.opaque.execution.EncryptedAggregateExec ...[#blue].|> edu.berkeley.cs.rise.opaque.execution.OpaqueOperatorExec
-edu.berkeley.cs.rise.opaque.execution.EncryptedSortMergeJoinExec ----|> edu.berkeley.cs.rise.opaque.execution.UnaryExecNode
+edu.berkeley.cs.rise.opaque.execution.EncryptedSortMergeJoinExec ---[#blue]-|> edu.berkeley.cs.rise.opaque.execution.UnaryExecNode
 edu.berkeley.cs.rise.opaque.execution.EncryptedSortMergeJoinExec ...[#blue].|> edu.berkeley.cs.rise.opaque.execution.OpaqueOperatorExec
-edu.berkeley.cs.rise.opaque.execution.EncryptedUnionExec ----|> edu.berkeley.cs.rise.opaque.execution.BinaryExecNode
+edu.berkeley.cs.rise.opaque.execution.EncryptedUnionExec ---[#blue]-|> edu.berkeley.cs.rise.opaque.execution.BinaryExecNode
 edu.berkeley.cs.rise.opaque.execution.EncryptedUnionExec ...[#blue].|> edu.berkeley.cs.rise.opaque.execution.OpaqueOperatorExec
-edu.berkeley.cs.rise.opaque.execution.EncryptedSortExec ----|> edu.berkeley.cs.rise.opaque.execution.UnaryExecNode
+edu.berkeley.cs.rise.opaque.execution.EncryptedSortExec ---[#blue]-|> edu.berkeley.cs.rise.opaque.execution.UnaryExecNode
 edu.berkeley.cs.rise.opaque.execution.EncryptedSortExec ...[#blue].|> edu.berkeley.cs.rise.opaque.execution.OpaqueOperatorExec
 
-edu.berkeley.cs.rise.opaque.execution.EncryptedSortMergeJoinExec -up-> edu.berkeley.cs.rise.opaque.execution.SGXEnclave
-edu.berkeley.cs.rise.opaque.execution.EncryptedAggregateExec -up-> edu.berkeley.cs.rise.opaque.execution.SGXEnclave
-edu.berkeley.cs.rise.opaque.execution.EncryptedFilterExec -up-> edu.berkeley.cs.rise.opaque.execution.SGXEnclave
-edu.berkeley.cs.rise.opaque.execution.EncryptedProjectExec -up-> edu.berkeley.cs.rise.opaque.execution.SGXEnclave
-edu.berkeley.cs.rise.opaque.execution.EncryptedSortExec -up-> edu.berkeley.cs.rise.opaque.execution.SGXEnclave
+edu.berkeley.cs.rise.opaque.execution.EncryptedSortMergeJoinExec -[#blue]u-> edu.berkeley.cs.rise.opaque.execution.SGXEnclave
+edu.berkeley.cs.rise.opaque.execution.EncryptedAggregateExec -[#blue]u-> edu.berkeley.cs.rise.opaque.execution.SGXEnclave
+edu.berkeley.cs.rise.opaque.execution.EncryptedFilterExec -[#blue]u-> edu.berkeley.cs.rise.opaque.execution.SGXEnclave
+edu.berkeley.cs.rise.opaque.execution.EncryptedProjectExec -[#blue]u-> edu.berkeley.cs.rise.opaque.execution.SGXEnclave
+edu.berkeley.cs.rise.opaque.execution.EncryptedSortExec -[#blue]u-> edu.berkeley.cs.rise.opaque.execution.SGXEnclave
 
 edu.xjtu.cs.cyx.qshield.execution.ACPolicyAppliedEncryptedBlockRDDExec ---up-|> edu.berkeley.cs.rise.opaque.execution.LeafExecNode
 edu.xjtu.cs.cyx.qshield.execution.ACPolicyAppliedEncryptedBlockRDDExec ...up.|> edu.berkeley.cs.rise.opaque.execution.OpaqueOperatorExec
 edu.xjtu.cs.cyx.qshield.execution.ResPreparedEncryptedBlockRDDExec ---up-|> edu.berkeley.cs.rise.opaque.execution.UnaryExecNode
 edu.xjtu.cs.cyx.qshield.execution.ResPreparedEncryptedBlockRDDExec ...up.|> edu.berkeley.cs.rise.opaque.execution.OpaqueOperatorExec
 edu.xjtu.cs.cyx.qshield.execution.QEncryptedFilterExec ---up-|> edu.berkeley.cs.rise.opaque.execution.UnaryExecNode
-edu.xjtu.cs.cyx.qshield.execution.QEncryptedFilterExec ...[#blue]u.|> edu.berkeley.cs.rise.opaque.execution.OpaqueOperatorExec
+edu.xjtu.cs.cyx.qshield.execution.QEncryptedFilterExec ...u.|> edu.berkeley.cs.rise.opaque.execution.OpaqueOperatorExec
 edu.xjtu.cs.cyx.qshield.execution.QEncryptedProjectExec ---up-|> edu.berkeley.cs.rise.opaque.execution.UnaryExecNode
-edu.xjtu.cs.cyx.qshield.execution.QEncryptedProjectExec ...[#blue]u.|> edu.berkeley.cs.rise.opaque.execution.OpaqueOperatorExec
+edu.xjtu.cs.cyx.qshield.execution.QEncryptedProjectExec ...u.|> edu.berkeley.cs.rise.opaque.execution.OpaqueOperatorExec
 edu.xjtu.cs.cyx.qshield.execution.QEncryptedAggregateExec ---up-|> edu.berkeley.cs.rise.opaque.execution.UnaryExecNode
-edu.xjtu.cs.cyx.qshield.execution.QEncryptedAggregateExec ...[#blue]u.|> edu.berkeley.cs.rise.opaque.execution.OpaqueOperatorExec
+edu.xjtu.cs.cyx.qshield.execution.QEncryptedAggregateExec ...u.|> edu.berkeley.cs.rise.opaque.execution.OpaqueOperatorExec
 edu.xjtu.cs.cyx.qshield.execution.QEncryptedSortExec ---up-|> edu.berkeley.cs.rise.opaque.execution.UnaryExecNode
-edu.xjtu.cs.cyx.qshield.execution.QEncryptedSortExec ...[#blue]u.|> edu.berkeley.cs.rise.opaque.execution.OpaqueOperatorExec
+edu.xjtu.cs.cyx.qshield.execution.QEncryptedSortExec ...u.|> edu.berkeley.cs.rise.opaque.execution.OpaqueOperatorExec
 edu.xjtu.cs.cyx.qshield.execution.QEncryptedSortMergeJoinExec ---up-|> edu.berkeley.cs.rise.opaque.execution.UnaryExecNode
-edu.xjtu.cs.cyx.qshield.execution.QEncryptedSortMergeJoinExec ...[#blue]u.|> edu.berkeley.cs.rise.opaque.execution.OpaqueOperatorExec
+edu.xjtu.cs.cyx.qshield.execution.QEncryptedSortMergeJoinExec ...u.|> edu.berkeley.cs.rise.opaque.execution.OpaqueOperatorExec
 edu.xjtu.cs.cyx.qshield.execution.QEncryptedUnionExec ---up-|> edu.berkeley.cs.rise.opaque.execution.BinaryExecNode
-edu.xjtu.cs.cyx.qshield.execution.QEncryptedUnionExec ...[#blue]u.|> edu.berkeley.cs.rise.opaque.execution.OpaqueOperatorExec
+edu.xjtu.cs.cyx.qshield.execution.QEncryptedUnionExec ...u.|> edu.berkeley.cs.rise.opaque.execution.OpaqueOperatorExec
 edu.xjtu.cs.cyx.qshield.execution.QEncryptedBlockRDDScanExec ---up-|> edu.berkeley.cs.rise.opaque.execution.LeafExecNode
-edu.xjtu.cs.cyx.qshield.execution.QEncryptedBlockRDDScanExec ...[#blue]u.|> edu.berkeley.cs.rise.opaque.execution.OpaqueOperatorExec
+edu.xjtu.cs.cyx.qshield.execution.QEncryptedBlockRDDScanExec ...u.|> edu.berkeley.cs.rise.opaque.execution.OpaqueOperatorExec
 
 edu.xjtu.cs.cyx.qshield.execution.ACPolicyAppliedEncryptedBlockRDDExec --> edu.xjtu.cs.cyx.qshield.execution.QShieldSGXEnclave
 edu.xjtu.cs.cyx.qshield.execution.ResPreparedEncryptedBlockRDDExec --> edu.xjtu.cs.cyx.qshield.execution.QShieldSGXEnclave
@@ -288,4 +326,6 @@ edu.xjtu.cs.cyx.qshield.execution.QEncryptedProjectExec --> edu.xjtu.cs.cyx.qshi
 edu.xjtu.cs.cyx.qshield.execution.QEncryptedAggregateExec --> edu.xjtu.cs.cyx.qshield.execution.QShieldSGXEnclave
 edu.xjtu.cs.cyx.qshield.execution.QEncryptedSortExec --> edu.xjtu.cs.cyx.qshield.execution.QShieldSGXEnclave
 edu.xjtu.cs.cyx.qshield.execution.QEncryptedSortMergeJoinExec --> edu.xjtu.cs.cyx.qshield.execution.QShieldSGXEnclave
+
+edu.berkeley.cs.rise.opaque.execution.SGXEnclave <|-[thickness=2]- edu.xjtu.cs.cyx.qshield.execution.QShieldSGXEnclave
 @enduml

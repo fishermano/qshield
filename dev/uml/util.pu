@@ -1,0 +1,147 @@
+@startuml
+left to right direction
+namespace edu.berkeley.cs.rise.opaque{
+  class Utils << (O,orchid) Object>> {
+    -perf : Boolean <i><color:grey>default=System.getenv."SGX_PERF"</color></i>
+    +eid: Long <i><color:grey>default=0</color></i>
+    +GCM_IV_LENGTH: Int <i><color:grey>default=12</color></i>
+    +GCM_KEY_LENGTH: Int <i><color:grey>default=16</color></i>
+    +GCM_TAG_LENGTH: Int <i><color:grey>default=16</color></i>
+    +sharedKey: Array[Byte] <i><color:grey>default="Opaque devel key".getBytes</color></i>
+    +attested: Boolean <i><color:grey>default=false</color></i>
+    +attesting_getepid: Boolean <i><color:grey>default=false</color></i>
+    +attesting_getmsg1: Boolean <i><color:grey>default=false</color></i>
+    +attesting_getmsg3: Boolean <i><color:grey>default=false</color></i>
+    +attesting_final_ra: Boolean <i><color:grey>default=false</color></i>
+    +MaxBlockSize: Int <i><color:grey>default=1000</color></i>
+    +emptyBlock: Block
+    -jsonSerialize(x: Any): String
+    +time[A](desc: String)(f: => A): A
+    +logPerf(message: String): Unit
+    +retry[T](n: Int)(fn: => T): T
+    +timeBenchmark[A](benchmarkAttrs: (String, Any)*)(f: => A): A
+    +findLibraryAsResource(libraryName: String): String
+    +findResource(resourceName: String): String
+    +createTempDir(): File
+    +deleteRecursively(file: File): Unit
+    +initEnclave(): (SGXEnclave, Long)
+    +encrypt(data: Array[Byte]): Array[Byte]
+    +decrypt(data: Array[Byte]): Array[Byte]
+    +initSQLContext(sqlContext: SQLContext): Unit
+    +concatByteArrays(arrays: Array[Array[Byte]]): Array[Byte]
+    +splitBytes(bytes: Array[Byte], numSplits: Int): Array[Array[Byte]]
+    +ensureCached[T](rdd: RDD[T], storageLevel: StorageLevel): RDD[T]
+    +ensureCached[T](rdd: RDD[T]): RDD[T]
+    +ensureCached[T](ds: Dataset[T], storageLevel: StorageLevel): Dataset[T]
+    +ensureCached[T](ds: Dataset[T]): Dataset[T]
+    +force(ds: Dataset[_]): Unit
+    +flatbuffersCreateField(builder: FlatBufferBuilder, value: Any, dataType: DataType, isNull: Boolean): Int
+    +flatbuffersExtractFieldValue(f: tuix.Field): Any
+    +encryptInternalRowsFlatbuffers(rows: Seq[InternalRow], types: Seq[DataType], useEnclave: Boolean): Block
+    +decryptBlockFlatbuffers(block: Block): Seq[InternalRow]
+    +treeFold[BaseType <: TreeNode[BaseType], B](tree: BaseType)(op: (Seq[B], BaseType) => B): B
+    +flatbuffersSerializeExpression(builder: FlatBufferBuilder, expr: Expression, input: Seq[Attribute]): Int
+    +serializeFilterExpression(condition: Expression, input: Seq[Attribute]): Array[Byte]
+    +serializeProjectList(projectList: Seq[NamedExpression], input: Seq[Attribute]): Array[Byte]
+    +serializeSortOrder(sortOrder: Seq[SortOrder], input: Seq[Attribute]): Array[Byte]
+    +serializeJoinExpression(joinType: JoinType, leftKeys: Seq[Expression], rightKeys: Seq[Expression], leftSchema: Seq[Attribute], rightSchema: Seq[Attribute]): Array[Byte]
+    +serializeAggOp(groupingExpressions: Seq[Expression], aggExpressions: Seq[NamedExpression], input: Seq[Attribute]): Array[Byte]
+    +serializeAggExpression(builder: FlatBufferBuilder, e: AggregateExpression, input: Seq[Attribute], aggSchema: Seq[Attribute], concatSchema: Seq[Attribute]): Int
+    +concatEncryptedBlocks(blocks: Seq[Block]): Block
+  }
+
+  namespace expressions{
+    class ClosestPoint{
+      +dataType: DataType
+      +inputTypes: Seq[]
+      ClosestPoint(left: Expression, right: Expression)
+      #nullSafeEval(input1: Any, input2: Any): ArrayData
+    }
+    class DotProduct{
+      +dataType: DataType
+      +inputTypes: Array[]
+      +symbol: String
+      +sqlOperator: String
+      DotProduct(left: Expression, right: Expression)
+      #nullSafeEval(input1: Any, input2: Any): Double
+    }
+    class VectorAdd{
+      +dataType: DataType
+      +inputTypes: Array[]
+      +symbol: String
+      +sqlOperator: String
+      VectorAdd(left: Expression, right: Expression)
+      #nullSafeEval(input1: Any, input2: Any): ArrayData
+    }
+    class VectorMultiply{
+      +dataType: DataType
+      +inputTypes: Seq[]
+      VectorMultiply(left: Expression, right: Expression)
+      #nullSafeEval(input1: Any, input2: Any): ArrayData
+    }
+    class VectorSum{
+      +inputSchema: StructType
+      +bufferSchema: StructType
+      +dataType: DataType
+      +deterministic: Boolean
+      -addArray(agg: Array[Double], arr: Array[Double]): Unit
+      -ensureArraySize(agg: Array[Double], size: Int): Array[Double]
+      +initialize(buffer: MutableAggregationBuffer): Unit
+      +update(buffer: MutableAggregationBuffer, input: Row): Unit
+      +merge(buffer1: MutableAggregationBuffer, buffer2: Row): Unit
+      +evaluate(buffer: Row): Array[Double]
+    }
+  }
+
+  class RA << (O,orchid) Object >> {
+    +initRA(sc: SparkContext): Unit
+  }
+
+  class EncryptedSource{
+    +createRelation(sqlContext: SQLContext, parameters: Map[String, String]): BaseRelation
+    +createRelation(sqlContext: SQLContext, parameters: Map[String, String], schema: StructType): BaseRelation
+    +createRelation(sqlContext: SQLContext, mode: SaveMode, parameters: Map[String, String], data: DataFrame): BaseRelation
+  }
+  class EncryptedScan{
+    +sqlContext: SQLContext
+    +needConversion: Boolean
+    EncryptedScan(path: String, val schema: StructType)(sparkSession: SparkSession)
+    buildBlockedScan(): RDD[Block]
+  }
+}
+
+namespace edu.xjtu.cs.cyx.qshield{
+  class QShieldUtils << (O,orchid) Object >> {
+    +qshieldHome: String
+    +eid: Long
+    +emptyBlock: Block
+    +initQShieldSQLContext(sqlContext: SQLContext): Unit
+    +concatQEncryptedBlocks(blocks: Seq[Block]): Block
+  }
+  class QOwnerStuber << (O,orchid) Object >> {
+    +qsp: QSP
+    +initRA(sqlContext: SQLContext): Unit
+    +dataOut(sqlContext: SQLContext, srcFilePath: String, tableName: String, schema: StructType, numPartitions: Int): Unit
+    +getSk(): Array[Byte]
+  }
+}
+
+edu.berkeley.cs.rise.opaque.Utils -r-> edu.berkeley.cs.rise.opaque.RA
+edu.berkeley.cs.rise.opaque.Utils --> edu.berkeley.cs.rise.opaque.execution.SGXEnclave
+edu.berkeley.cs.rise.opaque.Utils --> edu.berkeley.cs.rise.opaque.expressions.ClosestPoint
+edu.berkeley.cs.rise.opaque.Utils --> edu.berkeley.cs.rise.opaque.expressions.DotProduct
+edu.berkeley.cs.rise.opaque.Utils --> edu.berkeley.cs.rise.opaque.expressions.VectorAdd
+edu.berkeley.cs.rise.opaque.Utils --> edu.berkeley.cs.rise.opaque.expressions.VectorMultiply
+edu.berkeley.cs.rise.opaque.Utils --> edu.berkeley.cs.rise.opaque.expressions.VectorSum
+edu.berkeley.cs.rise.opaque.Utils --> edu.berkeley.cs.rise.opaque.logical.ConvertToOpaqueOperators
+edu.berkeley.cs.rise.opaque.Utils --> edu.berkeley.cs.rise.opaque.logical.EncryptLocalRelation
+edu.berkeley.cs.rise.opaque.EncryptedSource --> edu.berkeley.cs.rise.opaque.EncryptedScan
+edu.xjtu.cs.cyx.qshield.benchmark.QBigDataBenchmark --> edu.berkeley.cs.rise.opaque.EncryptedSource
+
+edu.xjtu.cs.cyx.qshield.QShieldUtils -u-> edu.xjtu.cs.cyx.qshield.QOwnerStuber
+edu.xjtu.cs.cyx.qshield.QShieldUtils --> edu.xjtu.cs.cyx.qshield.execution.QShieldSGXEnclave
+edu.xjtu.cs.cyx.qshield.QShieldUtils --> edu.xjtu.cs.cyx.qshield.logical.ACPolicyApplyEncryptedBlockRDD
+edu.xjtu.cs.cyx.qshield.QShieldUtils --> edu.xjtu.cs.cyx.qshield.logical.ConvertToQShieldOperators
+edu.xjtu.cs.cyx.qshield.QShieldUtils --> edu.berkeley.cs.rise.opaque.logical.ConvertToOpaqueOperators
+edu.xjtu.cs.cyx.qshield.QShieldUtils --> edu.berkeley.cs.rise.opaque.Utils
+@enduml
