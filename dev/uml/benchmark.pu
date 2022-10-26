@@ -1,6 +1,22 @@
 @startuml
 left to right direction
+
+namespace org.apache.spark.sql{
+  class OpaqueDatasetFunctions <<Serializable>> {
+    OpaqueDatasetFunctions[T](ds: Dataset[T])
+    +encrypted(): DataFrame
+  }
+  class QShieldDatasetFunctions <<Serializable>> {
+    QShieldDatasetFunctions[T](ds: Dataset[T])
+    +acPolicyApplied(tk: Array[Byte]): DataFrame
+    +resPrepared() : DataFrame
+  }
+}
+
 namespace edu.berkeley.cs.rise.opaque{
+  class implicits << (O,orchid) Object >> {
+    +datasetToOpaqueDatasetFunctions[T](ds: Dataset[T]): OpaqueDatasetFunctions
+  }
   namespace benchmark{
     class Benchmark << (O,orchid) Object >> {
       + dataDir : String
@@ -54,6 +70,9 @@ namespace edu.berkeley.cs.rise.opaque{
 }
 
 namespace edu.xjtu.cs.cyx.qshield{
+  class implicits << (O,orchid) Object >> {
+    +datasetToQShieldDatasetFunctions[T](ds: Dataset[T]): QShieldDatasetFunctions[T]
+  }
   namespace benchmark{
     class QBigDataBenchmark << (O,orchid) Object >> {
       +rankings(spark: SparkSession, qsecurityLevel: QSecurityLevel, size: String, numPartitions: Int): DataFrame
@@ -91,4 +110,9 @@ edu.berkeley.cs.rise.opaque.benchmark.Insecure --up-|> edu.berkeley.cs.rise.opaq
 
 edu.xjtu.cs.cyx.qshield.benchmark.QEncrypted -right-|> edu.xjtu.cs.cyx.qshield.benchmark.QSecurityLevel
 edu.xjtu.cs.cyx.qshield.benchmark.QBigDataBenchmark .down.> edu.xjtu.cs.cyx.qshield.benchmark.QSecurityLevel
+
+edu.berkeley.cs.rise.opaque.benchmark.Encrypted --> edu.berkeley.cs.rise.opaque.implicits
+edu.berkeley.cs.rise.opaque.implicits .u.> org.apache.spark.sql.OpaqueDatasetFunctions
+edu.xjtu.cs.cyx.qshield.benchmark.QEncrypted --> edu.xjtu.cs.cyx.qshield.implicits
+edu.xjtu.cs.cyx.qshield.implicits .d.> org.apache.spark.sql.QShieldDatasetFunctions
 @enduml

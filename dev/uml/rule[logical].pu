@@ -1,0 +1,197 @@
+@startuml
+left to right direction
+namespace org.apache.spark.sql.catalyst.rules{
+  abstract class Rule
+}
+
+namespace org.apache.spark.sql{
+  class OpaqueDatasetFunctions <<Serializable>> {
+    OpaqueDatasetFunctions[T](ds: Dataset[T])
+    +encrypted(): DataFrame
+  }
+  class QShieldDatasetFunctions <<Serializable>> {
+    QShieldDatasetFunctions[T](ds: Dataset[T])
+    +acPolicyApplied(tk: Array[Byte]): DataFrame
+    +resPrepared() : DataFrame
+  }
+  class InMemoryRelationMatcher << (O,orchid) Object >> {
+    +unapply(plan: LogicalPlan): Option[(Seq[Attribute], StorageLevel, SparkPlan)]
+  }
+}
+
+namespace edu.berkeley.cs.rise.opaque{
+  class implicits << (O,orchid) Object >> {
+    +datasetToOpaqueDatasetFunctions[T](ds: Dataset[T]): OpaqueDatasetFunctions
+  }
+  namespace logical{
+    note as N1
+      Associate with rules.scala
+    end note
+
+    class EncryptLocalRelation << (O,orchid) Object >> {
+      +apply(plan: LogicalPlan): LogicalPlan
+    }
+    class ConvertToOpaqueOperators << (O,orchid) Object >> {
+      +isEncrypted(plan: LogicalPlan): Boolean
+      +isEncrypted(plan: SparkPlan): Boolean
+      +apply(plan: LogicalPlan): LogicalPlan
+    }
+  }
+}
+
+namespace edu.xjtu.cs.cyx.qshield{
+  class implicits << (O,orchid) Object >> {
+    +datasetToQShieldDatasetFunctions[T](ds: Dataset[T]): QShieldDatasetFunctions[T]
+  }
+  namespace logical{
+    note as N1
+      Associate with rules.scala
+    end note
+
+    class ACPolicyApplyEncryptedBlockRDD << (O,orchid) Object >> {
+      +apply(plan: LogicalPlan): LogicalPlan
+    }
+    class ConvertToQShieldOperators << (O,orchid) Object >> {
+      +isEncrypted(plan: LogicalPlan)
+      +apply(plan: LogicalPlan): LogicalPlan
+    }
+  }
+}
+
+org.apache.spark.sql.catalyst.rules.Rule <|-- edu.xjtu.cs.cyx.qshield.logical.ACPolicyApplyEncryptedBlockRDD
+org.apache.spark.sql.catalyst.rules.Rule <|-- edu.xjtu.cs.cyx.qshield.logical.ConvertToQShieldOperators
+org.apache.spark.sql.catalyst.rules.Rule <|-u- edu.berkeley.cs.rise.opaque.logical.EncryptLocalRelation
+org.apache.spark.sql.catalyst.rules.Rule <|-u- edu.berkeley.cs.rise.opaque.logical.ConvertToOpaqueOperators
+
+edu.berkeley.cs.rise.opaque.logical.EncryptLocalRelation -u-> edu.berkeley.cs.rise.opaque.logical.EncryptedLocalRelation
+edu.berkeley.cs.rise.opaque.logical.EncryptLocalRelation -u-> edu.berkeley.cs.rise.opaque.logical.Encrypt
+edu.berkeley.cs.rise.opaque.logical.Encrypt .[#grey]l.> edu.berkeley.cs.rise.opaque.logical.EncryptedLocalRelation
+edu.berkeley.cs.rise.opaque.logical.ConvertToOpaqueOperators -u-> edu.berkeley.cs.rise.opaque.logical.EncryptedBlockRDD
+org.apache.spark.sql.catalyst.plans.logical.LogicalRelation .[#grey].> edu.berkeley.cs.rise.opaque.logical.EncryptedBlockRDD
+edu.berkeley.cs.rise.opaque.logical.ConvertToOpaqueOperators -u-> edu.berkeley.cs.rise.opaque.logical.EncryptedProject
+org.apache.spark.sql.catalyst.plans.logical.Project .[#grey].> edu.berkeley.cs.rise.opaque.logical.EncryptedProject
+edu.berkeley.cs.rise.opaque.logical.ConvertToOpaqueOperators -u-> edu.berkeley.cs.rise.opaque.logical.EncryptedFilter
+org.apache.spark.sql.catalyst.plans.logical.Filter .[#grey].> edu.berkeley.cs.rise.opaque.logical.EncryptedFilter
+edu.berkeley.cs.rise.opaque.logical.ConvertToOpaqueOperators -u-> edu.berkeley.cs.rise.opaque.logical.EncryptedSort
+org.apache.spark.sql.catalyst.plans.logical.Sort .[#grey].> edu.berkeley.cs.rise.opaque.logical.EncryptedSort
+edu.berkeley.cs.rise.opaque.logical.ConvertToOpaqueOperators -u-> edu.berkeley.cs.rise.opaque.logical.EncryptedJoin
+org.apache.spark.sql.catalyst.plans.logical.Join .[#grey].> edu.berkeley.cs.rise.opaque.logical.EncryptedJoin
+edu.berkeley.cs.rise.opaque.logical.ConvertToOpaqueOperators -u-> edu.berkeley.cs.rise.opaque.logical.EncryptedAggregate
+org.apache.spark.sql.catalyst.plans.logical.Aggregate .[#grey].> edu.berkeley.cs.rise.opaque.logical.EncryptedAggregate
+edu.berkeley.cs.rise.opaque.logical.ConvertToOpaqueOperators -u-> edu.berkeley.cs.rise.opaque.logical.EncryptedUnion
+org.apache.spark.sql.catalyst.plans.logical.Union .[#grey].> edu.berkeley.cs.rise.opaque.logical.EncryptedUnion
+org.apache.spark.sql.InMemoryRelationMatcher .[#grey].> edu.berkeley.cs.rise.opaque.logical.EncryptedBlockRDD
+
+edu.xjtu.cs.cyx.qshield.logical.ACPolicyApplyEncryptedBlockRDD ---d-> edu.xjtu.cs.cyx.qshield.logical.ACPolicyApply
+edu.xjtu.cs.cyx.qshield.logical.ACPolicyApplyEncryptedBlockRDD ---d-> edu.xjtu.cs.cyx.qshield.logical.ACPolicyAppliedEncryptedBlockRDD
+edu.xjtu.cs.cyx.qshield.logical.ACPolicyApply .[#grey]r.> edu.xjtu.cs.cyx.qshield.logical.ACPolicyAppliedEncryptedBlockRDD
+edu.xjtu.cs.cyx.qshield.logical.ConvertToQShieldOperators -d-> edu.xjtu.cs.cyx.qshield.logical.ResPrepared
+edu.xjtu.cs.cyx.qshield.logical.ConvertToQShieldOperators -d-> edu.xjtu.cs.cyx.qshield.logical.ResPreparedEncryptedBlockRDD
+edu.xjtu.cs.cyx.qshield.logical.ResPrepared .[#grey]r.> edu.xjtu.cs.cyx.qshield.logical.ResPreparedEncryptedBlockRDD
+
+edu.berkeley.cs.rise.opaque.implicits ...> org.apache.spark.sql.OpaqueDatasetFunctions
+org.apache.spark.sql.OpaqueDatasetFunctions ---> edu.berkeley.cs.rise.opaque.logical.Encrypt
+
+edu.xjtu.cs.cyx.qshield.implicits ...> org.apache.spark.sql.QShieldDatasetFunctions
+org.apache.spark.sql.QShieldDatasetFunctions ---> edu.xjtu.cs.cyx.qshield.logical.ACPolicyApply
+org.apache.spark.sql.QShieldDatasetFunctions ---> edu.xjtu.cs.cyx.qshield.logical.ResPrepared
+@enduml
+
+@startuml
+left to right direction
+namespace edu.berkeley.cs.rise.opaque{
+  namespace logical{
+
+    note as N1
+      Associate with operators.scala
+    end note
+
+    interface OpaqueOperator <<trait>> {
+      +references: AttributeSet
+    }
+
+    class Encrypt{
+      +output: Seq[Attribute]
+      Encrypt(child: LogicalPlan)
+    }
+    class EncryptedLocalRelation{
+      #stringArgs: Iterator
+      EncryptedLocalRelation(output: Seq[Attribute], plaintextData: Seq[InternalRow])
+      +newInstance(): EncryptedLocalRelation
+    }
+    class EncryptedBlockRDD{
+      +children: Seq[LogicalPlan]
+      +producedAttributes: AttributeSet
+      EncryptedBlockRDD(output: Seq[Attribute], rdd: RDD[Block])
+      +newInstance(): EncryptedBlockRDD
+    }
+    class EncryptedProject{
+      +output: Seq[Attribute]
+      EncryptedProject(projectList: Seq[NamedExpression], child: OpaqueOperator)
+    }
+    class EncryptedFilter{
+      +output: Seq[Attribute]
+      EncryptedFilter(condition: Expression, child: OpaqueOperator)
+    }
+    class EncryptedSort{
+      +output: Seq[Attribute]
+      EncryptedSort(order: Seq[SortOrder], child: OpaqueOperator)
+    }
+    class EncryptedAggregate{
+      +producedAttributes: AttributeSet
+      +output: Seq[Attribute]
+      EncryptedAggregate(groupingExpressions: Seq[Expression], aggExpressions: Seq[NamedExpression], child: OpaqueOperator)
+    }
+    class EncryptedJoin{
+      +output: Seq[Attribute]
+      EncryptedJoin(left: OpaqueOperator, right: OpaqueOperator, joinType: JoinType, condition: Option[Expression])
+    }
+    class EncryptedUnion{
+      +output: Seq[Attribute]
+      EncryptedUnion(left: OpaqueOperator, right: OpaqueOperator)
+    }
+  }
+}
+
+namespace edu.xjtu.cs.cyx.qshield{
+  namespace logical{
+
+    note as N1
+      Associate with operators.scala
+    end note
+
+    class ACPolicyApply{
+      ACPolicyApply(child: LogicalPlan, tk: Array[Byte])
+      +output: Seq[Attribute]
+    }
+    class ACPolicyAppliedEncryptedBlockRDD{
+      ACPolicyAppliedEncryptedBlockRDD(output: Seq[Attribute], rdd: RDD[Block], tk: Array[Byte])
+      +newInstance(): ACPolicyAppliedEncryptedBlockRDD
+      #stringArgs: Iterator
+    }
+    class ResPrepared{
+      ResPrepared(child: LogicalPlan)
+      +output: Seq[Attribute]
+    }
+    class ResPreparedEncryptedBlockRDD{
+      ResPreparedEncryptedBlockRDD(child: LogicalPlan)
+      +output: Seq[Attribute]
+    }
+  }
+}
+
+edu.berkeley.cs.rise.opaque.logical.Encrypt ..|> edu.berkeley.cs.rise.opaque.logical.OpaqueOperator
+edu.berkeley.cs.rise.opaque.logical.EncryptedLocalRelation ..|> edu.berkeley.cs.rise.opaque.logical.OpaqueOperator
+edu.berkeley.cs.rise.opaque.logical.EncryptedBlockRDD ..|> edu.berkeley.cs.rise.opaque.logical.OpaqueOperator
+edu.berkeley.cs.rise.opaque.logical.EncryptedProject ..|> edu.berkeley.cs.rise.opaque.logical.OpaqueOperator
+edu.berkeley.cs.rise.opaque.logical.EncryptedFilter ..|> edu.berkeley.cs.rise.opaque.logical.OpaqueOperator
+edu.berkeley.cs.rise.opaque.logical.EncryptedSort ..|> edu.berkeley.cs.rise.opaque.logical.OpaqueOperator
+edu.berkeley.cs.rise.opaque.logical.EncryptedAggregate ..|> edu.berkeley.cs.rise.opaque.logical.OpaqueOperator
+edu.berkeley.cs.rise.opaque.logical.EncryptedJoin ..|> edu.berkeley.cs.rise.opaque.logical.OpaqueOperator
+edu.berkeley.cs.rise.opaque.logical.EncryptedUnion ..|> edu.berkeley.cs.rise.opaque.logical.OpaqueOperator
+
+edu.xjtu.cs.cyx.qshield.logical.ACPolicyApply .up.|> edu.berkeley.cs.rise.opaque.logical.OpaqueOperator
+edu.xjtu.cs.cyx.qshield.logical.ACPolicyAppliedEncryptedBlockRDD .up.|> edu.berkeley.cs.rise.opaque.logical.OpaqueOperator
+edu.xjtu.cs.cyx.qshield.logical.ResPrepared .up.|> edu.berkeley.cs.rise.opaque.logical.OpaqueOperator
+edu.xjtu.cs.cyx.qshield.logical.ResPreparedEncryptedBlockRDD .up.|> edu.berkeley.cs.rise.opaque.logical.OpaqueOperator
+@enduml

@@ -1,4 +1,74 @@
 @startuml
+left to right direction
+namespace org.apache.spark.sql{
+  abstract class Strategy
+}
+namespace edu.berkeley.cs.rise.opaque{
+  note as N1
+    Associated with strategies.scala
+  end note
+  class OpaqueOperators << (O,orchid) Object >> {
+    -tagForJoin(keys: Seq[Expression], input: Seq[Attribute], isLeft: Boolean): (Seq[NamedExpression], Seq[NamedExpression], NamedExpression)
+    -sortForJoin(leftKeys: Seq[Expression], tag: Expression, input: Seq[Attribute]): Seq[SortOrder]
+    -dropTags(leftOutput: Seq[Attribute], rightOutput: Seq[Attribute]): Seq[NamedExpression]
+    +apply(plan: LogicalPlan): Seq[SparkPlan]
+  }
+}
+namespace edu.xjtu.cs.cyx.qshield{
+  note as N1
+    Associated with strategies.scala
+  end note
+  class QShieldOperators {
+    +apply(plan: LogicalPlan): Seq[SparkPlan]
+    +tagForJoin(keys: Seq[Expression], input: Seq[Attribute], isLeft: Boolean): (Seq[NamedExpression], Seq[NamedExpression], NamedExpression)
+    +sortForJoin(leftKeys: Seq[Expression], tag: Expression, input: Seq[Attribute]): Seq[SortOrder]
+    +dropTags(leftOutput: Seq[Attribute], rightOutput: Seq[Attribute]): Seq[NamedExpression]
+  }
+}
+
+org.apache.spark.sql.Strategy <|--u- edu.berkeley.cs.rise.opaque.OpaqueOperators
+org.apache.spark.sql.Strategy <|--- edu.xjtu.cs.cyx.qshield.QShieldOperators
+
+edu.berkeley.cs.rise.opaque.OpaqueOperators -u--> edu.berkeley.cs.rise.opaque.logical.EncryptedProject
+edu.berkeley.cs.rise.opaque.OpaqueOperators -[#blue]u--> edu.berkeley.cs.rise.opaque.execution.EncryptedProjectExec
+edu.berkeley.cs.rise.opaque.OpaqueOperators -u--> edu.berkeley.cs.rise.opaque.logical.EncryptedFilter
+edu.berkeley.cs.rise.opaque.OpaqueOperators -[#blue]u--> edu.berkeley.cs.rise.opaque.execution.EncryptedFilterExec
+edu.berkeley.cs.rise.opaque.OpaqueOperators -u--> edu.berkeley.cs.rise.opaque.logical.EncryptedSort
+edu.berkeley.cs.rise.opaque.OpaqueOperators -[#blue]u--> edu.berkeley.cs.rise.opaque.execution.EncryptedSortExec
+edu.berkeley.cs.rise.opaque.OpaqueOperators -u--> edu.berkeley.cs.rise.opaque.logical.EncryptedJoin
+edu.berkeley.cs.rise.opaque.OpaqueOperators -[#blue]u--> edu.berkeley.cs.rise.opaque.execution.EncryptedSortMergeJoinExec
+edu.berkeley.cs.rise.opaque.OpaqueOperators -u--> edu.berkeley.cs.rise.opaque.logical.EncryptedAggregate
+edu.berkeley.cs.rise.opaque.OpaqueOperators -[#blue]u--> edu.berkeley.cs.rise.opaque.execution.EncryptedAggregateExec
+edu.berkeley.cs.rise.opaque.OpaqueOperators -u--> edu.berkeley.cs.rise.opaque.logical.EncryptedUnion
+edu.berkeley.cs.rise.opaque.OpaqueOperators -[#blue]u--> edu.berkeley.cs.rise.opaque.execution.EncryptedUnionExec
+edu.berkeley.cs.rise.opaque.OpaqueOperators -u--> edu.berkeley.cs.rise.opaque.logical.Encrypt
+edu.berkeley.cs.rise.opaque.OpaqueOperators -[#blue]u--> edu.berkeley.cs.rise.opaque.execution.EncryptExec
+edu.berkeley.cs.rise.opaque.OpaqueOperators -u--> edu.berkeley.cs.rise.opaque.logical.EncryptedLocalRelation
+edu.berkeley.cs.rise.opaque.OpaqueOperators -[#blue]u--> edu.berkeley.cs.rise.opaque.execution.EncryptedLocalTableScanExec
+edu.berkeley.cs.rise.opaque.OpaqueOperators -u--> edu.berkeley.cs.rise.opaque.logical.EncryptedBlockRDD
+edu.berkeley.cs.rise.opaque.OpaqueOperators -[#blue]u--> edu.berkeley.cs.rise.opaque.execution.EncryptedBlockRDDScanExec
+
+edu.xjtu.cs.cyx.qshield.QShieldOperators ---> edu.xjtu.cs.cyx.qshield.logical.ACPolicyAppliedEncryptedBlockRDD
+edu.xjtu.cs.cyx.qshield.QShieldOperators -[#blue]--> edu.xjtu.cs.cyx.qshield.execution.ACPolicyAppliedEncryptedBlockRDDExec
+edu.xjtu.cs.cyx.qshield.QShieldOperators ---> edu.xjtu.cs.cyx.qshield.logical.ResPreparedEncryptedBlockRDD
+edu.xjtu.cs.cyx.qshield.QShieldOperators -[#blue]--> edu.xjtu.cs.cyx.qshield.execution.ResPreparedEncryptedBlockRDDExec
+edu.xjtu.cs.cyx.qshield.QShieldOperators ---> edu.berkeley.cs.rise.opaque.logical.EncryptedProject
+edu.xjtu.cs.cyx.qshield.QShieldOperators -[#blue]--> edu.xjtu.cs.cyx.qshield.execution.QEncryptedProjectExec
+edu.xjtu.cs.cyx.qshield.QShieldOperators ---> edu.berkeley.cs.rise.opaque.logical.EncryptedFilter
+edu.xjtu.cs.cyx.qshield.QShieldOperators -[#blue]--> edu.xjtu.cs.cyx.qshield.execution.QEncryptedFilterExec
+edu.xjtu.cs.cyx.qshield.QShieldOperators ---> edu.berkeley.cs.rise.opaque.logical.EncryptedAggregate
+edu.xjtu.cs.cyx.qshield.QShieldOperators -[#blue]--> edu.xjtu.cs.cyx.qshield.execution.QEncryptedAggregateExec
+edu.xjtu.cs.cyx.qshield.QShieldOperators ---> edu.berkeley.cs.rise.opaque.logical.EncryptedSort
+edu.xjtu.cs.cyx.qshield.QShieldOperators -[#blue]--> edu.xjtu.cs.cyx.qshield.execution.QEncryptedSortExec
+edu.xjtu.cs.cyx.qshield.QShieldOperators ---> edu.berkeley.cs.rise.opaque.logical.EncryptedUnion
+edu.xjtu.cs.cyx.qshield.QShieldOperators -[#blue]--> edu.xjtu.cs.cyx.qshield.execution.QEncryptedUnionExec
+edu.xjtu.cs.cyx.qshield.QShieldOperators ---> edu.berkeley.cs.rise.opaque.logical.EncryptedJoin
+edu.xjtu.cs.cyx.qshield.QShieldOperators -[#blue]--> edu.xjtu.cs.cyx.qshield.execution.QEncryptedSortMergeJoinExec
+edu.xjtu.cs.cyx.qshield.QShieldOperators ---> edu.berkeley.cs.rise.opaque.logical.EncryptedBlockRDD
+edu.xjtu.cs.cyx.qshield.QShieldOperators -[#blue]--> edu.xjtu.cs.cyx.qshield.execution.QEncryptedBlockRDDScanExecs
+@enduml
+
+@startuml
 
 namespace org.apache.spark.sql.execution{
   abstract class SparkPlan
